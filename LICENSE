@@ -1,0 +1,40 @@
+KanTrack Source-Available License
+
+Copyright (c) 2026 BTi — BosslessTechIndustries
+
+Purpose
+
+This repository is publicly available for transparency, security auditing, and collaborative development of the official KanTrack project.
+
+Permissions
+
+You may:
+
+- View and study the source code
+- Run the software locally for personal use and testing
+- Modify the code for personal experimentation
+- Submit contributions to this repository
+
+Restrictions
+
+You may NOT:
+
+- Redistribute the software or modified versions
+- Host public instances of the software
+- Use the code in other projects
+- Create derivative applications for separate distribution
+- Use the software for commercial purposes
+
+Network Features
+
+KanTrack operates in local-first mode by default and does not require network connectivity.
+Optional cloud features (such as account-based backup or synchronization) may use network connectivity only when explicitly enabled by the user.
+
+Official Distribution
+
+Only versions distributed by BTi — BosslessTechIndustries are considered official KanTrack releases.
+All other uses are unauthorized.
+
+Disclaimer
+
+The software is provided “as is”, without warranty of any kind.
