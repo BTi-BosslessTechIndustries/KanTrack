@@ -1,0 +1,231 @@
+/***********************
+ * KANTRACK RESPONSIVE
+ * Media queries and responsive adjustments
+ ***********************/
+
+/* ===== Board Layout Responsive ===== */
+@media (max-width: 1024px) {
+    .kanban-board {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .column {
+        min-height: 340px;
+    }
+    .controls-row-search {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-wrapper {
+        max-width: none;
+    }
+    .tag-filters {
+        justify-content: center;
+    }
+    .header-logo img {
+        height: 36px;
+    }
+}
+
+@media (max-width: 640px) {
+    .kanban-board {
+        grid-template-columns: 1fr;
+    }
+    .column {
+        min-height: 300px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .kanban-board {
+        grid-template-columns: repeat(4, minmax(260px, 320px));
+        justify-content: center;
+    }
+}
+
+/* ===== Notes Container Responsive ===== */
+@media (max-width: 768px) {
+    .notes-container {
+        flex-direction: column;
+    }
+}
+
+/* ===== Sub-Kanban Responsive ===== */
+@media (max-width: 768px) {
+    .sub-kanban-board {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .sub-kanban-add {
+        width: 100%;
+    }
+    .sub-kanban-add input {
+        flex: 1;
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .sub-kanban-board {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Modal Responsive ===== */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 20px;
+    }
+    .timer-controls button {
+        min-width: 40px;
+        font-size: 0.85em;
+    }
+    .modal-actions {
+        flex-direction: column;
+    }
+    .modal-actions button {
+        width: 100%;
+    }
+    .modal-actions-top {
+        flex-direction: column;
+    }
+    .modal-actions-top button {
+        width: 100%;
+    }
+    .clock-type-selection {
+        flex-direction: column;
+    }
+}
+
+/* ===== Notebook Responsive ===== */
+@media (max-width: 768px) {
+    .notebook-sidebar {
+        width: 100%;
+        left: -100%;
+    }
+    .notebook-sidebar.open {
+        left: 0;
+    }
+    body.notebook-sidebar-open {
+        padding-left: 0;
+    }
+    body.notebook-sidebar-open .top-header {
+        left: 0;
+    }
+    body.notebook-sidebar-open .kanban-board,
+    body.notebook-sidebar-open .controls-top,
+    body.notebook-sidebar-open .controls-bottom,
+    body.notebook-sidebar-open .notes-container,
+    body.notebook-sidebar-open .clock-wrapper {
+        display: none;
+    }
+    .page-modal .page-modal-content {
+        width: 98%;
+        height: 95vh;
+        margin: 2% auto;
+        padding: 20px;
+    }
+    .page-modal-actions {
+        flex-direction: column;
+    }
+    .page-modal-actions button {
+        width: 100%;
+    }
+}
+
+/* ===== Header Responsive ===== */
+@media (max-width: 768px) {
+    .top-header {
+        padding: 0 12px;
+        height: 54px;
+    }
+    .header-left,
+    .header-right {
+        gap: 8px;
+    }
+    .top-header .back-button,
+    .top-header .notebook-toggle-btn {
+        width: 36px;
+        height: 36px;
+    }
+    .header-logo img {
+        height: 32px;
+    }
+    .header-action-btn {
+        width: 34px;
+        height: 34px;
+    }
+    .header-action-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+    .top-header .back-button svg,
+    .top-header .notebook-toggle-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+    body {
+        padding-top: 70px;
+    }
+}
+
+/* ===== Trash Panel Responsive ===== */
+@media (max-width: 768px) {
+    .trash-panel {
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+}
+
+/* ===== Notifications Responsive ===== */
+@media (max-width: 768px) {
+    .notification-container {
+        right: 10px;
+        left: 10px;
+        top: 64px;
+    }
+    .notification {
+        max-width: none;
+    }
+}
+
+/* ===== Tags Responsive ===== */
+@media (max-width: 768px) {
+    .tag-filters {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .tag-filter-btn {
+        flex-shrink: 0;
+    }
+    .tag-dropdown-create {
+        flex-direction: column;
+    }
+    .tag-dropdown-create input {
+        width: 100%;
+    }
+    .tag-color-picker {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ===== Small Screen Adjustments ===== */
+@media (max-width: 480px) {
+    .modal-title-row {
+        flex-wrap: wrap;
+    }
+    .edit-title-btn {
+        order: 2;
+    }
+    .auto-save-indicator {
+        width: 100%;
+        order: 3;
+        margin-left: 0;
+        margin-top: 8px;
+        text-align: center;
+    }
+}

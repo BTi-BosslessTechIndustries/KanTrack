@@ -1,0 +1,1357 @@
+/***********************
+ * KANTRACK COMPONENTS
+ * Clocks, modals, sub-kanban, history, timers, priority
+ ***********************/
+
+/* ===== Clocks ===== */
+.clock-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 16px;
+    gap: 8px;
+    padding: 8px 5px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.clock-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.clock {
+    flex: 1;
+    min-width: 110px;
+    max-width: 160px;
+    text-align: center;
+    color: #f5f5f5;
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.7) 0%, rgba(30, 30, 30, 0.7) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 12px 8px;
+    cursor: grab;
+    user-select: none;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.clock:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.25);
+    background: linear-gradient(135deg, rgba(50, 50, 50, 0.8) 0%, rgba(40, 40, 40, 0.8) 100%);
+}
+
+.clock:active {
+    cursor: grabbing;
+}
+
+.clock.drag-over {
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.clock-name {
+    font-size: 0.7em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 6px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.clock-time {
+    font-size: 1.3em;
+    margin: 4px 0;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.clock-date {
+    font-size: 0.65em;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 4px;
+}
+
+.clock-current .clock-time {
+    font-size: 1.5em;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.clock-delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: rgba(255, 80, 80, 0.9);
+    cursor: pointer;
+    font-size: 1.3em;
+    padding: 4px 8px;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 6px;
+}
+
+.clock:hover .clock-delete {
+    opacity: 1;
+}
+
+.clock-delete:hover {
+    background-color: rgba(255, 80, 80, 0.15);
+    transform: scale(1.1);
+}
+
+.clock-add-button {
+    min-width: 110px;
+    max-width: 160px;
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.6) 0%, rgba(30, 30, 30, 0.6) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 8px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clock-add-button:hover {
+    background: linear-gradient(135deg, rgba(50, 50, 50, 0.7) 0%, rgba(40, 40, 40, 0.7) 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.clock-add-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.clock-add-icon {
+    font-size: 1.8em;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 300;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+.clock-add-button:hover .clock-add-icon {
+    color: rgba(255, 255, 255, 0.9);
+    transform: rotate(90deg);
+}
+
+/* Chronometer specific styles */
+.chronometer-controls {
+    margin-top: 8px;
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.clock:hover .chronometer-controls {
+    opacity: 1;
+}
+
+.chronometer-controls button {
+    background-color: rgba(60, 60, 67, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 4px 8px;
+    font-size: 0.65em;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.chronometer-controls button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 1);
+}
+
+.chronometer-controls button.start-btn {
+    color: rgba(200, 255, 200, 0.7);
+    border-color: rgba(150, 255, 150, 0.2);
+    background-color: rgba(150, 255, 150, 0.05);
+}
+
+.chronometer-controls button.start-btn:hover {
+    border-color: rgba(150, 255, 150, 0.3);
+    background-color: rgba(150, 255, 150, 0.1);
+}
+
+.chronometer-controls button.pause-btn {
+    color: rgba(255, 230, 200, 0.7);
+    border-color: rgba(255, 200, 150, 0.2);
+    background-color: rgba(255, 200, 150, 0.05);
+}
+
+.chronometer-controls button.pause-btn:hover {
+    border-color: rgba(255, 200, 150, 0.3);
+    background-color: rgba(255, 200, 150, 0.1);
+}
+
+.chronometer-controls button.reset-btn {
+    color: rgba(255, 180, 180, 0.7);
+    border-color: rgba(255, 150, 150, 0.2);
+    background-color: rgba(255, 150, 150, 0.05);
+}
+
+.chronometer-controls button.reset-btn:hover {
+    border-color: rgba(255, 150, 150, 0.3);
+    background-color: rgba(255, 150, 150, 0.1);
+}
+
+/* ===== Timer Badge ===== */
+.timer-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(255, 167, 38, 0.8) 0%, rgba(255, 152, 0, 0.8) 100%);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: 600;
+    margin-left: 8px;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+/* ===== Modal ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(25, 25, 25, 0.95) 100%);
+    backdrop-filter: blur(30px);
+    margin: 3% auto;
+    padding: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow-y: auto;
+    color: #f5f5f5;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.modal-content h2 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+/* Modal Title (Double-click to edit) */
+#modalTitle {
+    cursor: default;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    border: 1px solid transparent;
+}
+
+#modalTitle:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#modalTitle.editing {
+    background: rgba(255, 255, 255, 0.08);
+    outline: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: text;
+}
+
+#modalTitle:focus {
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+.modal-close {
+    color: rgba(255, 255, 255, 0.5);
+    float: right;
+    font-size: 32px;
+    font-weight: 300;
+    cursor: pointer;
+    line-height: 20px;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: rgba(255, 255, 255, 0.9);
+    transform: rotate(90deg);
+}
+
+.modal-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.3) 0%, rgba(35, 35, 35, 0.3) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+}
+
+.modal-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.notes-header h4 {
+    margin: 0;
+}
+
+.timer-section {
+    padding: 10px 15px;
+}
+
+.timer-section h4 {
+    margin-bottom: 8px;
+}
+
+/* Modal Title Row */
+.modal-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.modal-title-row h2 {
+    margin: 0;
+    flex: 1;
+}
+
+.edit-title-btn {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.edit-title-btn svg {
+    width: 14px;
+    height: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.edit-title-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.edit-title-btn:hover svg {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== SUB-KANBAN BOARD ===== */
+.sub-kanban-section {
+    padding: 15px;
+}
+
+.sub-kanban-toggle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 0;
+    margin: 0;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.sub-kanban-toggle-header:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.sub-kanban-toggle {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.2s ease;
+}
+
+.sub-kanban-count {
+    font-size: 0.85em;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.sub-kanban-content {
+    margin-top: 12px;
+}
+
+.sub-kanban-add-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.sub-kanban-add input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(35, 35, 35, 0.6);
+    color: #f5f5f5;
+    font-size: 0.9em;
+    width: 200px;
+}
+
+.sub-kanban-add input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.sub-kanban-add button {
+    margin: 0;
+    padding: 8px 16px;
+    font-size: 0.85em;
+}
+
+.sub-kanban-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    background: rgba(20, 20, 20, 0.4);
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    min-height: 150px;
+}
+
+.sub-kanban-column {
+    background: rgba(30, 30, 30, 0.5);
+    border-radius: 8px;
+    padding: 8px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.sub-kanban-column[data-column="todo"] {
+    background: rgba(25, 25, 25, 0.6);
+}
+
+.sub-kanban-column[data-column="inProgress"] {
+    background: rgba(30, 30, 30, 0.6);
+}
+
+.sub-kanban-column[data-column="onHold"] {
+    background: rgba(35, 35, 35, 0.6);
+}
+
+.sub-kanban-column[data-column="done"] {
+    background: rgba(40, 40, 40, 0.6);
+}
+
+.sub-kanban-column.drop-hover {
+    outline: 2px dashed rgba(100, 181, 246, 0.5);
+    outline-offset: -4px;
+    background: rgba(100, 181, 246, 0.1);
+}
+
+.sub-kanban-column-header {
+    font-size: 0.7em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.6);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.sub-kanban-column-items {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 50px;
+}
+
+.sub-kanban-item {
+    background: linear-gradient(135deg, rgba(50, 50, 50, 0.8) 0%, rgba(40, 40, 40, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: grab;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.sub-kanban-item:hover {
+    background: linear-gradient(135deg, rgba(60, 60, 60, 0.9) 0%, rgba(50, 50, 50, 0.9) 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.sub-kanban-item:active {
+    cursor: grabbing;
+}
+
+.sub-kanban-item.dragging {
+    opacity: 0.5;
+    transform: scale(1.02);
+}
+
+.sub-kanban-item-title {
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.9);
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.8em;
+}
+
+.sub-kanban-item-title.editing {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: -2px -6px;
+    outline: none;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.sub-kanban-item-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.sub-kanban-item:hover .sub-kanban-item-actions {
+    opacity: 1;
+}
+
+.sub-kanban-item-actions button {
+    width: 22px;
+    height: 22px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin: 0;
+    padding: 0;
+    font-size: 0.75em;
+}
+
+.sub-kanban-item-actions button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.sub-kanban-item-actions .delete-sub-item:hover {
+    background: rgba(255, 80, 80, 0.3);
+    color: #ff5050;
+}
+
+/* Sub-task indicator on main card */
+.sub-task-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: rgba(100, 181, 246, 0.9);
+}
+
+.sub-task-indicator svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== Notes Editor ===== */
+.notes-editor {
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(35, 35, 35, 0.4) 0%, rgba(30, 30, 30, 0.4) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #f5f5f5;
+    font-family: inherit;
+    line-height: 1.7;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    transition: all 0.3s ease;
+}
+
+.notes-editor:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, rgba(45, 45, 45, 0.5) 0%, rgba(40, 40, 40, 0.5) 100%);
+}
+
+.notes-editor:empty:before {
+    content: attr(data-placeholder);
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+}
+
+.notes-editor img {
+    max-width: 100%;
+    height: auto;
+    margin: 12px 0;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.notes-editor img:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transform: scale(1.02);
+}
+
+/* ===== Modal Actions Top ===== */
+.modal-actions-top {
+    display: flex;
+    gap: 8px;
+    margin: 15px 0 20px 0;
+    flex-wrap: wrap;
+}
+
+.modal-actions-top button {
+    margin: 0;
+    padding: 8px 15px;
+    font-size: 0.95em;
+}
+
+/* ===== Timer Controls ===== */
+.timer-controls-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.timer-controls {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+}
+
+.timer-controls button {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #f5f5f7;
+    min-width: 45px;
+    padding: 6px 10px;
+    font-size: 0.85em;
+    margin: 0;
+}
+
+.timer-controls button:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.timer-controls.subtract button {
+    border-color: rgba(255, 59, 48, 0.3);
+    color: #ff3b30;
+    background-color: rgba(255, 59, 48, 0.05);
+}
+
+.timer-controls.subtract button:hover {
+    border-color: rgba(255, 59, 48, 0.5);
+    background-color: rgba(255, 59, 48, 0.15);
+}
+
+/* ===== History List ===== */
+.history-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 12px;
+    background-color: rgba(15, 15, 15, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.history-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.88em;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-action {
+    color: #64b5f6;
+    font-weight: 600;
+}
+
+.history-timestamp {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85em;
+}
+
+/* Color-coded history types */
+.history-action.type-created { color: #64b5f6; }
+.history-action.type-deleted { color: #ef5350; }
+.history-action.type-status { color: #ab47bc; }
+.history-action.type-note { color: #66bb6a; }
+.history-action.type-timer { color: #ffa726; }
+.history-action.type-priority { color: #26c6da; }
+.history-action.type-subtask { color: #ec407a; }
+
+.history-note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    background: rgba(35, 35, 35, 0.6);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    gap: 8px;
+}
+
+.history-note-header:hover {
+    background: rgba(45, 45, 45, 0.8);
+}
+
+.history-note-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.history-note-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.history-note-header:hover .history-note-actions {
+    opacity: 1;
+}
+
+.history-note-actions button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin: 0;
+    padding: 0;
+}
+
+.history-note-actions button svg {
+    width: 14px;
+    height: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.history-note-actions button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.history-note-actions button:hover svg {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.history-note-actions .delete-note-btn:hover {
+    background: rgba(255, 80, 80, 0.2);
+}
+
+.history-note-actions .delete-note-btn:hover svg {
+    color: #ff5050;
+}
+
+/* Note Entry Edit Modal */
+.note-entry-edit-container {
+    margin-top: 10px;
+    padding: 15px;
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(100, 181, 246, 0.4);
+    border-radius: 10px;
+}
+
+.note-entry-edit-editor {
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 12px;
+    background: rgba(35, 35, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #f5f5f5;
+    font-family: inherit;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.note-entry-edit-editor:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.note-entry-edit-editor img {
+    max-width: 100%;
+    height: auto;
+    margin: 8px 0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.note-entry-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+
+.note-entry-edit-actions button {
+    margin: 0;
+    padding: 8px 16px;
+    font-size: 0.9em;
+}
+
+.history-expand {
+    color: #64b5f6;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+.history-note-content {
+    padding: 15px;
+    margin-top: 5px;
+    background: rgba(30, 30, 30, 0.7);
+    border-radius: 8px;
+    border-left: 3px solid #64b5f6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.history-note-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.history-note-content img:hover {
+    border-color: #64b5f6;
+    box-shadow: 0 4px 16px rgba(100, 181, 246, 0.2);
+}
+
+/* History Header */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+    padding: 8px;
+    margin: -8px;
+    border-radius: 5px;
+}
+
+.history-header:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.history-toggle {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9em;
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.history-header:hover .history-toggle {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== Modal Actions ===== */
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.modal-actions button {
+    margin: 0;
+}
+
+/* ===== Image Modal ===== */
+.image-modal .image-modal-content {
+    background-color: #000;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    border-radius: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.image-modal .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 20;
+    color: #fff;
+    font-size: 40px;
+}
+
+.image-controls {
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 10;
+}
+
+.image-controls button {
+    background: linear-gradient(135deg, rgba(70, 70, 70, 0.9) 0%, rgba(60, 60, 60, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 12px 24px;
+    font-size: 1.1em;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.image-controls button:hover {
+    background: linear-gradient(135deg, rgba(80, 80, 80, 1) 0%, rgba(70, 70, 70, 1) 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.image-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    padding: 20px;
+}
+
+.image-container img {
+    max-width: 90vw;
+    max-height: 85vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.1s ease;
+    cursor: default;
+    transform-origin: center center;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ===== Quick Time Menu ===== */
+.quick-time-menu {
+    position: fixed;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(25, 25, 25, 0.95) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+}
+
+.quick-time-menu button {
+    background: linear-gradient(135deg, rgba(255, 167, 38, 0.7) 0%, rgba(255, 152, 0, 0.7) 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 167, 38, 0.4);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    margin: 0;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 42px;
+}
+
+.quick-time-menu button:hover {
+    background: linear-gradient(135deg, rgba(255, 167, 38, 0.9) 0%, rgba(255, 152, 0, 0.9) 100%);
+    border-color: rgba(255, 167, 38, 0.6);
+    transform: translateY(-1px);
+}
+
+.quick-time-menu.subtract button {
+    background: linear-gradient(135deg, rgba(239, 83, 80, 0.7) 0%, rgba(244, 67, 54, 0.7) 100%);
+    border-color: rgba(239, 83, 80, 0.4);
+}
+
+.quick-time-menu.subtract button:hover {
+    background: linear-gradient(135deg, rgba(239, 83, 80, 0.9) 0%, rgba(244, 67, 54, 0.9) 100%);
+    border-color: rgba(239, 83, 80, 0.6);
+}
+
+/* ===== Clock Modal ===== */
+.clock-modal-content {
+    max-width: 500px;
+}
+
+.clock-type-selection {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.clock-type-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.6) 0%, rgba(35, 35, 35, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #f5f5f5;
+    backdrop-filter: blur(10px);
+}
+
+.clock-type-btn:hover {
+    background: linear-gradient(135deg, rgba(50, 50, 50, 0.7) 0%, rgba(45, 45, 45, 0.7) 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.clock-type-icon {
+    font-size: 3em;
+}
+
+.clock-type-label {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.clock-form {
+    margin-top: 20px;
+}
+
+.clock-form h3 {
+    margin-top: 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.clock-form label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.clock-form input,
+.clock-form select {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(35, 35, 35, 0.6) 0%, rgba(30, 30, 30, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    color: #f5f5f5;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.clock-form input:focus,
+.clock-form select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, rgba(45, 45, 45, 0.7) 0%, rgba(40, 40, 40, 0.7) 100%);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+}
+
+.timezone-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    background: rgba(25, 25, 25, 0.8);
+    margin-top: 5px;
+}
+
+.timezone-item {
+    padding: 10px;
+    cursor: pointer;
+    color: #f5f5f5;
+    transition: all 0.2s ease;
+}
+
+.timezone-item:hover {
+    background: rgba(40, 40, 40, 0.8);
+}
+
+.timezone-item.selected {
+    background: linear-gradient(135deg, rgba(60, 60, 60, 0.8) 0%, rgba(50, 50, 50, 0.8) 100%);
+    color: #ffffff;
+    border-left: 3px solid rgba(255, 255, 255, 0.6);
+}
+
+.modal-action-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(70, 70, 70, 0.8) 0%, rgba(60, 60, 60, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-action-btn:hover {
+    background: linear-gradient(135deg, rgba(80, 80, 80, 0.9) 0%, rgba(70, 70, 70, 0.9) 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Priority Styles ===== */
+.note.priority-low {
+    border-left: 4px solid #4caf50;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(35, 35, 35, 0.7) 100%);
+}
+
+.note.priority-medium {
+    border-left: 4px solid #ff9800;
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(35, 35, 35, 0.7) 100%);
+}
+
+.note.priority-high {
+    border-left: 4px solid #f44336;
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(35, 35, 35, 0.7) 100%);
+}
+
+.priority-display {
+    margin-top: 3px;
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+/* Quick Priority Menu */
+.quick-priority-menu {
+    position: fixed;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(25, 25, 25, 0.95) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    display: flex;
+    gap: 5px;
+}
+
+.quick-priority-menu button {
+    background: rgba(40, 40, 40, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    margin: 0;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 60px;
+}
+
+.quick-priority-menu button:hover {
+    background: rgba(60, 60, 60, 0.9);
+    transform: translateY(-1px);
+}
+
+.quick-priority-menu button.active {
+    background: rgba(80, 80, 80, 0.9);
+    box-shadow: 0 0 0 2px currentColor;
+}
+
+/* Modal Priority Section */
+.priority-section {
+    padding: 10px 15px;
+}
+
+.priority-section h4 {
+    margin-bottom: 8px;
+}
+
+.priority-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.priority-controls .priority-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(40, 40, 40, 0.6);
+    color: #f5f5f5;
+}
+
+.priority-controls .priority-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.priority-controls .priority-btn[data-priority="none"] {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.priority-controls .priority-btn[data-priority="none"]:hover,
+.priority-controls .priority-btn[data-priority="none"].active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.priority-controls .priority-btn[data-priority="low"] {
+    border-color: rgba(76, 175, 80, 0.4);
+}
+
+.priority-controls .priority-btn[data-priority="low"]:hover,
+.priority-controls .priority-btn[data-priority="low"].active {
+    background: rgba(76, 175, 80, 0.3);
+    border-color: #4caf50;
+    color: #4caf50;
+}
+
+.priority-controls .priority-btn[data-priority="medium"] {
+    border-color: rgba(255, 152, 0, 0.4);
+}
+
+.priority-controls .priority-btn[data-priority="medium"]:hover,
+.priority-controls .priority-btn[data-priority="medium"].active {
+    background: rgba(255, 152, 0, 0.3);
+    border-color: #ff9800;
+    color: #ff9800;
+}
+
+.priority-controls .priority-btn[data-priority="high"] {
+    border-color: rgba(244, 67, 54, 0.4);
+}
+
+.priority-controls .priority-btn[data-priority="high"]:hover,
+.priority-controls .priority-btn[data-priority="high"].active {
+    background: rgba(244, 67, 54, 0.3);
+    border-color: #f44336;
+    color: #f44336;
+}
+
+/* @ Mentions legacy styles */
+.mention-item-icon.priority-high {
+    background: rgba(244, 67, 54, 0.2);
+}
+
+.mention-item-icon.priority-high svg {
+    color: #f44336;
+}
