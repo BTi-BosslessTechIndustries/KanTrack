@@ -8,7 +8,7 @@ If you discover a security vulnerability in KanTrack, please report it responsib
 
 Send details to:
 
-security@bosslesstechindustries.com
+email TBD
 
 Include:
 
