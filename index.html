@@ -9,16 +9,12 @@
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/features.css">
     <link rel="stylesheet" href="styles/responsive.css">
-    <!-- jsPDF Library for PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- JSZip Library for ZIP Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 	<!-- Top Header Bar -->
 	<header class="top-header">
 		<div class="header-left">
-			<button class="notebook-toggle-btn" onclick="toggleNotebookSidebar()" title="Toggle Notebook (Ctrl+B)">
+			<button class="notebook-toggle-btn" data-action="notebook:toggleSidebar" title="Toggle Notebook (Ctrl+B)">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
 					<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
@@ -31,13 +27,13 @@
 		</div>
 		<div class="header-right">
 			<div class="header-undo-redo">
-				<button id="undoBtn" class="header-action-btn" onclick="undo()" title="Undo (Ctrl+Z)">
+				<button id="undoBtn" class="header-action-btn" data-action="history:undo" title="Undo (Ctrl+Z)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M3 7v6h6"></path>
 						<path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
 					</svg>
 				</button>
-				<button id="redoBtn" class="header-action-btn" onclick="redo()" title="Redo (Ctrl+Y)">
+				<button id="redoBtn" class="header-action-btn" data-action="history:redo" title="Redo (Ctrl+Y)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 7v6h-6"></path>
 						<path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
@@ -45,7 +41,7 @@
 				</button>
 			</div>
 			<div class="header-divider"></div>
-			<button id="trashToggleBtn" class="header-action-btn header-trash-btn" onclick="toggleTrashPanel()" title="View Trash">
+			<button id="trashToggleBtn" class="header-action-btn header-trash-btn" data-action="trash:togglePanel" title="View Trash">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="3 6 5 6 21 6"></polyline>
 					<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -60,8 +56,8 @@
 		<div class="trash-panel-header">
 			<h3>Trash</h3>
 			<div class="trash-panel-actions">
-				<button onclick="emptyAllTrash()" class="empty-trash-btn" title="Empty Trash">Empty All</button>
-				<button onclick="toggleTrashPanel()" class="close-trash-btn">&times;</button>
+				<button data-action="trash:emptyAll" class="empty-trash-btn" title="Empty Trash">Empty All</button>
+				<button data-action="trash:togglePanel" class="close-trash-btn">&times;</button>
 			</div>
 		</div>
 		<div id="trashList" class="trash-list">
@@ -75,14 +71,14 @@
 		<div class="notebook-sidebar-header">
 			<h3>Notebook</h3>
 			<div class="notebook-header-actions">
-				<button class="notebook-action-btn" onclick="createNotebookItem('folder', null)" title="New Folder">
+				<button class="notebook-action-btn" data-action="notebook:createFolder" title="New Folder">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
 						<line x1="12" y1="11" x2="12" y2="17"></line>
 						<line x1="9" y1="14" x2="15" y2="14"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn" onclick="createNotebookItem('page', null)" title="New Page">
+				<button class="notebook-action-btn" data-action="notebook:createPage" title="New Page">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 						<polyline points="14 2 14 8 20 8"></polyline>
@@ -90,22 +86,22 @@
 						<line x1="9" y1="15" x2="15" y2="15"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn" onclick="document.getElementById('notebookImportFile').click()" title="Import (ZIP)">
+				<button class="notebook-action-btn" data-action="notebook:triggerImport" title="Import (ZIP)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 						<polyline points="17 8 12 3 7 8"></polyline>
 						<line x1="12" y1="3" x2="12" y2="15"></line>
 					</svg>
 				</button>
-				<input type="file" id="notebookImportFile" accept=".zip" style="display: none;" onchange="importNotebookFromZip(event)">
-				<button class="notebook-action-btn" onclick="exportAllNotebook()" title="Export All (ZIP)">
+				<input type="file" id="notebookImportFile" accept=".zip" style="display: none;">
+				<button class="notebook-action-btn" data-action="notebook:exportAll" title="Export All (ZIP)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 						<polyline points="7 10 12 15 17 10"></polyline>
 						<line x1="12" y1="15" x2="12" y2="3"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn notebook-close-btn" onclick="toggleNotebookSidebar()" title="Close">
+				<button class="notebook-action-btn notebook-close-btn" data-action="notebook:toggleSidebar" title="Close">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<line x1="18" y1="6" x2="6" y2="18"></line>
 						<line x1="6" y1="6" x2="18" y2="18"></line>
@@ -114,7 +110,7 @@
 			</div>
 		</div>
 		<div class="notebook-search">
-			<input type="text" id="notebookSearchInput" placeholder="Search pages..." oninput="filterNotebookItems()">
+			<input type="text" id="notebookSearchInput" placeholder="Search pages...">
 		</div>
 		<div id="notebookTree" class="notebook-tree">
 			<!-- Tree items will be rendered here -->
@@ -123,14 +119,14 @@
 
 	<!-- Notebook Context Menu -->
 	<div id="notebookContextMenu" class="notebook-context-menu">
-		<div class="context-menu-item" onclick="contextMenuAction('rename')">
+		<div class="context-menu-item" data-action="notebook:contextMenu" data-action-param="rename">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
 				<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
 			</svg>
 			<span>Rename</span>
 		</div>
-		<div class="context-menu-item folder-only" onclick="contextMenuAction('newFolder')">
+		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="newFolder">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
 				<line x1="12" y1="11" x2="12" y2="17"></line>
@@ -138,7 +134,7 @@
 			</svg>
 			<span>New Subfolder</span>
 		</div>
-		<div class="context-menu-item folder-only" onclick="contextMenuAction('newPage')">
+		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="newPage">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 				<polyline points="14 2 14 8 20 8"></polyline>
@@ -148,7 +144,7 @@
 			<span>New Page Inside</span>
 		</div>
 		<div class="context-menu-divider"></div>
-		<div class="context-menu-item folder-only" onclick="contextMenuAction('exportFolder')">
+		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="exportFolder">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 				<polyline points="7 10 12 15 17 10"></polyline>
@@ -157,7 +153,7 @@
 			<span>Export Folder (ZIP)</span>
 		</div>
 		<div class="context-menu-divider"></div>
-		<div class="context-menu-item context-menu-delete" onclick="contextMenuAction('delete')">
+		<div class="context-menu-item context-menu-delete" data-action="notebook:contextMenu" data-action-param="delete">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<polyline points="3 6 5 6 21 6"></polyline>
 				<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -169,14 +165,14 @@
 	<!-- Page Editor Modal -->
 	<div id="pageModal" class="modal page-modal">
 		<div class="modal-content page-modal-content">
-			<span class="modal-close" onclick="closePageModal()">&times;</span>
+			<span class="modal-close" data-action="notebook:closePage">&times;</span>
 			<div class="page-modal-header">
 				<h2 id="pageModalTitle" contenteditable="true" data-placeholder="Untitled Page">Untitled Page</h2>
 			</div>
 			<div class="page-modal-actions">
-				<button onclick="saveAndClosePage()">Save & Close</button>
-				<button class="export-btn" onclick="exportPageAsPDF()">Export PDF</button>
-				<button class="delete-btn" onclick="deletePageFromModal()">Delete</button>
+				<button data-action="notebook:savePage">Save & Close</button>
+				<button class="export-btn" data-action="notebook:exportPagePDF">Export PDF</button>
+				<button class="delete-btn" data-action="notebook:deletePage">Delete</button>
 			</div>
 			<div class="page-editor-container">
 				<div id="pageEditor" class="page-editor" contenteditable="true" data-placeholder="Start writing..."></div>
@@ -187,7 +183,7 @@
         <div class="clock-container" id="clockContainer">
             <!-- Clocks will be dynamically generated here -->
         </div>
-        <div class="clock-add-button" onclick="openAddClockModal()">
+        <div class="clock-add-button" data-action="clock:openModal">
             <div class="clock-add-content">
                 <span class="clock-add-icon">+</span>
             </div>
@@ -198,7 +194,7 @@
         <div class="controls-unified-row">
             <div class="controls-row-main">
                 <input type="text" id="newNote" placeholder="New task title..." maxlength="200">
-                <button onclick="addNote()">Add</button>
+                <button data-action="task:add">Add</button>
             </div>
             <div class="controls-row-search">
                 <div class="search-wrapper">
@@ -238,31 +234,32 @@
 
     <div class="controls-bottom">
         <div class="controls-row-secondary">
-            <button class="export-btn" onclick="exportBoardAsHTML()">Export Board (HTML)</button>
-            <button class="import-btn" onclick="document.getElementById('importFile').click()">Import Board</button>
-            <input type="file" id="importFile" accept=".html,.txt" style="display: none;" onchange="importBoardFromFile(event)">
+            <button class="export-btn" data-action="board:exportHTML">Export Board (HTML)</button>
+            <button class="import-btn" data-action="board:triggerImport">Import Board</button>
+            <input type="file" id="importFile" accept=".html,.txt" style="display: none;">
         </div>
+        <p id="storageMonitorInfo" class="storage-monitor-info" style="display: none;"></p>
     </div>
 
     <!-- Task Details Modal -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeTaskModal()">&times;</span>
+            <span class="modal-close" data-action="task:closeModal">&times;</span>
             <div class="modal-title-row">
-                <h2 id="modalTitle" ondblclick="enableTitleEdit()" title="Double-click to edit">Task Details</h2>
+                <h2 id="modalTitle" title="Double-click to edit">Task Details</h2>
                 <span id="autoSaveIndicator" class="auto-save-indicator" style="display: none;">Saved</span>
             </div>
 
             <div class="modal-actions-top">
-                <button onclick="saveAndCloseModal()">Save & Close</button>
-                <button class="export-btn" onclick="exportTaskAsPDF()">Export PDF</button>
-                <button class="delete-btn" onclick="deleteTaskFromModal()">Delete</button>
+                <button data-action="task:saveModal">Save & Close</button>
+                <button class="export-btn" data-action="task:exportPDF">Export PDF</button>
+                <button class="delete-btn" data-action="task:deleteModal">Delete</button>
             </div>
 
             <div class="modal-section">
                 <div class="notes-header">
                     <h4>Notes</h4>
-                    <button id="clearNotesBtn" class="clear-btn" onclick="clearNotes()" style="display: none;">Clear All</button>
+                    <button id="clearNotesBtn" class="clear-btn" data-action="task:clearNotes" style="display: none;">Clear All</button>
                 </div>
                 <div id="modalNotesEditor" class="notes-editor" contenteditable="true" data-placeholder="Write your notes here..."></div>
             </div>
@@ -270,10 +267,10 @@
             <div class="modal-section priority-section">
                 <h4>Priority: <span id="modalPriorityLabel">None</span></h4>
                 <div class="priority-controls">
-                    <button class="priority-btn" data-priority="none" onclick="setModalPriority(null)">None</button>
-                    <button class="priority-btn" data-priority="low" onclick="setModalPriority('low')">Low</button>
-                    <button class="priority-btn" data-priority="medium" onclick="setModalPriority('medium')">Medium</button>
-                    <button class="priority-btn" data-priority="high" onclick="setModalPriority('high')">High</button>
+                    <button class="priority-btn" data-priority="none" data-action="task:setPriority" data-action-param="none">None</button>
+                    <button class="priority-btn" data-priority="low" data-action="task:setPriority" data-action-param="low">Low</button>
+                    <button class="priority-btn" data-priority="medium" data-action="task:setPriority" data-action-param="medium">Medium</button>
+                    <button class="priority-btn" data-priority="high" data-action="task:setPriority" data-action-param="high">High</button>
                 </div>
             </div>
 
@@ -291,33 +288,33 @@
                 <h4>Worked Time: <span id="modalTimerTotal">0m</span></h4>
                 <div class="timer-controls-wrapper">
                     <div class="timer-controls">
-                        <button onclick="addTime(1)">+1m</button>
-                        <button onclick="addTime(5)">+5m</button>
-                        <button onclick="addTime(10)">+10m</button>
-                        <button onclick="addTime(15)">+15m</button>
-                        <button onclick="addTime(30)">+30m</button>
-                        <button onclick="addTime(60)">+60m</button>
+                        <button data-action="task:addTime" data-action-param="1">+1m</button>
+                        <button data-action="task:addTime" data-action-param="5">+5m</button>
+                        <button data-action="task:addTime" data-action-param="10">+10m</button>
+                        <button data-action="task:addTime" data-action-param="15">+15m</button>
+                        <button data-action="task:addTime" data-action-param="30">+30m</button>
+                        <button data-action="task:addTime" data-action-param="60">+60m</button>
                     </div>
                     <div class="timer-controls subtract">
-                        <button onclick="addTime(-1)">-1m</button>
-                        <button onclick="addTime(-5)">-5m</button>
-                        <button onclick="addTime(-10)">-10m</button>
-                        <button onclick="addTime(-15)">-15m</button>
-                        <button onclick="addTime(-30)">-30m</button>
-                        <button onclick="addTime(-60)">-60m</button>
+                        <button data-action="task:addTime" data-action-param="-1">-1m</button>
+                        <button data-action="task:addTime" data-action-param="-5">-5m</button>
+                        <button data-action="task:addTime" data-action-param="-10">-10m</button>
+                        <button data-action="task:addTime" data-action-param="-15">-15m</button>
+                        <button data-action="task:addTime" data-action-param="-30">-30m</button>
+                        <button data-action="task:addTime" data-action-param="-60">-60m</button>
                     </div>
                 </div>
             </div>
 
             <div class="modal-section sub-kanban-section">
-                <h4 class="sub-kanban-toggle-header" onclick="toggleSubKanban()">
+                <h4 class="sub-kanban-toggle-header" data-action="task:toggleSubKanban">
                     <span>Sub-Tasks <span id="subKanbanCount" class="sub-kanban-count"></span></span>
                     <span id="subKanbanToggle" class="sub-kanban-toggle">&#9660;</span>
                 </h4>
                 <div id="subKanbanContent" class="sub-kanban-content" style="display: none;">
                     <div class="sub-kanban-add-row">
-                        <input type="text" id="newSubTaskInput" placeholder="Add sub-task..." onkeydown="if(event.key==='Enter')addSubKanbanItem()">
-                        <button onclick="addSubKanbanItem()">Add</button>
+                        <input type="text" id="newSubTaskInput" placeholder="Add sub-task...">
+                        <button data-action="task:addSubItem">Add</button>
                     </div>
                     <div id="subKanbanBoard" class="sub-kanban-board">
                         <div class="sub-kanban-column" data-column="todo">
@@ -341,7 +338,7 @@
             </div>
 
             <div class="modal-section">
-                <h4 class="history-header" onclick="toggleHistory()">
+                <h4 class="history-header" data-action="task:toggleHistory">
                     <span>History</span>
                     <span id="historyToggle" class="history-toggle">&#9660;</span>
                 </h4>
@@ -353,11 +350,11 @@
     <!-- Image Viewer Modal -->
     <div id="imageModal" class="modal image-modal">
         <div class="image-modal-content">
-            <span class="modal-close" onclick="closeImageModal()">&times;</span>
+            <span class="modal-close" data-action="image:closeModal">&times;</span>
             <div class="image-controls">
-                <button onclick="zoomImage(-0.1)">-</button>
-                <button onclick="resetZoom()">Reset</button>
-                <button onclick="zoomImage(0.1)">+</button>
+                <button data-action="image:zoom" data-action-param="-0.1">-</button>
+                <button data-action="image:resetZoom">Reset</button>
+                <button data-action="image:zoom" data-action-param="0.1">+</button>
             </div>
             <div class="image-container">
                 <img id="modalImage" src="" alt="Screenshot">
@@ -368,15 +365,15 @@
     <!-- Add Clock Modal -->
     <div id="addClockModal" class="modal">
         <div class="modal-content clock-modal-content">
-            <span class="modal-close" onclick="closeAddClockModal()">&times;</span>
+            <span class="modal-close" data-action="clock:closeModal">&times;</span>
             <h2>Add Clock</h2>
 
             <div class="clock-type-selection">
-                <button class="clock-type-btn" data-type="timezone" onclick="selectClockType('timezone')">
+                <button class="clock-type-btn" data-type="timezone" data-action="clock:selectType" data-action-param="timezone">
                     <span class="clock-type-icon">&#127758;</span>
                     <span class="clock-type-label">Timezone Clock</span>
                 </button>
-                <button class="clock-type-btn" data-type="chronometer" onclick="selectClockType('chronometer')">
+                <button class="clock-type-btn" data-type="chronometer" data-action="clock:selectType" data-action-param="chronometer">
                     <span class="clock-type-icon">&#9201;</span>
                     <span class="clock-type-label">Chronometer</span>
                 </button>
@@ -388,11 +385,11 @@
                 <input type="text" id="clockName" placeholder="e.g., New York">
 
                 <label for="clockTimezoneSearch">Timezone (search):</label>
-                <input type="text" id="clockTimezoneSearch" placeholder="Type to search timezones..." autocomplete="off" oninput="filterTimezones()">
+                <input type="text" id="clockTimezoneSearch" placeholder="Type to search timezones..." autocomplete="off">
                 <div id="timezoneList" class="timezone-list"></div>
                 <input type="hidden" id="clockTimezoneSelected">
 
-                <button class="modal-action-btn" onclick="addTimezoneClock()">Add Clock</button>
+                <button class="modal-action-btn" data-action="clock:addTimezone">Add Clock</button>
             </div>
 
             <div id="chronometerForm" class="clock-form" style="display: none;">
@@ -400,7 +397,7 @@
                 <label for="chronometerName">Chronometer Name:</label>
                 <input type="text" id="chronometerName" placeholder="e.g., Work Timer">
 
-                <button class="modal-action-btn" onclick="addChronometer()">Add Chronometer</button>
+                <button class="modal-action-btn" data-action="clock:addChronometer">Add Chronometer</button>
             </div>
         </div>
     </div>

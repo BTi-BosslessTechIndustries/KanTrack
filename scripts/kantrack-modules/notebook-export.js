@@ -1,6 +1,8 @@
 /***********************
  * NOTEBOOK EXPORT FUNCTIONS
  ***********************/
+import jsPDF from 'jspdf';
+import JSZip from 'jszip';
 import * as state from './state.js';
 import { getNotebookImage } from './database.js';
 import { getImageDimensions } from './utils.js';
@@ -14,13 +16,12 @@ export async function exportPageAsPDF() {
   const page = state.notebookItems.find(i => i.id === state.currentPageId);
   if (!page) return;
 
-  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   let yPos = 20;
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
-  const maxWidth = pageWidth - (margin * 2);
+  const maxWidth = pageWidth - margin * 2;
 
   // Title with "Note:" prefix
   doc.setFontSize(18);
@@ -107,13 +108,12 @@ export async function generatePagePDFBlob(pageId) {
   const page = state.notebookItems.find(i => i.id === pageId);
   if (!page || page.type !== 'page') return null;
 
-  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   let yPos = 20;
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
-  const maxWidth = pageWidth - (margin * 2);
+  const maxWidth = pageWidth - margin * 2;
 
   // Title with "Note:" prefix
   doc.setFontSize(18);
@@ -239,8 +239,8 @@ export async function exportFolderAsZip(folderId) {
       ...item,
       // Reset parentId for the root folder to null (so it imports at root level)
       parentId: item.id === folderId ? null : item.parentId,
-      images: []
-    }))
+      images: [],
+    })),
   };
 
   // Fetch images from IndexedDB and include them
@@ -309,8 +309,8 @@ export async function exportAllNotebook() {
     items: state.notebookItems.map(item => ({
       ...item,
       // Include images inline for pages
-      images: []
-    }))
+      images: [],
+    })),
   };
 
   // Fetch images from IndexedDB and include them

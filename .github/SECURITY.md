@@ -6,9 +6,7 @@ If you discover a security vulnerability in KanTrack, please report it responsib
 
 **Do not open a public issue.**
 
-Send details to:
-
-email TBD
+Send details to: email TBD
 
 Include:
 
@@ -31,11 +29,10 @@ KanTrack is a privacy-first project, and security issues are treated with high p
 
 Security reports are especially relevant for:
 
-- Local data storage mechanisms
-- Optional cloud synchronization features
-- Authentication systems (if enabled)
+- Local data storage mechanisms (IndexedDB, localStorage)
 - Data export/import functionality
-- Any network communication when cloud mode is enabled
+- XSS and injection vulnerabilities in the HTML renderer
+- Any future network communication when cloud mode is enabled
 
 ---
 
@@ -47,10 +44,9 @@ Users are encouraged to keep their copy up to date.
 
 ---
 
-## Philosophy
+## Architecture Note
 
-KanTrack operates offline by default.
-Network communication occurs only when optional cloud features are explicitly enabled by the user.
+KanTrack currently runs as a fully static site (Cloudflare Pages, free tier). There is no backend, no server-side code, and no network requests. All data is stored locally in the user's browser. This significantly limits the attack surface compared to server-connected applications.
 
 ---
 

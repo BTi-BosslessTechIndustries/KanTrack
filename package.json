@@ -1,0 +1,56 @@
+{
+  "name": "kantrack",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite --config config/vite.config.js",
+    "build": "vite build --config config/vite.config.js",
+    "preview": "vite preview --config config/vite.config.js",
+    "test": "vitest --config config/vitest.config.js",
+    "test:run": "vitest run --config config/vitest.config.js",
+    "test:ui": "vitest --ui --config config/vitest.config.js",
+    "lint": "eslint --config config/eslint.config.js .",
+    "lint:fix": "eslint --config config/eslint.config.js . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "e2e": "playwright test --config config/playwright.config.js",
+    "e2e:ui": "playwright test --ui --config config/playwright.config.js",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.58.2",
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "fake-indexeddb": "^4.0.2",
+    "globals": "^17.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.0"
+  },
+  "dependencies": {
+    "jspdf": "^4.2.0",
+    "jszip": "^3.10.1"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --config config/eslint.config.js --fix",
+      "prettier --write"
+    ],
+    "*.{css,json,md}": [
+      "prettier --write"
+    ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "printWidth": 100,
+    "arrowParens": "avoid"
+  }
+}

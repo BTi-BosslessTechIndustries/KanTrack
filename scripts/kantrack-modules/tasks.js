@@ -4,7 +4,13 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { deleteTaskImages } from './database.js';
-import { getColumnName, formatTime, getFirstLine, validateTitle, MAX_TITLE_LENGTH } from './utils.js';
+import {
+  getColumnName,
+  formatTime,
+  getFirstLine,
+  validateTitle,
+  MAX_TITLE_LENGTH,
+} from './utils.js';
 import { getPriorityLabel, getPriorityColor, showQuickPriorityMenu } from './priority.js';
 import { sortColumnByPriority } from './sorting.js';
 import { showQuickTimeMenu, LONG_PRESS_THRESHOLD } from './timer.js';
@@ -26,7 +32,7 @@ export function addNote() {
   if (!input) return;
   const noteText = validateTitle(input.value);
   if (noteText.trim() !== '') {
-    const id = Date.now();
+    const id = crypto.randomUUID();
     const timestamp = new Date().toLocaleString();
     const newNote = {
       id,
@@ -37,7 +43,7 @@ export function addNote() {
       tags: [],
       dueDate: null,
       column: 'todo',
-      actions: [{ action: 'Created', timestamp, type: 'created' }]
+      actions: [{ action: 'Created', timestamp, type: 'created' }],
     };
 
     // Record for undo
@@ -46,7 +52,7 @@ export function addNote() {
       taskId: id,
       previousState: null,
       newState: deepClone(newNote),
-      description: `Create task "${noteText.substring(0, 30)}..."`
+      description: `Create task "${noteText.substring(0, 30)}..."`,
     });
 
     state.pushToNotesData(newNote);
@@ -61,9 +67,7 @@ export function addNote() {
     }
 
     // Update column counts
-    if (window.updateColumnCounts) {
-      window.updateColumnCounts();
-    }
+    window.dispatchEvent(new Event('kantrack:updateColumnCounts'));
 
     input.value = '';
   }
@@ -72,12 +76,12 @@ export function addNote() {
 export function deleteTaskFromModal() {
   if (!state.currentTaskId) return;
 
-  if (confirm("Are you sure you want to delete this task?")) {
+  if (confirm('Are you sure you want to delete this task?')) {
     const taskIdToDelete = state.currentTaskId;
     const task = state.notesData.find(t => t.id === taskIdToDelete);
     if (!task) return;
 
-    const shouldExport = confirm("Do you want to export this task as PDF before deleting?");
+    const shouldExport = confirm('Do you want to export this task as PDF before deleting?');
 
     // Close modal first
     state.setModalHasChanges(false); // Prevent unsaved changes warning
@@ -114,7 +118,7 @@ export async function deleteNote(id, addToHistory = true) {
       taskId: id,
       previousState: deepClone(task),
       newState: null,
-      description: `Delete task "${task.title.substring(0, 30)}..."`
+      description: `Delete task "${task.title.substring(0, 30)}..."`,
     });
 
     // Move to trash for recovery
@@ -134,15 +138,9 @@ export async function deleteNote(id, addToHistory = true) {
     const domEl = document.querySelector(`[data-id='${id}']`);
     if (domEl) domEl.remove();
 
-    // Update column counts
-    if (window.updateColumnCounts) {
-      window.updateColumnCounts();
-    }
-
-    // Update trash count badge
-    if (window.updateTrashCount) {
-      window.updateTrashCount();
-    }
+    // Update column counts and trash badge
+    window.dispatchEvent(new Event('kantrack:updateColumnCounts'));
+    window.dispatchEvent(new Event('kantrack:updateTrashCount'));
   }
 }
 
@@ -164,7 +162,7 @@ export function updateNoteColumn(id, oldColumn, newColumn) {
     note.actions.push({
       action: `Moved from ${getColumnName(oldColumn)} to ${getColumnName(newColumn)}`,
       timestamp,
-      type: 'status'
+      type: 'status',
     });
 
     // Record action for undo/redo
@@ -173,7 +171,7 @@ export function updateNoteColumn(id, oldColumn, newColumn) {
       taskId: id,
       previousState: previousState,
       newState: deepClone(note),
-      description: `Move "${note.title.substring(0, 20)}..." to ${getColumnName(newColumn)}`
+      description: `Move "${note.title.substring(0, 20)}..." to ${getColumnName(newColumn)}`,
     });
 
     saveNotesToLocalStorage();
@@ -202,7 +200,7 @@ export function createNoteElement(content) {
   note.dataset.id = content.id;
 
   note.style.cursor = 'pointer';
-  note.onclick = (e) => {
+  note.onclick = e => {
     if (!e.target.closest('button') && !e.target.closest('.quick-time-menu')) {
       if (openTaskModalFn) openTaskModalFn(content.id);
     }
@@ -241,24 +239,24 @@ export function createNoteElement(content) {
   editDeleteContainer.classList.add('edit-delete');
 
   const priorityButton = document.createElement('button');
-  priorityButton.textContent = "🏷️";
+  priorityButton.textContent = '🏷️';
   priorityButton.style.color = getPriorityColor(content.priority);
-  priorityButton.title = "Set Priority";
-  priorityButton.onclick = function(e) {
+  priorityButton.title = 'Set Priority';
+  priorityButton.onclick = function (e) {
     e.stopPropagation();
     showQuickPriorityMenu(content.id, priorityButton);
   };
   // iOS touch support
-  priorityButton.addEventListener('touchend', function(e) {
+  priorityButton.addEventListener('touchend', function (e) {
     e.stopPropagation();
     e.preventDefault();
     showQuickPriorityMenu(content.id, priorityButton);
   });
 
   const timerButton = document.createElement('button');
-  timerButton.textContent = "⏱️";
-  timerButton.style.color = "#ff9800";
-  timerButton.title = "Quick Add Time (Long press to subtract)";
+  timerButton.textContent = '⏱️';
+  timerButton.style.color = '#ff9800';
+  timerButton.title = 'Quick Add Time (Long press to subtract)';
 
   // Long press detection
   let pressTimer = null;
@@ -296,7 +294,7 @@ export function createNoteElement(content) {
     }
   };
 
-  timerButton.onmouseout = function() {
+  timerButton.onmouseout = function () {
     if (!isLongPress) {
       clearTimeout(pressTimer);
     }
@@ -321,16 +319,16 @@ export function createNoteElement(content) {
   };
 
   const deleteButton = document.createElement('button');
-  deleteButton.textContent = "❌";
-  deleteButton.style.color = "#e57373";
-  deleteButton.title = "Delete";
+  deleteButton.textContent = '❌';
+  deleteButton.style.color = '#e57373';
+  deleteButton.title = 'Delete';
   const handleDelete = async function (e) {
     e.stopPropagation();
-    if (confirm("Are you sure you want to delete this task?")) {
+    if (confirm('Are you sure you want to delete this task?')) {
       const task = state.notesData.find(t => t.id === content.id);
       if (!task) return;
 
-      const shouldExport = confirm("Do you want to export this task as PDF before deleting?");
+      const shouldExport = confirm('Do you want to export this task as PDF before deleting?');
 
       if (shouldExport) {
         // Add deletion to history
@@ -348,7 +346,7 @@ export function createNoteElement(content) {
   };
   deleteButton.onclick = handleDelete;
   // iOS touch support
-  deleteButton.addEventListener('touchend', function(e) {
+  deleteButton.addEventListener('touchend', function (e) {
     e.preventDefault();
     handleDelete(e);
   });
@@ -356,7 +354,13 @@ export function createNoteElement(content) {
   [priorityButton, timerButton, deleteButton].forEach(btn => {
     btn.draggable = false;
     btn.addEventListener('mousedown', e => e.stopPropagation());
-    btn.addEventListener('touchstart', e => { e.stopPropagation(); }, { passive: true });
+    btn.addEventListener(
+      'touchstart',
+      e => {
+        e.stopPropagation();
+      },
+      { passive: true }
+    );
   });
 
   editDeleteContainer.appendChild(priorityButton);
@@ -414,7 +418,7 @@ export function createNoteElement(content) {
 
   note.appendChild(editDeleteContainer);
 
-  note.addEventListener('dragstart', (e) => {
+  note.addEventListener('dragstart', e => {
     if (e.target.closest('button')) {
       e.preventDefault();
       return;

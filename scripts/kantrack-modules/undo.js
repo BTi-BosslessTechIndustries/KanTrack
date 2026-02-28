@@ -5,23 +5,32 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { showNotification } from './notifications.js';
+import {
+  getAllTrash,
+  saveTrash as _saveTrash,
+  getAllUndoHistory,
+  saveUndoHistory,
+} from './repository.js';
+import { debugWarn } from './utils.js';
 
 // Action history stacks
 const undoStack = [];
 const redoStack = [];
-const MAX_HISTORY = 50;
+const MAX_HISTORY = 200;
 
 // Trash for deleted tasks
 let trashedTasks = [];
-const TRASH_STORAGE_KEY = 'kantrackTrash';
-const TRASH_MAX_ITEMS = 20;
+const TRASH_SOFT_CAP = 200;
 
 /**
  * Initialize undo system
  */
-export function initUndo() {
-  // Load trashed items
-  loadTrash();
+export async function initUndo() {
+  // Clear in-memory stacks so re-initialisation starts fresh
+  undoStack.length = 0;
+  redoStack.length = 0;
+  await loadTrash();
+  await loadUndoHistory();
 
   // Setup keyboard shortcuts
   document.addEventListener('keydown', handleKeyboardShortcuts);
@@ -32,9 +41,11 @@ export function initUndo() {
  */
 function handleKeyboardShortcuts(e) {
   // Check if we're in an input field
-  if (e.target.tagName === 'INPUT' ||
-      e.target.tagName === 'TEXTAREA' ||
-      e.target.isContentEditable) {
+  if (
+    e.target.tagName === 'INPUT' ||
+    e.target.tagName === 'TEXTAREA' ||
+    e.target.isContentEditable
+  ) {
     return;
   }
 
@@ -63,7 +74,7 @@ function handleKeyboardShortcuts(e) {
 export function recordAction(action) {
   undoStack.push({
     ...action,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 
   // Limit stack size
@@ -73,6 +84,9 @@ export function recordAction(action) {
 
   // Clear redo stack when new action is recorded
   redoStack.length = 0;
+
+  // Persist undo history to IDB (fire-and-forget)
+  saveUndoHistoryToIDB();
 }
 
 /**
@@ -90,6 +104,7 @@ export function undo() {
   try {
     applyUndo(action);
     showNotification(`Undone: ${action.description}`, 'info', 2000);
+    saveUndoHistoryToIDB();
     return true;
   } catch (e) {
     console.error('Undo failed:', e);
@@ -113,6 +128,7 @@ export function redo() {
   try {
     applyRedo(action);
     showNotification(`Redone: ${action.description}`, 'info', 2000);
+    saveUndoHistoryToIDB();
     return true;
   } catch (e) {
     console.error('Redo failed:', e);
@@ -138,9 +154,11 @@ function applyUndo(action) {
         state.notesData.push(action.previousState);
         saveNotesToLocalStorage();
         // Trigger UI refresh
-        window.dispatchEvent(new CustomEvent('kantrack:taskRestored', {
-          detail: { taskId: action.taskId }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('kantrack:taskRestored', {
+            detail: { taskId: action.taskId },
+          })
+        );
       }
       break;
 
@@ -150,9 +168,11 @@ function applyUndo(action) {
       if (createIndex !== -1) {
         state.notesData.splice(createIndex, 1);
         saveNotesToLocalStorage();
-        window.dispatchEvent(new CustomEvent('kantrack:taskRemoved', {
-          detail: { taskId: action.taskId }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('kantrack:taskRemoved', {
+            detail: { taskId: action.taskId },
+          })
+        );
       }
       break;
 
@@ -174,9 +194,11 @@ function applyUndo(action) {
           task[key] = prevState[key];
         });
         saveNotesToLocalStorage();
-        window.dispatchEvent(new CustomEvent('kantrack:taskUpdated', {
-          detail: { taskId: action.taskId, oldColumn: oldColumn }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('kantrack:taskUpdated', {
+            detail: { taskId: action.taskId, oldColumn: oldColumn },
+          })
+        );
       }
       break;
   }
@@ -193,9 +215,11 @@ function applyRedo(action) {
       if (taskToDelete) {
         taskToDelete.deleted = true;
         saveNotesToLocalStorage();
-        window.dispatchEvent(new CustomEvent('kantrack:taskRemoved', {
-          detail: { taskId: action.taskId }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('kantrack:taskRemoved', {
+            detail: { taskId: action.taskId },
+          })
+        );
       }
       break;
 
@@ -209,9 +233,11 @@ function applyRedo(action) {
         }
         state.notesData.push(action.newState);
         saveNotesToLocalStorage();
-        window.dispatchEvent(new CustomEvent('kantrack:taskRestored', {
-          detail: { taskId: action.taskId }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('kantrack:taskRestored', {
+            detail: { taskId: action.taskId },
+          })
+        );
       }
       break;
 
@@ -233,9 +259,11 @@ function applyRedo(action) {
           redoTask[key] = newState[key];
         });
         saveNotesToLocalStorage();
-        window.dispatchEvent(new CustomEvent('kantrack:taskUpdated', {
-          detail: { taskId: action.taskId, oldColumn: oldColumn }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('kantrack:taskUpdated', {
+            detail: { taskId: action.taskId, oldColumn: oldColumn },
+          })
+        );
       }
       break;
   }
@@ -265,36 +293,47 @@ export function getUndoRedoStatus() {
     undoCount: undoStack.length,
     redoCount: redoStack.length,
     lastUndo: undoStack.length > 0 ? undoStack[undoStack.length - 1].description : null,
-    lastRedo: redoStack.length > 0 ? redoStack[redoStack.length - 1].description : null
+    lastRedo: redoStack.length > 0 ? redoStack[redoStack.length - 1].description : null,
   };
+}
+
+// ==================== UNDO HISTORY PERSISTENCE ====================
+
+/**
+ * Save the current undoStack via repository.js (fire-and-forget)
+ */
+function saveUndoHistoryToIDB() {
+  const entries = undoStack.map(action => ({ action, savedAt: Date.now() }));
+  saveUndoHistory(entries);
+}
+
+/**
+ * Load undo history from IDB into undoStack
+ */
+async function loadUndoHistory() {
+  const entries = await getAllUndoHistory();
+  if (entries && entries.length > 0) {
+    // entries are in insertion order (autoIncrement seq ensures this)
+    // Take last MAX_HISTORY entries
+    const recent = entries.slice(-MAX_HISTORY);
+    undoStack.push(...recent.map(e => e.action));
+  }
 }
 
 // ==================== TRASH SYSTEM ====================
 
 /**
- * Load trashed tasks from localStorage
+ * Load trashed tasks from IDB (with localStorage fallback) via repository.js
  */
-function loadTrash() {
-  try {
-    const saved = localStorage.getItem(TRASH_STORAGE_KEY);
-    if (saved) {
-      trashedTasks = JSON.parse(saved);
-    }
-  } catch (e) {
-    console.warn('Error loading trash:', e);
-    trashedTasks = [];
-  }
+async function loadTrash() {
+  trashedTasks = await getAllTrash();
 }
 
 /**
- * Save trash to localStorage
+ * Save trash via repository.js
  */
 function saveTrash() {
-  try {
-    localStorage.setItem(TRASH_STORAGE_KEY, JSON.stringify(trashedTasks));
-  } catch (e) {
-    console.warn('Error saving trash:', e);
-  }
+  _saveTrash([...trashedTasks]);
 }
 
 /**
@@ -305,11 +344,11 @@ export function moveToTrash(task) {
 
   trashedTasks.unshift({
     ...task,
-    trashedAt: Date.now()
+    trashedAt: Date.now(),
   });
 
-  // Limit trash size
-  while (trashedTasks.length > TRASH_MAX_ITEMS) {
+  // Soft cap at 200 items — silently trim oldest
+  while (trashedTasks.length > TRASH_SOFT_CAP) {
     trashedTasks.pop();
   }
 

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "scripts/kantrack-modules/types.ts",
+    "scripts/kantrack-modules/store.ts",
+    "scripts/kantrack-modules/router.ts",
+    "scripts/kantrack-modules/repository.ts"
+  ]
+}

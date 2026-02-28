@@ -64,6 +64,21 @@ Please:
 
 ---
 
+## Development Setup
+
+```bash
+npm install       # install dependencies
+npm run dev       # start Vite dev server at http://localhost:5173
+npm run test:run  # run unit tests (Vitest)
+npm run lint      # run ESLint
+npm run typecheck # run TypeScript type check
+npm run e2e       # build + run Playwright E2E tests
+```
+
+See [`tests/README.md`](../tests/README.md) and [`config/README.md`](../config/README.md) for more detail.
+
+---
+
 ## Security & Privacy
 
 Contributions must not introduce:

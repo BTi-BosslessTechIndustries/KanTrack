@@ -5,12 +5,17 @@ import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { storeImage, getImage, deleteImagesByIds } from './database.js';
 import { formatTime, escapeHtml, getTextPreview, deepClone } from './utils.js';
-import { getPriorityLabel, updateModalPriorityButtons, updateNoteCardPriority } from './priority.js';
+import {
+  getPriorityLabel,
+  updateModalPriorityButtons,
+  updateNoteCardPriority,
+} from './priority.js';
 import { sortColumnByPriority } from './sorting.js';
 import { renderSubKanban } from './sub-kanban.js';
 import { openImageViewer } from './images.js';
 import { updateNoteCardDisplay, setOpenTaskModal } from './tasks.js';
-import { getTagById, cleanupUnusedTags } from './tags.js';
+import { getTagById, cleanupUnusedTags, renderTagSelector } from './tags.js';
+import { renderDueDatePicker } from './due-dates.js';
 import { recordAction } from './undo.js';
 
 export async function openTaskModal(taskId) {
@@ -71,14 +76,14 @@ export async function openTaskModal(taskId) {
 
   // Render tags selector
   const tagsContainer = document.getElementById('tagsContainer');
-  if (tagsContainer && window.renderTagSelector) {
-    window.renderTagSelector(taskId, tagsContainer);
+  if (tagsContainer) {
+    renderTagSelector(taskId, tagsContainer);
   }
 
   // Render due date picker
   const dueDateContainer = document.getElementById('dueDateContainer');
-  if (dueDateContainer && window.renderDueDatePicker) {
-    window.renderDueDatePicker(taskId, dueDateContainer);
+  if (dueDateContainer) {
+    renderDueDatePicker(taskId, dueDateContainer);
   }
 
   modal.style.display = 'block';
@@ -123,7 +128,7 @@ export function enableTitleEdit() {
   };
 
   titleEl.onblur = finishEdit;
-  titleEl.onkeydown = (e) => {
+  titleEl.onkeydown = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
       titleEl.blur();
@@ -175,7 +180,7 @@ export async function renderHistory(task) {
       const editBtn = document.createElement('button');
       editBtn.title = 'Edit note';
       editBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
-      editBtn.onclick = (e) => {
+      editBtn.onclick = e => {
         e.stopPropagation();
         editNoteEntry(task.id, noteEntryIndex, actionIndex);
       };
@@ -184,7 +189,7 @@ export async function renderHistory(task) {
       deleteBtn.classList.add('delete-note-btn');
       deleteBtn.title = 'Delete note';
       deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-      deleteBtn.onclick = (e) => {
+      deleteBtn.onclick = e => {
         e.stopPropagation();
         deleteNoteEntry(task.id, noteEntryIndex, actionIndex);
       };
@@ -295,7 +300,7 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
   }
 
   // Setup paste handler
-  editor.onpaste = async (e) => {
+  editor.onpaste = async e => {
     const items = e.clipboardData.items;
     let hasImage = false;
 
@@ -307,7 +312,7 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
         const blob = items[i].getAsFile();
         const reader = new FileReader();
 
-        reader.onload = (event) => {
+        reader.onload = event => {
           const img = document.createElement('img');
           img.src = event.target.result;
           img.style.maxWidth = '100%';
@@ -462,7 +467,8 @@ export function closeTaskModal() {
 
   const hasTextContent = notesEditor && notesEditor.textContent.trim().length > 0;
   const hasImages = notesEditor && notesEditor.querySelectorAll('img').length > 0;
-  const hasNoteChanges = notesEditor && notesEditor.innerHTML.trim() && (hasTextContent || hasImages);
+  const hasNoteChanges =
+    notesEditor && notesEditor.innerHTML.trim() && (hasTextContent || hasImages);
   const hasTimerChanges = task && (task.timer || 0) !== state.originalTimerValue;
   const hasPriorityChanges = state.currentModalPriority !== state.originalPriorityValue;
   const currentTitle = titleEl ? titleEl.textContent.trim() : '';
@@ -471,9 +477,11 @@ export function closeTaskModal() {
   // Check for tag changes
   const currentTags = task?.tags || [];
   const originalTags = state.originalTagsValue || [];
-  const hasTagChanges = JSON.stringify(currentTags.sort()) !== JSON.stringify([...originalTags].sort());
+  const hasTagChanges =
+    JSON.stringify(currentTags.sort()) !== JSON.stringify([...originalTags].sort());
 
-  const hasRealChanges = hasNoteChanges || hasTimerChanges || hasPriorityChanges || hasTitleChanges || hasTagChanges;
+  const hasRealChanges =
+    hasNoteChanges || hasTimerChanges || hasPriorityChanges || hasTitleChanges || hasTagChanges;
 
   if (state.modalHasChanges && hasRealChanges) {
     if (!confirm('You have unsaved changes. Are you sure you want to close without saving?')) {
@@ -552,7 +560,7 @@ export async function saveAndCloseModal() {
     task.actions.push({
       action: `Renamed from "${state.originalTitleValue}" to "${currentTitle}"`,
       timestamp,
-      type: 'status'
+      type: 'status',
     });
     task.title = currentTitle;
 
@@ -573,7 +581,7 @@ export async function saveAndCloseModal() {
     task.actions.push({
       action: `Priority changed from ${getPriorityLabel(state.originalPriorityValue)} to ${getPriorityLabel(state.currentModalPriority)}`,
       timestamp,
-      type: 'priority'
+      type: 'priority',
     });
     updateNoteCardPriority(state.currentTaskId);
     // Re-sort the column after priority change
@@ -595,7 +603,7 @@ export async function saveAndCloseModal() {
       task.actions.push({
         action: `Added tag "${tag ? tag.name : tagId}"`,
         timestamp,
-        type: 'tag'
+        type: 'tag',
       });
     });
 
@@ -605,7 +613,7 @@ export async function saveAndCloseModal() {
       task.actions.push({
         action: `Removed tag "${tag ? tag.name : tagId}"`,
         timestamp,
-        type: 'tag'
+        type: 'tag',
       });
     });
 
@@ -631,9 +639,10 @@ export async function saveAndCloseModal() {
 
     if (totalChange !== 0) {
       const timestamp = new Date().toLocaleString();
-      const summaryAction = totalChange > 0
-        ? `Added ${totalChange} minute(s) to timer`
-        : `Removed ${Math.abs(totalChange)} minute(s) from timer`;
+      const summaryAction =
+        totalChange > 0
+          ? `Added ${totalChange} minute(s) to timer`
+          : `Removed ${Math.abs(totalChange)} minute(s) from timer`;
       task.actions.push({ action: summaryAction, timestamp, type: 'timer' });
     }
   }
@@ -675,7 +684,7 @@ export async function saveAndCloseModal() {
     const noteEntry = {
       timestamp,
       notesHTML: notesEditor.innerHTML,
-      images: imageIds
+      images: imageIds,
     };
 
     task.noteEntries.push(noteEntry);
@@ -685,7 +694,7 @@ export async function saveAndCloseModal() {
       type: 'note',
       timestamp,
       notesHTML: notesEditor.innerHTML,
-      images: imageIds
+      images: imageIds,
     });
   }
 
@@ -711,7 +720,7 @@ export async function saveAndCloseModal() {
       taskId: state.currentTaskId,
       previousState: previousTaskState,
       newState: newTaskState,
-      description: changeDescription
+      description: changeDescription,
     });
   }
 

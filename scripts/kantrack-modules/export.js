@@ -1,6 +1,7 @@
 /***********************
  * EXPORT/IMPORT FUNCTIONS
  ***********************/
+import jsPDF from 'jspdf';
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { getImage, storeImage } from './database.js';
@@ -9,7 +10,7 @@ import {
   getCurrentDate,
   escapeHtml,
   formatTime,
-  getImageDimensions
+  getImageDimensions,
 } from './utils.js';
 import { getPriorityLabel } from './priority.js';
 import { createNoteElement } from './tasks.js';
@@ -24,13 +25,12 @@ export async function exportTaskAsPDF(taskId = null) {
   const task = state.notesData.find(t => t.id === id);
   if (!task) return;
 
-  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   let yPos = 20;
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
-  const maxWidth = pageWidth - (margin * 2);
+  const maxWidth = pageWidth - margin * 2;
 
   // Title (split to fit page width)
   doc.setFontSize(18);
@@ -45,9 +45,14 @@ export async function exportTaskAsPDF(taskId = null) {
   // Priority
   doc.setFontSize(12);
   doc.setFont(undefined, 'normal');
-  const priorityColor = task.priority === 'high' ? [244, 67, 54] :
-                        task.priority === 'low' ? [76, 175, 80] :
-                        task.priority === 'medium' ? [255, 152, 0] : [128, 128, 128];
+  const priorityColor =
+    task.priority === 'high'
+      ? [244, 67, 54]
+      : task.priority === 'low'
+        ? [76, 175, 80]
+        : task.priority === 'medium'
+          ? [255, 152, 0]
+          : [128, 128, 128];
   doc.setTextColor(...priorityColor);
   doc.text(`Priority: ${getPriorityLabel(task.priority)}`, margin, yPos);
   doc.setTextColor(0, 0, 0);
@@ -200,7 +205,7 @@ export async function exportTaskAsPDF(taskId = null) {
 export async function exportBoardAsHTML() {
   const exportData = {
     exportDate: new Date().toISOString(),
-    tasks: []
+    tasks: [],
   };
 
   for (const task of state.notesData) {
@@ -265,9 +270,14 @@ function generatePreviewHTML(tasks) {
   tasks.forEach(task => {
     if (task.deleted) return;
 
-    const priorityColor = task.priority === 'high' ? '#f44336' :
-                          task.priority === 'low' ? '#4caf50' :
-                          task.priority === 'medium' ? '#ff9800' : 'rgba(255, 255, 255, 0.5)';
+    const priorityColor =
+      task.priority === 'high'
+        ? '#f44336'
+        : task.priority === 'low'
+          ? '#4caf50'
+          : task.priority === 'medium'
+            ? '#ff9800'
+            : 'rgba(255, 255, 255, 0.5)';
 
     html += `<div class="task">
       <h3>${escapeHtml(task.title)} - ${getColumnName(task.column)}</h3>
@@ -301,7 +311,7 @@ export async function importBoardFromFile(event) {
 // Import from HTML (current format)
 async function importBoardFromHTML(file) {
   const reader = new FileReader();
-  reader.onload = async (e) => {
+  reader.onload = async e => {
     try {
       const htmlContent = e.target.result;
       const parser = new DOMParser();
@@ -320,7 +330,11 @@ async function importBoardFromHTML(file) {
         return;
       }
 
-      if (confirm(`This will replace your current board with ${importData.tasks.length} tasks.\n\nContinue?`)) {
+      if (
+        confirm(
+          `This will replace your current board with ${importData.tasks.length} tasks.\n\nContinue?`
+        )
+      ) {
         state.setNotesData([]);
         document.querySelectorAll('.note').forEach(note => note.remove());
 
@@ -363,7 +377,7 @@ async function importBoardFromHTML(file) {
 // Import from TXT (old format - backward compatibility)
 async function importBoardFromTXT(file) {
   const reader = new FileReader();
-  reader.onload = async (e) => {
+  reader.onload = async e => {
     try {
       const txtContent = e.target.result;
 
@@ -377,7 +391,7 @@ async function importBoardFromTXT(file) {
           'To Do': 'todo',
           'In Progress': 'inProgress',
           'On Hold': 'onHold',
-          'Done': 'done'
+          Done: 'done',
         };
         return mapping[columnName] || 'todo';
       }
@@ -393,7 +407,10 @@ async function importBoardFromTXT(file) {
 
       // Parse each section
       for (let section of sections) {
-        const lines = section.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const lines = section
+          .split('\n')
+          .map(l => l.trim())
+          .filter(l => l.length > 0);
 
         let title = 'Untitled';
         let notes = '';
@@ -435,7 +452,7 @@ async function importBoardFromTXT(file) {
             actions.push({
               action: actionText,
               timestamp: timestamp,
-              type: parseActionType(actionText)
+              type: parseActionType(actionText),
             });
           }
         }
@@ -453,11 +470,16 @@ async function importBoardFromTXT(file) {
           timer: 0,
           priority: null,
           column: column,
-          actions: actions.length > 0 ? actions : [{
-            action: 'Created (imported from TXT)',
-            timestamp: new Date().toLocaleString(),
-            type: 'created'
-          }]
+          actions:
+            actions.length > 0
+              ? actions
+              : [
+                  {
+                    action: 'Created (imported from TXT)',
+                    timestamp: new Date().toLocaleString(),
+                    type: 'created',
+                  },
+                ],
         };
 
         // If there are notes, add them as a note entry
@@ -465,7 +487,7 @@ async function importBoardFromTXT(file) {
           newTask.noteEntries.push({
             timestamp: actions.length > 0 ? actions[0].timestamp : new Date().toLocaleString(),
             notesHTML: notes,
-            images: []
+            images: [],
           });
         }
 
@@ -477,7 +499,11 @@ async function importBoardFromTXT(file) {
         return;
       }
 
-      if (confirm(`This will replace your current board with ${convertedTasks.length} imported tasks.\n\nContinue?`)) {
+      if (
+        confirm(
+          `This will replace your current board with ${convertedTasks.length} imported tasks.\n\nContinue?`
+        )
+      ) {
         state.setNotesData([]);
         document.querySelectorAll('.note').forEach(note => note.remove());
 
