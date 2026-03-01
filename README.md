@@ -67,12 +67,12 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 401 tests across 18 files)
+npm run test:run     # unit tests (Vitest, 529 tests across 19 files)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
 
-npm run e2e          # Playwright E2E — 26 tests (builds automatically before running)
+npm run e2e          # Playwright E2E — 43 tests (builds automatically before running)
 npm run e2e:ui       # Playwright UI mode (interactive test runner)
 ```
 
@@ -112,14 +112,16 @@ KanTrack/
 │   └── responsive.css           # Media queries (≤ 768 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (401 tests, 18 files)
+│   ├── *.test.js                # Vitest unit tests (529 tests, 19 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (26 tests, 5 files)
+│   └── e2e/                     # Playwright end-to-end tests (43 tests, 7 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management (Phase 7)
 │       ├── import-export.spec.js# Export/import round-trips (Phase 4)
-│       └── performance.spec.js  # Virtual list DOM budget (Phase 5)
+│       ├── performance.spec.js  # Virtual list DOM budget (Phase 5)
+│       ├── search.spec.js       # Live search filtering and ESC clear
+│       └── header.spec.js       # Header UI — dropdown, About modal, Shortcuts modal
 │
 ├── config/                      # Build and tool configuration
 │   ├── vite.config.js           # Vite build config
@@ -128,7 +130,8 @@ KanTrack/
 │   └── eslint.config.js         # ESLint flat config (v9)
 │
 ├── docs/                        # Project documentation
-│   ├── KanTrack_Implementation_Roadmap.md
+│   ├── KanTrack_Cloud_Roadmap.md# Phases 8–12 roadmap (future cloud layer)
+│   ├── technical/               # Architecture and security reference
 │   ├── philosophy/              # Engineering and design principles
 │   ├── product/                 # Product vision and marketing docs
 │   └── vision/                  # Manifesto and mission

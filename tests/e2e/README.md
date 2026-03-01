@@ -11,7 +11,7 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 | `smoke.spec.js`         | 2     | Create task + persist; set priority + persist after reload               |
 | `flows.spec.js`         | 6     | Delete, edit title, add note, undo, undo-persist, redo                   |
 | `accessibility.spec.js` | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav    |
-| `import-export.spec.js` | 8     | JSON export/import, encrypted export/import, format-version validation   |
+| `import-export.spec.js` | 7     | JSON export/import, encrypted export/import, format-version validation   |
 | `performance.spec.js`   | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)               |
 | `search.spec.js`        | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match    |
 | `header.spec.js`        | 12    | Support Us link, credit button, ⋮ dropdown, About modal, Shortcuts modal |
