@@ -13,7 +13,6 @@ Vite build configuration.
 - Entry point: `index.html` (project root)
 - Output: `dist/`
 - Resolve alias: strips `.js` from relative imports so Rollup can find the `.ts` equivalents (e.g. `./store.js` → resolves `store.ts`)
-- `optimizeDeps.exclude`: `['jspdf', 'html2canvas', 'dompurify']` — jsPDF v4 bundles these with complex ESM chunk structures that Vite's dep optimizer cannot pre-bundle; excluding them makes Vite serve them directly from `node_modules`
 - No base-path override needed — Cloudflare Pages serves from `/` by default
 
 Relevant scripts: `npm run dev` · `npm run build` · `npm run preview`
