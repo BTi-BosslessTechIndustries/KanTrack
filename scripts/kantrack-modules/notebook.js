@@ -17,11 +17,13 @@ import {
   pushToNotebookItems,
 } from './state.js';
 import { saveNotebookToLocalStorage } from './storage.js';
-import { getUIPref, setUIPref } from './repository.js';
+import { getUIPref, setUIPref, getNotebookItemContent } from './repository.js';
 import { storeNotebookImage, getNotebookImage, deletePageImages } from './database.js';
 import { openImageViewer } from './images.js';
 import { initMentionHandler, setOpenPageModal } from './mentions.js';
 import { exportFolderAsZip } from './notebook-export.js';
+import { sanitizeHTML } from './sanitize.js';
+import { createFocusTrap } from './utils.js';
 
 /***********************
  * SIDEBAR UI
@@ -434,10 +436,17 @@ export function expandToItem(itemId) {
   renderNotebookTree();
 }
 
+// Track last-opened page id for idle preload
+let _lastOpenedPageId = null;
+
 /***********************
  * PAGE MODAL
  ***********************/
+let _pageModalTrap = null;
+let _pageModalReturnFocus = null;
+
 export async function openPageModal(pageId) {
+  _pageModalReturnFocus = document.activeElement;
   const page = notebookItems.find(i => i.id === pageId && i.type === 'page');
   if (!page) return;
 
@@ -449,7 +458,18 @@ export async function openPageModal(pageId) {
   const editorEl = document.getElementById('pageEditor');
 
   titleEl.textContent = page.name;
-  editorEl.innerHTML = page.content || '';
+
+  // Lazy-load content: use in-memory content if freshly saved, otherwise fetch from IDB
+  const content = page.content != null ? page.content : await getNotebookItemContent(pageId);
+  editorEl.innerHTML = sanitizeHTML(content);
+
+  // Preload the next page we open on idle (warm the IDB cache)
+  if (_lastOpenedPageId && _lastOpenedPageId !== pageId) {
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(() => getNotebookItemContent(_lastOpenedPageId));
+    }
+  }
+  _lastOpenedPageId = pageId;
 
   // Restore images from IndexedDB
   if (page.images && page.images.length > 0) {
@@ -475,6 +495,8 @@ export async function openPageModal(pageId) {
   setupPageClipboardPaste();
 
   modal.style.display = 'block';
+  _pageModalTrap = createFocusTrap(modal);
+  _pageModalTrap.activate();
 }
 
 // Register openPageModal with mentions.js
@@ -487,10 +509,14 @@ export function closePageModal() {
     }
   }
 
+  _pageModalTrap?.deactivate();
+  _pageModalTrap = null;
   const modal = document.getElementById('pageModal');
   modal.style.display = 'none';
   setCurrentPageId(null);
   setPageHasChanges(false);
+  _pageModalReturnFocus?.focus();
+  _pageModalReturnFocus = null;
 }
 
 export async function saveAndClosePage() {

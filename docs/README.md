@@ -2,8 +2,6 @@
 
 Project documentation. Organized by audience and purpose.
 
-> **Note:** Concrete technical documentation will be added here in a future phase. This index covers reference material and foundational principles only.
-
 ---
 
 ## Product and business context

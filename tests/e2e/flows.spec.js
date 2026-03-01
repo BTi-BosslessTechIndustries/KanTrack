@@ -183,4 +183,58 @@ test.describe('KanTrack flow tests', () => {
     // The task card should no longer be visible
     await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
   });
+
+  // ─── Phase 3: oplog persistence ───────────────────────────────────────────
+
+  test('undo survives a page refresh (oplog persistence)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    const title = `Oplog undo ${Date.now()}`;
+    await createTask(page, title);
+
+    // Wait for the oplog entry to be committed to IDB before reloading.
+    await page.waitForFunction(async () => {
+      try {
+        const db = await new Promise((res, rej) => {
+          const req = indexedDB.open('KanbanDB');
+          req.onsuccess = () => res(req.result);
+          req.onerror = () => rej(new Error('IDB open failed'));
+        });
+        return await new Promise(res => {
+          const req = db.transaction('oplog', 'readonly').objectStore('oplog').getAll();
+          req.onsuccess = () => res(req.result.some(e => !e.undone));
+          req.onerror = () => res(false);
+        });
+      } catch {
+        return false;
+      }
+    });
+
+    // Reload — the oplog must rebuild the undo stack on re-init
+    await page.reload({ waitUntil: 'networkidle' });
+
+    // Task should still be visible after reload
+    await expect(page.locator('#todo .note').filter({ hasText: title })).toBeVisible();
+
+    // Undo should still work — the stack was rebuilt from the oplog
+    await page.locator('[data-action="history:undo"]').click();
+    await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
+  });
+
+  test('redo re-applies an undone action', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    const title = `Redo test ${Date.now()}`;
+    await createTask(page, title);
+
+    // Undo
+    await page.locator('[data-action="history:undo"]').click();
+    await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
+
+    // Redo — task should reappear
+    await page.locator('[data-action="history:redo"]').click();
+    await expect(page.locator('#todo .note').filter({ hasText: title })).toBeVisible();
+  });
 });

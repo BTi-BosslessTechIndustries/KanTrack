@@ -65,3 +65,29 @@ export interface UndoEntry {
   action: unknown;
   savedAt: number;
 }
+
+// ==================== OPLOG TYPES (Phase 3) ====================
+
+export type OplogActionType = 'create' | 'update' | 'move' | 'delete' | 'restore';
+export type OplogEntityType = 'task' | 'tag' | 'prefs';
+
+export interface PatchField {
+  prev: unknown;
+  next: unknown;
+}
+
+export interface OplogEntry {
+  opId: string;
+  deviceId: string;
+  lamport: number;
+  timestamp: number;
+  entityType: OplogEntityType;
+  entityId: string;
+  actionType: OplogActionType;
+  patch: Record<string, PatchField>;
+  description: string;
+  undone: boolean;
+  prevHash: null; // reserved for Phase 10 (sync)
+  hash: null; // reserved for Phase 10 (sync)
+  _action: unknown; // original recordAction() argument — for stack reconstruction on init
+}

@@ -37,6 +37,9 @@ import {
   deleteTaskFromModal,
   createNoteElement,
   updateNoteCardDisplay,
+  initVirtualLists,
+  updateColumnVirtualList,
+  getColumnVirtualList,
 } from './kantrack-modules/tasks.js';
 import { setupDragAndDrop } from './kantrack-modules/drag-drop.js';
 import { addSubKanbanItem, toggleSubKanban } from './kantrack-modules/sub-kanban.js';
@@ -51,6 +54,8 @@ import {
 import {
   exportTaskAsPDF,
   exportBoardAsHTML,
+  exportWorkspaceAsJSON,
+  exportWorkspaceAsEncrypted,
   importBoardFromFile,
 } from './kantrack-modules/export.js';
 import { sortAllColumnsByPriority, sortColumnByPriority } from './kantrack-modules/sorting.js';
@@ -98,15 +103,44 @@ import {
   emptyTrash,
   getTrashCount,
 } from './kantrack-modules/undo.js';
-import { debounce } from './kantrack-modules/utils.js';
+import { debounce, createFocusTrap } from './kantrack-modules/utils.js';
+import { scheduleCompaction } from './kantrack-modules/compaction.js';
 import { registerAction, initRouter } from './kantrack-modules/router.js';
 import { dispatch, TASK_SET_ALL } from './kantrack-modules/store.js';
+
+/***********************
+ * SHORTCUTS DIALOG
+ ***********************/
+let _shortcutsTrap = null;
+let _shortcutsReturnFocus = null;
+
+function openShortcutsDialog() {
+  const modal = document.getElementById('shortcutsModal');
+  if (!modal) return;
+  _shortcutsReturnFocus = document.activeElement;
+  modal.style.display = 'flex';
+  _shortcutsTrap = createFocusTrap(modal);
+  _shortcutsTrap.activate();
+}
+
+function closeShortcutsDialog() {
+  const modal = document.getElementById('shortcutsModal');
+  if (!modal) return;
+  _shortcutsTrap?.deactivate();
+  _shortcutsTrap = null;
+  modal.style.display = 'none';
+  _shortcutsReturnFocus?.focus();
+  _shortcutsReturnFocus = null;
+}
 
 /***********************
  * ACTION REGISTRATIONS
  * Maps data-action strings to handler functions.
  * Replaces all window.* exports and inline onclick handlers.
  ***********************/
+
+// Shortcuts dialog
+registerAction('shortcuts:close', () => closeShortcutsDialog());
 
 // History
 registerAction('history:undo', () => undo());
@@ -153,6 +187,9 @@ registerAction('task:addSubItem', () => addSubKanbanItem());
 registerAction('task:toggleHistory', () => toggleHistory());
 
 // Board
+registerAction('board:exportJSON', () => exportWorkspaceAsJSON('full'));
+registerAction('board:exportJSONLite', () => exportWorkspaceAsJSON('lightweight'));
+registerAction('board:exportEncrypted', () => exportWorkspaceAsEncrypted());
 registerAction('board:exportHTML', () => exportBoardAsHTML());
 registerAction('board:triggerImport', () => document.getElementById('importFile').click());
 
@@ -318,11 +355,17 @@ function updateColumnCounts() {
       header.appendChild(countSpan);
     }
 
-    const allNoteElements = Array.from(column.querySelectorAll('.note'));
-    const taskCount = allNoteElements.filter(el => {
-      const style = window.getComputedStyle(el);
-      return style.display !== 'none' && style.visibility !== 'hidden';
-    }).length;
+    let taskCount;
+    if (getColumnVirtualList(columnId)) {
+      // Data-based counting — DOM only holds a window of cards
+      taskCount = state.notesData.filter(t => !t.deleted && t.column === columnId).length;
+    } else {
+      const allNoteElements = Array.from(column.querySelectorAll('.note'));
+      taskCount = allNoteElements.filter(el => {
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      }).length;
+    }
 
     countSpan.textContent = taskCount > 0 ? `(${taskCount})` : '';
   });
@@ -355,18 +398,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Seed the store with the initial task set
   dispatch({ type: TASK_SET_ALL, payload: notes });
 
-  notes.forEach(note => {
-    if (!note.deleted) {
-      const noteElement = createNoteElement(note);
-      const col = document.getElementById(note.column);
-      if (col) col.appendChild(noteElement);
-    }
-  });
+  // Create one VirtualList per column; registers sort+filter callbacks
+  initVirtualLists(notes);
 
   // Initialize feature modules (after tasks are loaded)
   await initTags();
   renderTagFilterButtons();
   await initUndo();
+  scheduleCompaction();
   initSearch();
 
   // Load clocks (async)
@@ -472,6 +511,91 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // ── Global keyboard shortcuts ──
+
+  function isAnyModalOpen() {
+    const ids = ['taskModal', 'pageModal', 'imageModal', 'addClockModal', 'shortcutsModal'];
+    return ids.some(id => {
+      const el = document.getElementById(id);
+      return el && el.style.display !== 'none' && el.style.display !== '';
+    });
+  }
+
+  // ESC — close whatever is open, in priority order
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const taskModal = document.getElementById('taskModal');
+    const pageModal = document.getElementById('pageModal');
+    const imageModal = document.getElementById('imageModal');
+    const clockModal = document.getElementById('addClockModal');
+    const shortcutsModal = document.getElementById('shortcutsModal');
+    const trashPanel = document.getElementById('trashPanel');
+    const isOpen = el => el && el.style.display !== 'none' && el.style.display !== '';
+    if (isOpen(taskModal)) {
+      closeTaskModal();
+      return;
+    }
+    if (isOpen(pageModal)) {
+      closePageModal();
+      return;
+    }
+    if (isOpen(imageModal)) {
+      closeImageModal();
+      return;
+    }
+    if (isOpen(clockModal)) {
+      closeAddClockModal();
+      return;
+    }
+    if (isOpen(shortcutsModal)) {
+      closeShortcutsDialog();
+      return;
+    }
+    if (isOpen(trashPanel)) toggleTrashPanel();
+  });
+
+  // N → focus new task input; / → focus search; ? → open shortcuts dialog
+  document.addEventListener('keydown', e => {
+    const tag = document.activeElement?.tagName;
+    const inInput =
+      tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable;
+    if (inInput || isAnyModalOpen()) return;
+    if (e.key === 'n' || e.key === 'N') {
+      e.preventDefault();
+      document.getElementById('newNote')?.focus();
+    } else if (e.key === '/') {
+      e.preventDefault();
+      document.getElementById('taskSearchInput')?.focus();
+    } else if (e.key === '?') {
+      e.preventDefault();
+      openShortcutsDialog();
+    }
+  });
+
+  // Arrow key card navigation — delegated on the board container
+  const board = document.querySelector('.kanban-board');
+  if (board) {
+    board.addEventListener('keydown', e => {
+      const card = document.activeElement;
+      if (!card?.classList.contains('note')) return;
+      if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+      e.preventDefault();
+      const COLS = ['todo', 'inProgress', 'onHold', 'done'];
+      const currentCol = card.closest('.column');
+      const cards = Array.from(currentCol.querySelectorAll('.note'));
+      const idx = cards.indexOf(card);
+      if (e.key === 'ArrowDown') {
+        cards[idx + 1]?.focus();
+      } else if (e.key === 'ArrowUp') {
+        cards[idx - 1]?.focus();
+      } else {
+        const dir = e.key === 'ArrowRight' ? 1 : -1;
+        const nextId = COLS[COLS.indexOf(currentCol.id) + dir];
+        if (nextId) document.querySelector(`#${nextId} .note`)?.focus();
+      }
+    });
+  }
+
   // Column filter buttons
   document.querySelectorAll('.column-filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -501,18 +625,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('kantrack:taskRestored', e => {
     const task = state.notesData.find(t => t.id === e.detail.taskId);
     if (task && !task.deleted) {
-      const noteElement = createNoteElement(task);
-      const col = document.getElementById(task.column);
-      if (col) col.appendChild(noteElement);
-      sortAllColumnsByPriority();
+      if (getColumnVirtualList(task.column)) {
+        updateColumnVirtualList(task.column);
+      } else {
+        const noteElement = createNoteElement(task);
+        const col = document.getElementById(task.column);
+        if (col) col.appendChild(noteElement);
+        sortAllColumnsByPriority();
+      }
       applyFilters();
     }
   });
 
   window.addEventListener('kantrack:taskRemoved', e => {
-    const noteElement = document.querySelector(`[data-id="${e.detail.taskId}"]`);
-    if (noteElement) {
-      noteElement.remove();
+    const taskId = e.detail.taskId;
+    // Task may have been spliced from notesData (undo of create) or marked deleted (redo of delete)
+    const task = state.notesData.find(t => t.id === taskId);
+    if (getColumnVirtualList(task?.column ?? 'todo')) {
+      // Update all columns — we may not know the exact column if task was spliced out
+      const COLUMN_IDS = ['todo', 'inProgress', 'onHold', 'done'];
+      COLUMN_IDS.forEach(col => updateColumnVirtualList(col));
+    } else {
+      const noteElement = document.querySelector(`[data-id="${taskId}"]`);
+      if (noteElement) noteElement.remove();
     }
   });
 
@@ -520,20 +655,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const task = state.notesData.find(t => t.id === e.detail.taskId);
     if (!task) return;
 
-    if (e.detail.oldColumn && e.detail.oldColumn !== task.column) {
-      const noteElement = document.querySelector(`[data-id="${e.detail.taskId}"]`);
-      if (noteElement) {
-        const newCol = document.getElementById(task.column);
-        if (newCol) {
-          newCol.appendChild(noteElement);
-        }
+    if (getColumnVirtualList(task.column)) {
+      if (e.detail.oldColumn && e.detail.oldColumn !== task.column) {
+        updateColumnVirtualList(e.detail.oldColumn);
       }
+      updateColumnVirtualList(task.column);
+    } else {
+      if (e.detail.oldColumn && e.detail.oldColumn !== task.column) {
+        const noteElement = document.querySelector(`[data-id="${e.detail.taskId}"]`);
+        if (noteElement) {
+          const newCol = document.getElementById(task.column);
+          if (newCol) newCol.appendChild(noteElement);
+        }
+        sortColumnByPriority(task.column);
+        sortColumnByPriority(e.detail.oldColumn);
+      }
+      updateNoteCardDisplay(e.detail.taskId);
       sortColumnByPriority(task.column);
-      sortColumnByPriority(e.detail.oldColumn);
     }
-
-    updateNoteCardDisplay(e.detail.taskId);
-    sortColumnByPriority(task.column);
     applyFilters();
     updateColumnCounts();
   });

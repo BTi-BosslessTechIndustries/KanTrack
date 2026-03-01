@@ -3,29 +3,48 @@
  * Handles priority-based sorting of tasks within columns
  ***********************/
 
+// Callback registered by tasks.js so VirtualList handles DOM ordering
+let _vlUpdater = null;
+
+/**
+ * Register a callback invoked by sortColumnByPriority when VL is active.
+ * tasks.js calls this during initVirtualLists.
+ * @param {(columnId: string) => void} fn
+ */
+export function registerVLUpdater(fn) {
+  _vlUpdater = fn;
+}
+
 /**
  * Get the sort order value for a priority
  * For standard columns: High (0) > Medium (1) > Low (2) > None (3)
  * For "todo" column: None (0) > High (1) > Medium (2) > Low (3)
  */
-function getPrioritySortValue(priority, isTodoColumn) {
+export function getPrioritySortValue(priority, isTodoColumn) {
   if (isTodoColumn) {
     // In To Do: None/null at top, then High > Medium > Low
     switch (priority) {
       case null:
       case undefined:
         return 0; // None at top
-      case 'high': return 1;
-      case 'medium': return 2;
-      case 'low': return 3;
-      default: return 0;
+      case 'high':
+        return 1;
+      case 'medium':
+        return 2;
+      case 'low':
+        return 3;
+      default:
+        return 0;
     }
   } else {
     // In other columns: High > Medium > Low > None
     switch (priority) {
-      case 'high': return 0;
-      case 'medium': return 1;
-      case 'low': return 2;
+      case 'high':
+        return 0;
+      case 'medium':
+        return 1;
+      case 'low':
+        return 2;
       case null:
       case undefined:
       default:
@@ -35,10 +54,18 @@ function getPrioritySortValue(priority, isTodoColumn) {
 }
 
 /**
- * Sort tasks within a specific column by priority
+ * Sort tasks within a specific column by priority.
+ * When a VL updater is registered, delegates to it (data-level sort + re-render).
+ * Falls back to DOM-based sort when VL is not active.
  * @param {string} columnId - The column ID to sort ('todo', 'inProgress', 'onHold', 'done')
  */
 export function sortColumnByPriority(columnId) {
+  if (_vlUpdater) {
+    _vlUpdater(columnId);
+    return;
+  }
+
+  // DOM-based fallback (used before VL is initialized)
   const column = document.getElementById(columnId);
   if (!column) return;
 
@@ -47,28 +74,14 @@ export function sortColumnByPriority(columnId) {
 
   if (tasks.length <= 1) return;
 
-  // Sort tasks based on priority
   tasks.sort((a, b) => {
-    const taskAId = parseFloat(a.dataset.id);
-    const taskBId = parseFloat(b.dataset.id);
-
-    // Get priority from the task's class or data
     const priorityA = getTaskPriorityFromElement(a);
     const priorityB = getTaskPriorityFromElement(b);
-
-    const sortValueA = getPrioritySortValue(priorityA, isTodoColumn);
-    const sortValueB = getPrioritySortValue(priorityB, isTodoColumn);
-
-    // Primary sort: by priority
-    if (sortValueA !== sortValueB) {
-      return sortValueA - sortValueB;
-    }
-
-    // Secondary sort: by creation time (newer tasks first within same priority)
-    return taskBId - taskAId;
+    return (
+      getPrioritySortValue(priorityA, isTodoColumn) - getPrioritySortValue(priorityB, isTodoColumn)
+    );
   });
 
-  // Re-append tasks in sorted order
   tasks.forEach(task => column.appendChild(task));
 }
 

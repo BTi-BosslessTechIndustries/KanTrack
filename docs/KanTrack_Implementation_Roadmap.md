@@ -273,11 +273,11 @@ Undo stack lives only in memory. Every browser refresh clears it. The Engineerin
 
 **Automated test suite added** _(Vitest + fake-indexeddb, Node environment, no browser required)_
 
-- [x] tests/database.test.js — 25 tests: IDB helpers, migration, schema version runner
+- [x] tests/database.test.js — 40 tests: IDB helpers, migration, schema version runner, Phase 3 meta/oplog helpers
 - [x] tests/storage.test.js — 17 tests: IDB-first load, localStorage fallback, cleanup
-- [x] tests/undo.test.js — 14 tests: trash cap, IDB persistence, undo history
+- [x] tests/undo.test.js — 14 tests: trash cap, IDB persistence, oplog-backed undo history
 - [x] tests/storage-monitor.test.js — 14 tests: quota thresholds, durable storage
-- [x] tests/repository.test.js — 41 tests: all repository functions, IDB/localStorage priority, auto-save callback
+- [x] tests/repository.test.js — 54 tests: all repository functions, IDB/localStorage priority, auto-save callback, Phase 3 oplog CRUD
 
 ---
 
@@ -537,10 +537,12 @@ No production app serving millions of users is maintained without a build pipeli
   - `.prettierrc` — singleQuote, semi, tabWidth 2, trailingComma es5, printWidth 100
   - Scripts: `npm run lint`, `npm run lint:fix`, `npm run format`, `npm run format:check`
   - husky pre-commit hook → `lint-staged` (eslint --fix + prettier --write on staged files)
-- [x] Vitest with reducer and repository tests — 148 tests, 7 files, all passing
-- [x] Playwright smoke test: create task → refresh → verify
+- [x] Vitest with reducer and repository tests — 321 unit tests, 13 files, all passing
+- [x] Playwright E2E — 15 tests across 3 spec files, all passing
   - `config/playwright.config.js` — chromium only, webServer builds + previews app
-  - `tests/e2e/smoke.spec.js` — create task persists after reload; open modal → set priority High → priority-high class persists after reload (IDB write polled before reload to avoid fire-and-forget race)
+  - `tests/e2e/smoke.spec.js` — create task persists after reload; priority persists after reload
+  - `tests/e2e/flows.spec.js` — delete via modal; edit title+persist; add note+persist; undo; undo-after-reload (Phase 3 oplog); redo
+  - `tests/e2e/import-export.spec.js` — export JSON structure; lightweight export; import merge; import dialog summary; invalid file error; encrypted export+import round-trip; wrong passphrase error
   - `npm run e2e` / `npm run e2e:ui`
 - [x] GitHub Actions CI pipeline
   - `.github/workflows/ci.yml` — lint + typecheck + test:run + build + e2e on push/PR to main/master
@@ -635,12 +637,14 @@ The oplog is the foundation of durable undo/redo and the backbone of future mult
 
 ### Phase 3 Checklist
 
-- [ ] `oplog` IDB store
-- [ ] `deviceId` generation and persistence
-- [ ] Lamport clock
-- [ ] Every mutation writes to oplog (via store middleware)
-- [ ] Undo/redo rebuilt on oplog cursor
-- [ ] Compaction on idle (`requestIdleCallback`, no new dep)
+- [x] `oplog` IDB store
+- [x] `deviceId` generation and persistence
+- [x] Lamport clock
+- [x] Every mutation writes to oplog (via `recordAction()` — all undoable mutations already route through it; store middleware deferred to Phase 10 sync)
+- [x] Undo/redo rebuilt on oplog cursor (`undone` flag pattern; stacks rebuilt from oplog on `initUndo()`)
+- [x] Compaction on idle (`requestIdleCallback`, `setTimeout` fallback, no new dep)
+- [x] Unit test coverage: 321 unit tests passing (28 new unit tests for Phase 3: database.test.js +15, repository.test.js +13)
+- [x] E2E test coverage: undo-after-reload (oplog persistence) + redo in tests/e2e/flows.spec.js
 
 ---
 
@@ -717,12 +721,15 @@ The current HTML export is not data ownership — it's a read-only snapshot. "An
 
 ### Phase 4 Checklist
 
-- [ ] `.kantrack.json` versioned export
-- [ ] Full (with images) and lightweight (data only) export modes
-- [ ] Import validation: format version + referential integrity
-- [ ] Import preview: calm count summary + merge/replace choice
-- [ ] Auto-backup before Replace import
-- [ ] Encrypted export with passphrase (WebCrypto only, no new dependency)
+- [x] `.kantrack.json` versioned export (formatVersion:1, appVersion, exportedAt, integrity hash)
+- [x] Full (with images) and lightweight (data only) export modes
+- [x] Import validation: format version + referential integrity (`import-validator.js`)
+- [x] Import preview: calm count summary + merge/replace choice (`<dialog>` element, no static HTML)
+- [x] Auto-backup before Replace import (silent lightweight export)
+- [x] Encrypted export with passphrase (WebCrypto only — PBKDF2 + AES-GCM, `crypto.js`)
+- [x] Unit test coverage: 321 unit tests passing (30 new: import-validator.test.js ×18, crypto.test.js ×12)
+- [x] E2E test coverage: 9 new E2E tests in tests/e2e/import-export.spec.js covering export, import merge, invalid file error, encrypted round-trip, wrong passphrase error
+- [x] Bug fixes: imageData race condition in \_applyImport (stripped before saveTasks); 300ms backup-download delay before location.reload()
 
 ---
 
@@ -817,12 +824,12 @@ With 500 tasks in "Done", the browser renders 500 DOM nodes on every filter chan
 
 ### Phase 5 Checklist
 
-- [ ] Virtual list for columns (IntersectionObserver, no new lib)
-- [ ] Patch-based card field updates
-- [ ] Export/import in Web Worker (raw postMessage, no comlink)
-- [ ] Single `getAll()` on load
-- [ ] 300ms debounced batch IDB writes
-- [ ] Lazy-load notebook page content
+- [x] Virtual list for columns (IntersectionObserver, no new lib)
+- [x] Patch-based card field updates
+- [x] Export/import in Web Worker (raw postMessage, no comlink)
+- [x] Single `getAll()` on load
+- [x] 300ms debounced batch IDB writes
+- [x] Lazy-load notebook page content
 
 ---
 
@@ -907,11 +914,11 @@ From the Engineering Philosophy: "Privacy by design — embedded into architectu
 
 ### Phase 6 Checklist
 
-- [ ] Audit all `innerHTML` insertions
-- [ ] Custom allowlist-based sanitizer for user content
-- [ ] CSP meta tag (strict, no inline scripts)
-- [ ] Bundle jsPDF/JSZip (eliminate CDN runtime dependency)
-- [ ] Update SECURITY.md with honest threat model
+- [x] Audit all `innerHTML` insertions
+- [x] Custom allowlist-based sanitizer for user content (`scripts/kantrack-modules/sanitize.js`; applied to note history viewer, note editor, notebook page editor)
+- [x] CSP meta tag (strict, no inline scripts — `script-src 'self'`, `object-src 'none'`)
+- [x] Bundle jsPDF/JSZip (already npm dependencies; no CDN script tags in `index.html`)
+- [x] Update SECURITY.md with honest threat model (merged into `.github/SECURITY.md`)
 - [ ] In-app security transparency page
 
 ---
@@ -1016,17 +1023,17 @@ These are not aesthetic preferences — they are product requirements:
 
 ### Phase 7 Checklist
 
-- [ ] No productivity scores, grades, or streaks anywhere in the UI
-- [ ] No gamification elements
-- [ ] Due dates as calm informational labels (not alarms)
-- [ ] No upgrade nudges inside the board area
-- [ ] Empty state: calm invitation, no tutorial pressure
-- [ ] Focus trap on all modals
-- [ ] ESC closes all modals consistently
-- [ ] `aria-label` on all icon-only buttons
-- [ ] `role="dialog"` + `aria-modal` on all modals
-- [ ] Keyboard shortcuts: N, /, ?, Escape, Ctrl+Z/Y, Ctrl+B
-- [ ] Shortcuts help dialog
+- [x] No productivity scores, grades, or streaks anywhere in the UI
+- [x] No gamification elements
+- [x] Due dates as calm informational labels (removed `pulse-overdue` animation from `styles/features.css`)
+- [x] No upgrade nudges inside the board area
+- [x] Empty state: calm invitation, no tutorial pressure (columns show empty without any forced flow)
+- [x] Focus trap on all modals (`createFocusTrap` in `utils.js`; applied to taskModal, pageModal, addClockModal, shortcutsModal)
+- [x] ESC closes all modals consistently (global keydown handler in `kantrack.js`)
+- [x] `aria-label` on all icon-only buttons (`index.html`)
+- [x] `role="dialog"` + `aria-modal` on all modals (`index.html`)
+- [x] Keyboard shortcuts: N, /, ?, Escape, Ctrl+Z/Y, Ctrl+B (global handler + arrow key delegation in `kantrack.js`)
+- [x] Shortcuts help dialog (`#shortcutsModal` in `index.html`; `openShortcutsDialog`/`closeShortcutsDialog` in `kantrack.js`)
 
 ---
 

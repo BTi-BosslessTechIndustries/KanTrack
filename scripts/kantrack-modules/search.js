@@ -11,6 +11,18 @@ let currentSearchTerm = '';
 let currentColumnFilter = null; // null = all columns
 let currentTagFilter = []; // array of tag names
 
+// Callback registered by tasks.js so VirtualList handles show/hide
+let _vlUpdaterForFilters = null;
+
+/**
+ * Register a callback invoked by applyFilters for each column when VL is active.
+ * tasks.js calls this during initVirtualLists.
+ * @param {(columnId: string) => void} fn
+ */
+export function registerVLUpdaterForFilters(fn) {
+  _vlUpdaterForFilters = fn;
+}
+
 /**
  * Initialize search functionality
  */
@@ -19,7 +31,7 @@ export function initSearch() {
   if (searchInput) {
     // Debounced search
     let searchTimeout;
-    searchInput.addEventListener('input', (e) => {
+    searchInput.addEventListener('input', e => {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => {
         setSearchTerm(e.target.value);
@@ -27,7 +39,7 @@ export function initSearch() {
     });
 
     // Clear on Escape
-    searchInput.addEventListener('keydown', (e) => {
+    searchInput.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         searchInput.value = '';
         setSearchTerm('');
@@ -135,22 +147,26 @@ export function clearFilters() {
 }
 
 /**
- * Apply all active filters to task display
+ * Apply all active filters to task display.
+ * When VL is active, delegates to the VL updater for each column (data-level filter).
+ * Falls back to DOM show/hide when VL is not active.
  */
 export function applyFilters() {
-  // Get all note elements from the DOM
+  if (_vlUpdaterForFilters) {
+    const COLUMN_IDS = ['todo', 'inProgress', 'onHold', 'done'];
+    COLUMN_IDS.forEach(columnId => _vlUpdaterForFilters(columnId));
+    updateColumnCounts();
+    return;
+  }
+
+  // DOM-based fallback (used before VL is initialized)
   const allNoteElements = document.querySelectorAll('.note');
 
   allNoteElements.forEach(noteElement => {
     const taskId = noteElement.dataset.id;
-    // Try both string and number versions of the ID
     let task = state.notesData.find(t => t.id === taskId);
-    if (!task) {
-      task = state.notesData.find(t => String(t.id) === String(taskId));
-    }
-    if (!task) {
-      task = state.notesData.find(t => t.id === parseInt(taskId));
-    }
+    if (!task) task = state.notesData.find(t => String(t.id) === String(taskId));
+    if (!task) task = state.notesData.find(t => t.id === parseInt(taskId));
 
     if (!task || task.deleted) {
       noteElement.style.display = 'none';
@@ -161,14 +177,14 @@ export function applyFilters() {
     noteElement.style.display = isVisible ? '' : 'none';
   });
 
-  // Update column counts
   updateColumnCounts();
 }
 
 /**
- * Check if a task should be visible based on current filters
+ * Check if a task should be visible based on current filters.
+ * Exported so tasks.js can use it when building VL item lists.
  */
-function checkTaskVisibility(task) {
+export function checkTaskVisibility(task) {
   // Don't show deleted tasks
   if (task.deleted) {
     return false;
@@ -196,9 +212,7 @@ function checkTaskVisibility(task) {
     });
 
     // Check if any task tag name matches any filter tag name
-    const hasMatchingTag = filterTagNames.some(filterName =>
-      taskTagNames.includes(filterName)
-    );
+    const hasMatchingTag = filterTagNames.some(filterName => taskTagNames.includes(filterName));
 
     if (!hasMatchingTag) {
       return false;
@@ -249,10 +263,12 @@ function getSearchableText(task) {
 }
 
 /**
- * Update visible task counts in column headers
+ * Update visible task counts in column headers.
+ * Uses data-based counting when VL is active (DOM only holds a window of cards).
  */
 function updateColumnCounts() {
   const columns = ['todo', 'inProgress', 'onHold', 'done'];
+  const filtersActive = currentSearchTerm || currentColumnFilter || currentTagFilter.length > 0;
 
   columns.forEach(columnId => {
     const column = document.getElementById(columnId);
@@ -261,7 +277,6 @@ function updateColumnCounts() {
     const header = column.querySelector('h2');
     if (!header) return;
 
-    // Create or get count span
     let countSpan = header.querySelector('.column-count');
     if (!countSpan) {
       countSpan = document.createElement('span');
@@ -269,26 +284,28 @@ function updateColumnCounts() {
       header.appendChild(countSpan);
     }
 
-    // Get all note elements
-    const allNoteElements = Array.from(column.querySelectorAll('.note'));
+    let visibleTasks, totalTasks;
 
-    // Count visible elements (check computed style, not just inline)
-    const visibleTasks = allNoteElements.filter(el => {
-      const style = window.getComputedStyle(el);
-      return style.display !== 'none' && style.visibility !== 'hidden';
-    }).length;
+    if (_vlUpdaterForFilters) {
+      // Data-based counting — DOM holds only a window of cards
+      const columnTasks = state.notesData.filter(t => !t.deleted && t.column === columnId);
+      totalTasks = columnTasks.length;
+      visibleTasks = columnTasks.filter(t => checkTaskVisibility(t)).length;
+    } else {
+      // DOM-based counting (fallback before VL init)
+      const allNoteElements = Array.from(column.querySelectorAll('.note'));
+      visibleTasks = allNoteElements.filter(el => {
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      }).length;
+      totalTasks = allNoteElements.filter(el => {
+        const taskId = el.dataset.id;
+        return state.notesData.some(t => String(t.id) === String(taskId) && !t.deleted);
+      }).length;
+    }
 
-    const totalTasks = allNoteElements.filter(el => {
-      // Only count elements that have a real task (not orphaned)
-      const taskId = el.dataset.id;
-      return state.notesData.some(t => String(t.id) === String(taskId) && !t.deleted);
-    }).length;
-
-    // Show visible/total when filters are active, otherwise just visible count
-    if (currentSearchTerm || currentColumnFilter || currentTagFilter.length > 0) {
-      countSpan.textContent = totalTasks > 0
-        ? `(${visibleTasks}/${totalTasks})`
-        : '';
+    if (filtersActive) {
+      countSpan.textContent = totalTasks > 0 ? `(${visibleTasks}/${totalTasks})` : '';
     } else {
       countSpan.textContent = visibleTasks > 0 ? `(${visibleTasks})` : '';
     }
@@ -302,7 +319,7 @@ export function getFilterState() {
   return {
     searchTerm: currentSearchTerm,
     columnFilter: currentColumnFilter,
-    tagFilter: [...currentTagFilter]
+    tagFilter: [...currentTagFilter],
   };
 }
 
@@ -310,7 +327,5 @@ export function getFilterState() {
  * Check if any filters are active
  */
 export function hasActiveFilters() {
-  return currentSearchTerm !== '' ||
-         currentColumnFilter !== null ||
-         currentTagFilter.length > 0;
+  return currentSearchTerm !== '' || currentColumnFilter !== null || currentTagFilter.length > 0;
 }

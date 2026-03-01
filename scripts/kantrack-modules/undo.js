@@ -8,15 +8,22 @@ import { showNotification } from './notifications.js';
 import {
   getAllTrash,
   saveTrash as _saveTrash,
-  getAllUndoHistory,
-  saveUndoHistory,
+  getAllOplogEntries,
+  appendOplogEntry,
+  updateOplogEntry,
+  clearUndoneOplogEntries,
 } from './repository.js';
+import { getOrCreateDeviceId, getMetaLamport, setMetaValue } from './database.js';
 import { debugWarn } from './utils.js';
 
-// Action history stacks
+// Action history stacks (in-memory, fast; oplog is the durable backing store)
 const undoStack = [];
 const redoStack = [];
 const MAX_HISTORY = 200;
+
+// Oplog infrastructure (cached from IDB on init)
+let _deviceId = null;
+let _lamportClock = 0;
 
 // Trash for deleted tasks
 let trashedTasks = [];
@@ -29,8 +36,13 @@ export async function initUndo() {
   // Clear in-memory stacks so re-initialisation starts fresh
   undoStack.length = 0;
   redoStack.length = 0;
+
+  // Cache oplog infrastructure values from IDB
+  _deviceId = await getOrCreateDeviceId();
+  _lamportClock = await getMetaLamport();
+
   await loadTrash();
-  await loadUndoHistory();
+  await _loadStacksFromOplog();
 
   // Setup keyboard shortcuts
   document.addEventListener('keydown', handleKeyboardShortcuts);
@@ -63,18 +75,21 @@ function handleKeyboardShortcuts(e) {
 }
 
 /**
- * Record an undoable action
+ * Record an undoable action.
  * @param {Object} action - The action to record
  * @param {string} action.type - Action type: 'create', 'delete', 'move', 'update', 'priority', 'timer'
- * @param {Object} action.taskId - The task ID affected
+ * @param {string} action.taskId - The task ID affected
  * @param {Object} action.previousState - State before the action
  * @param {Object} action.newState - State after the action
  * @param {string} action.description - Human-readable description
  */
 export function recordAction(action) {
+  const opId = crypto.randomUUID();
+
   undoStack.push({
     ...action,
     timestamp: Date.now(),
+    opId,
   });
 
   // Limit stack size
@@ -85,8 +100,11 @@ export function recordAction(action) {
   // Clear redo stack when new action is recorded
   redoStack.length = 0;
 
-  // Persist undo history to IDB (fire-and-forget)
-  saveUndoHistoryToIDB();
+  // Write to oplog (fire-and-forget)
+  _writeOplogEntry(action, opId, false);
+
+  // Clear any abandoned redo ops from oplog (fire-and-forget)
+  clearUndoneOplogEntries();
 }
 
 /**
@@ -104,7 +122,10 @@ export function undo() {
   try {
     applyUndo(action);
     showNotification(`Undone: ${action.description}`, 'info', 2000);
-    saveUndoHistoryToIDB();
+    // Mark as undone in oplog (fire-and-forget)
+    if (action.opId) {
+      updateOplogEntry(action.opId, { undone: true });
+    }
     return true;
   } catch (e) {
     console.error('Undo failed:', e);
@@ -128,7 +149,10 @@ export function redo() {
   try {
     applyRedo(action);
     showNotification(`Redone: ${action.description}`, 'info', 2000);
-    saveUndoHistoryToIDB();
+    // Mark as not undone in oplog (fire-and-forget)
+    if (action.opId) {
+      updateOplogEntry(action.opId, { undone: false });
+    }
     return true;
   } catch (e) {
     console.error('Redo failed:', e);
@@ -297,26 +321,110 @@ export function getUndoRedoStatus() {
   };
 }
 
-// ==================== UNDO HISTORY PERSISTENCE ====================
+// ==================== OPLOG HELPERS ====================
 
 /**
- * Save the current undoStack via repository.js (fire-and-forget)
+ * Increment the in-memory Lamport clock and persist asynchronously.
  */
-function saveUndoHistoryToIDB() {
-  const entries = undoStack.map(action => ({ action, savedAt: Date.now() }));
-  saveUndoHistory(entries);
+function _nextLamport() {
+  _lamportClock += 1;
+  setMetaValue('lamportClock', _lamportClock);
+  return _lamportClock;
 }
 
 /**
- * Load undo history from IDB into undoStack
+ * Map an undo action type string to an OplogActionType.
  */
-async function loadUndoHistory() {
-  const entries = await getAllUndoHistory();
-  if (entries && entries.length > 0) {
-    // entries are in insertion order (autoIncrement seq ensures this)
-    // Take last MAX_HISTORY entries
-    const recent = entries.slice(-MAX_HISTORY);
-    undoStack.push(...recent.map(e => e.action));
+function _mapActionType(type) {
+  if (type === 'create') return 'create';
+  if (type === 'delete') return 'delete';
+  if (type === 'move') return 'move';
+  return 'update';
+}
+
+/**
+ * Compute a field-level diff between two task snapshots.
+ * For create/delete, stores the full entity under _fullState.
+ */
+function _buildPatch(previousState, newState) {
+  if (!previousState && newState) {
+    return { _fullState: { prev: null, next: newState } };
+  }
+  if (previousState && !newState) {
+    return { _fullState: { prev: previousState, next: null } };
+  }
+  if (!previousState && !newState) {
+    return {};
+  }
+  const patch = {};
+  const allKeys = new Set([...Object.keys(previousState), ...Object.keys(newState)]);
+  for (const key of allKeys) {
+    if (JSON.stringify(previousState[key]) !== JSON.stringify(newState[key])) {
+      patch[key] = { prev: previousState[key], next: newState[key] };
+    }
+  }
+  return patch;
+}
+
+/**
+ * Build and persist an oplog entry (async, always fire-and-forget).
+ */
+async function _writeOplogEntry(action, opId, undone) {
+  try {
+    const entry = {
+      opId,
+      deviceId: _deviceId,
+      lamport: _nextLamport(),
+      timestamp: Date.now(),
+      entityType: 'task',
+      entityId: action.taskId,
+      actionType: _mapActionType(action.type),
+      patch: _buildPatch(action.previousState, action.newState),
+      description: action.description || '',
+      undone,
+      prevHash: null,
+      hash: null,
+      _action: {
+        type: action.type,
+        taskId: action.taskId,
+        previousState: action.previousState,
+        newState: action.newState,
+        description: action.description,
+      },
+    };
+    await appendOplogEntry(entry);
+  } catch (e) {
+    debugWarn('Failed to write oplog entry (non-fatal):', e);
+  }
+}
+
+/**
+ * Rebuild the in-memory undo/redo stacks from the persisted oplog.
+ * Replaces the old undo_history store approach.
+ */
+async function _loadStacksFromOplog() {
+  try {
+    const entries = await getAllOplogEntries(); // sorted by lamport asc
+    const applied = entries.filter(e => !e.undone);
+    const undone = entries.filter(e => e.undone);
+
+    undoStack.push(
+      ...applied.slice(-MAX_HISTORY).map(e => ({
+        ...(e._action || {}),
+        opId: e.opId,
+        timestamp: e.timestamp,
+      }))
+    );
+
+    redoStack.push(
+      ...undone.slice(-MAX_HISTORY).map(e => ({
+        ...(e._action || {}),
+        opId: e.opId,
+        timestamp: e.timestamp,
+      }))
+    );
+  } catch (e) {
+    debugWarn('Failed to load stacks from oplog (non-fatal):', e);
   }
 }
 

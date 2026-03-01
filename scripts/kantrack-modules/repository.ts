@@ -14,7 +14,15 @@
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — database.js is not yet typed
-import { idbGetAll, idbClearAndBulkPut } from './database.js';
+import {
+  idbGet,
+  idbGetAll,
+  idbClearAndBulkPut,
+  idbGetAllOplog,
+  idbPutOplog,
+  idbDeleteOplog,
+  idbDeleteAllUndoneOplog,
+} from './database.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — utils.js is not yet typed
 import { debugWarn } from './utils.js';
@@ -22,10 +30,14 @@ import { debugWarn } from './utils.js';
 // @ts-ignore — notifications.js is not yet typed
 import { showError } from './notifications.js';
 
-import type { Task, Tag, NotebookItem, Clock, UndoEntry } from './types.js';
+import type { Task, Tag, NotebookItem, Clock, UndoEntry, OplogEntry } from './types.js';
 
 // Auto-save indicator callback (registered by kantrack.js)
 let onAutoSaveCallback: (() => void) | null = null;
+
+// Debounce timers for IDB writes (300ms — batches rapid sequential saves)
+let _saveTasksTimer: ReturnType<typeof setTimeout> | null = null;
+let _saveNotebookTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function setAutoSaveCallback(fn: () => void): void {
   onAutoSaveCallback = fn;
@@ -34,29 +46,31 @@ export function setAutoSaveCallback(fn: () => void): void {
 // ==================== TASKS ====================
 
 /**
- * Load all tasks. IDB primary, localStorage fallback.
+ * Load all tasks. localStorage primary (always sync-written by saveTasks()),
+ * IDB fallback (async-written with 300 ms debounce, may lag on fresh load).
  * Migrates old single-note format and cleans up invalid entries.
  */
 export async function getAllTasks(): Promise<Task[]> {
   let tasks: Task[] = [];
 
   try {
-    const idbTasks = (await idbGetAll('tasks')) as Task[];
-    if (idbTasks && idbTasks.length > 0) {
-      tasks = idbTasks;
+    const saved = localStorage.getItem('kanbanNotes');
+    if (saved) {
+      tasks = JSON.parse(saved) as Task[];
     } else {
-      const saved = localStorage.getItem('kanbanNotes');
-      if (saved) {
-        tasks = JSON.parse(saved) as Task[];
+      // localStorage empty — fall back to IDB (handles first load / privacy-cleared LS)
+      const idbTasks = (await idbGetAll('tasks')) as Task[];
+      if (idbTasks && idbTasks.length > 0) {
+        tasks = idbTasks;
       }
     }
   } catch (e) {
-    debugWarn('Error loading tasks from IDB, trying localStorage:', e);
+    debugWarn('Error loading tasks from localStorage, trying IDB:', e);
     try {
-      const saved = localStorage.getItem('kanbanNotes');
-      if (saved) tasks = JSON.parse(saved) as Task[];
-    } catch (lsError) {
-      debugWarn('Error loading tasks from localStorage:', lsError);
+      const idbTasks = (await idbGetAll('tasks')) as Task[];
+      if (idbTasks && idbTasks.length > 0) tasks = idbTasks;
+    } catch (idbError) {
+      debugWarn('Error loading tasks from IDB:', idbError);
       showError('Failed to load saved tasks. Data may be corrupted.');
       return [];
     }
@@ -118,9 +132,13 @@ export function saveTasks(tasks: Task[]): boolean {
     localStorage.setItem('kanbanNotes', JSON.stringify(tasks));
 
     const snapshot = [...tasks];
-    (idbClearAndBulkPut('tasks', snapshot) as Promise<void>).catch((e: unknown) =>
-      debugWarn('IDB task save error (non-fatal):', e)
-    );
+    if (_saveTasksTimer !== null) clearTimeout(_saveTasksTimer);
+    _saveTasksTimer = setTimeout(() => {
+      _saveTasksTimer = null;
+      (idbClearAndBulkPut('tasks', snapshot) as Promise<void>).catch((e: unknown) =>
+        debugWarn('IDB task save error (non-fatal):', e)
+      );
+    }, 300);
 
     if (onAutoSaveCallback) onAutoSaveCallback();
     return true;
@@ -175,9 +193,13 @@ export function saveNotebookItems(items: NotebookItem[]): boolean {
     localStorage.setItem('notebookItems', JSON.stringify(items));
 
     const snapshot = [...items];
-    (idbClearAndBulkPut('notebook_items', snapshot) as Promise<void>).catch((e: unknown) =>
-      debugWarn('IDB notebook save error (non-fatal):', e)
-    );
+    if (_saveNotebookTimer !== null) clearTimeout(_saveNotebookTimer);
+    _saveNotebookTimer = setTimeout(() => {
+      _saveNotebookTimer = null;
+      (idbClearAndBulkPut('notebook_items', snapshot) as Promise<void>).catch((e: unknown) =>
+        debugWarn('IDB notebook save error (non-fatal):', e)
+      );
+    }, 300);
 
     return true;
   } catch (e) {
@@ -190,6 +212,33 @@ export function saveNotebookItems(items: NotebookItem[]): boolean {
     }
     return false;
   }
+}
+
+/**
+ * Fetch the HTML content of a single notebook page from IDB.
+ * Falls back to localStorage if IDB has no entry for this id.
+ * Used by openPageModal() for lazy content loading.
+ */
+export async function getNotebookItemContent(id: string): Promise<string> {
+  try {
+    const item = (await idbGet('notebook_items', id)) as NotebookItem | undefined;
+    if (item?.content != null) return item.content;
+  } catch (_) {
+    /* fall through to localStorage */
+  }
+
+  try {
+    const saved = localStorage.getItem('notebookItems');
+    if (saved) {
+      const items = JSON.parse(saved) as NotebookItem[];
+      const found = items.find(i => i.id === id);
+      return found?.content ?? '';
+    }
+  } catch (_) {
+    /* non-critical */
+  }
+
+  return '';
 }
 
 // ==================== TAGS ====================
@@ -334,6 +383,73 @@ export function saveUndoHistory(entries: UndoEntry[]): void {
   (idbClearAndBulkPut('undo_history', entries) as Promise<void>).catch((e: unknown) =>
     debugWarn('IDB undo history save error (non-fatal):', e)
   );
+}
+
+// ==================== OPLOG (Phase 3) ====================
+
+/**
+ * Load all oplog entries sorted by Lamport clock ascending.
+ */
+export async function getAllOplogEntries(): Promise<OplogEntry[]> {
+  try {
+    const entries = (await idbGetAllOplog()) as OplogEntry[];
+    return entries.sort((a, b) => a.lamport - b.lamport);
+  } catch (e) {
+    debugWarn('Error loading oplog entries (non-fatal):', e);
+    return [];
+  }
+}
+
+/**
+ * Append a new oplog entry.
+ */
+export async function appendOplogEntry(entry: OplogEntry): Promise<void> {
+  try {
+    await idbPutOplog(entry);
+  } catch (e) {
+    debugWarn('Error appending oplog entry (non-fatal):', e);
+  }
+}
+
+/**
+ * Update an existing oplog entry by merging changes into it.
+ */
+export async function updateOplogEntry(opId: string, changes: Partial<OplogEntry>): Promise<void> {
+  try {
+    const entries = (await idbGetAllOplog()) as OplogEntry[];
+    const existing = entries.find(e => e.opId === opId);
+    if (!existing) return;
+    await idbPutOplog({ ...existing, ...changes });
+  } catch (e) {
+    debugWarn('Error updating oplog entry (non-fatal):', e);
+  }
+}
+
+/**
+ * Delete all oplog entries where undone === true (clears redo history).
+ */
+export async function clearUndoneOplogEntries(): Promise<void> {
+  try {
+    await idbDeleteAllUndoneOplog();
+  } catch (e) {
+    debugWarn('Error clearing undone oplog entries (non-fatal):', e);
+  }
+}
+
+/**
+ * Delete oplog entries that are older than cutoffMs AND undone.
+ * Used by compaction.js.
+ */
+export async function deleteOplogEntriesOlderThan(cutoffMs: number): Promise<void> {
+  try {
+    const entries = (await idbGetAllOplog()) as OplogEntry[];
+    const toDelete = entries.filter(e => e.undone && e.timestamp < cutoffMs);
+    for (const entry of toDelete) {
+      await idbDeleteOplog(entry.opId);
+    }
+  } catch (e) {
+    debugWarn('Error deleting old oplog entries (non-fatal):', e);
+  }
 }
 
 // ==================== PERMANENT NOTES ====================

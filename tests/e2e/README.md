@@ -4,6 +4,18 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ---
 
+## Spec files
+
+| File                    | Tests | What it covers                                                         |
+| ----------------------- | ----- | ---------------------------------------------------------------------- |
+| `smoke.spec.js`         | 2     | Create task + persist; set priority + persist after reload             |
+| `flows.spec.js`         | 6     | Delete, edit title, add note, undo, undo-persist, redo                 |
+| `accessibility.spec.js` | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav  |
+| `import-export.spec.js` | 8     | JSON export/import, encrypted export/import, format-version validation |
+| `performance.spec.js`   | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)             |
+
+---
+
 ## What is tested
 
 ### `smoke.spec.js` — core persistence
@@ -65,11 +77,54 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 2. Click the Undo button (`[data-action="history:undo"]`)
 3. Assert the card is gone from the board
 
+**Test 5 — Undo survives a page refresh (oplog persistence)**
+
+1. Create a task, wait for the oplog entry to commit to IDB
+2. Reload the page (oplog rebuilds the undo stack)
+3. Assert the task is still visible
+4. Undo — assert the card is gone (stack was rebuilt correctly)
+
+**Test 6 — Redo re-applies an undone action**
+
+1. Create a task, undo it, redo it — assert card reappears
+
+---
+
+### `accessibility.spec.js` — keyboard shortcuts & focus (Phase 7)
+
+- **ESC closes task modal** — open modal via card click, press Escape
+- **N key** focuses `#newNote` input when no modal is open
+- **/ key** focuses `#taskSearchInput` when no modal is open
+- **? key** opens `#shortcutsModal`
+- **ESC closes shortcuts dialog**
+- **Close button** (`×`) closes shortcuts dialog
+- **Enter on focused card** opens the task modal (cards have `tabIndex=0`)
+- **ArrowDown / ArrowUp** move focus between cards in a column
+
+---
+
+### `import-export.spec.js` — export / import round-trips (Phase 4)
+
+- JSON export produces `.kantrack.json` with correct structure
+- Lightweight export strips `imageData`
+- JSON import (Merge) — imported task appears after reload
+- Import summary shows task count
+- Unsupported `formatVersion` shows an error
+- Encrypted export + import round-trip restores data
+- Encrypted import with wrong passphrase shows an error
+
+---
+
+### `performance.spec.js` — virtual list DOM budget (Phase 5)
+
+- 200 tasks renders fewer than 30 `.note` DOM nodes initially
+- Scrolling to the bottom keeps the DOM count below 60
+
 ---
 
 ## IDB polling pattern
 
-`saveTasks()` in `repository.ts` writes localStorage **synchronously** but fires the IDB write as a **fire-and-forget** async operation. On reload, `getAllTasks()` prefers IDB over localStorage. If the reload fires before the IDB transaction commits, the task re-renders with stale (null) priority.
+`saveTasks()` in `repository.ts` writes localStorage **synchronously** but fires the IDB write as a **fire-and-forget** async operation. On reload, `getAllTasks()` prefers **localStorage** (always up-to-date after a sync write) and falls back to IDB. The IDB polling pattern in tests is retained as a safety net to confirm the async write also completed before reloading:
 
 The fix: use `page.waitForFunction()` to poll IndexedDB directly before reloading:
 
@@ -92,7 +147,7 @@ await page.waitForFunction(async title => {
 }, taskTitle);
 ```
 
-Apply this pattern any time a test needs to reload after a write and assert on persisted state.
+Apply this pattern any time a test needs to reload after a write and assert on persisted state. Because localStorage is the primary source on reload, the poll is technically optional, but it prevents any race between the async IDB write and subsequent test steps that inspect IDB directly.
 
 ---
 
@@ -119,6 +174,9 @@ Add `test()` blocks to an existing spec file or create a new `*.spec.js` file in
 
 - Use `smoke.spec.js` for tests that verify data persistence across reloads
 - Use `flows.spec.js` for tests that cover specific user interaction flows
+- Use `accessibility.spec.js` for keyboard navigation and focus management
+- Use `import-export.spec.js` for data export/import round-trips
+- Use `performance.spec.js` for DOM budget and rendering performance assertions
 - Create a new spec file for a clearly distinct area (e.g. `notebook.spec.js`, `search.spec.js`)
 
 Keep E2E tests focused on critical user paths (happy path only). Edge cases and unit-level behaviour belong in `tests/*.test.js`.

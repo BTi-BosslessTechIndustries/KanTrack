@@ -4,7 +4,8 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { storeImage, getImage, deleteImagesByIds } from './database.js';
-import { formatTime, escapeHtml, getTextPreview, deepClone } from './utils.js';
+import { formatTime, escapeHtml, getTextPreview, deepClone, createFocusTrap } from './utils.js';
+import { sanitizeHTML } from './sanitize.js';
 import {
   getPriorityLabel,
   updateModalPriorityButtons,
@@ -18,7 +19,11 @@ import { getTagById, cleanupUnusedTags, renderTagSelector } from './tags.js';
 import { renderDueDatePicker } from './due-dates.js';
 import { recordAction } from './undo.js';
 
+let _taskModalTrap = null;
+let _taskModalReturnFocus = null;
+
 export async function openTaskModal(taskId) {
+  _taskModalReturnFocus = document.activeElement;
   state.setCurrentTaskId(taskId);
   const task = state.notesData.find(t => t.id === taskId);
   if (!task) return;
@@ -87,6 +92,8 @@ export async function openTaskModal(taskId) {
   }
 
   modal.style.display = 'block';
+  _taskModalTrap = createFocusTrap(modal);
+  _taskModalTrap.activate();
 }
 
 // Register openTaskModal with tasks.js
@@ -204,7 +211,7 @@ export async function renderHistory(task) {
       const content = document.createElement('div');
       content.classList.add('history-note-content');
       content.style.display = 'none';
-      content.innerHTML = action.notesHTML || 'Empty note';
+      content.innerHTML = sanitizeHTML(action.notesHTML) || 'Empty note';
 
       // Restore images from IndexedDB
       if (action.images && action.images.length > 0) {
@@ -283,7 +290,7 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
   const editor = document.createElement('div');
   editor.classList.add('note-entry-edit-editor');
   editor.contentEditable = true;
-  editor.innerHTML = noteEntry.notesHTML || '';
+  editor.innerHTML = sanitizeHTML(noteEntry.notesHTML);
 
   // Restore images
   if (noteEntry.images && noteEntry.images.length > 0) {
@@ -505,9 +512,13 @@ export function closeTaskModal() {
     }
   }
 
+  _taskModalTrap?.deactivate();
+  _taskModalTrap = null;
   const modal = document.getElementById('taskModal');
   modal.style.display = 'none';
   state.setCurrentTaskId(null);
+  _taskModalReturnFocus?.focus();
+  _taskModalReturnFocus = null;
   state.setModalPendingActions([]);
   state.setModalHasChanges(false);
   state.setOriginalTimerValue(0);

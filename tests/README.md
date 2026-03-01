@@ -20,9 +20,19 @@ tests/
 ├── priority.test.js          # getPriorityLabel, getPriorityColor
 ├── due-dates.test.js         # formatDueDate, formatRelativeDueDate, sortByDueDate
 ├── tags.test.js              # getTagDefinitions, getTagById, getTagColor, getPinnedTags
+├── search.test.js            # full-text search and tag/column filter logic
+├── sorting.test.js           # priority-based column sort
+├── import-validator.test.js  # .kantrack.json import validation and error cases
+├── compaction.test.js        # oplog compaction worker logic
+├── crypto.test.js            # encrypted export/import round-trips
+├── sanitize.test.js          # allowlist HTML sanitizer (XSS protection)
+├── focus-trap.test.js        # createFocusTrap() — Tab cycling and deactivation (uses JSDOM)
 └── e2e/
     ├── smoke.spec.js         # Playwright E2E: create task + persist; set priority + persist
-    ├── flows.spec.js         # Playwright E2E: delete, edit title, add note, undo
+    ├── flows.spec.js         # Playwright E2E: delete, edit title, add note, undo/redo
+    ├── accessibility.spec.js # Playwright E2E: keyboard shortcuts, ESC, arrow nav, focus (Phase 7)
+    ├── import-export.spec.js # Playwright E2E: export/import round-trips (Phase 4)
+    ├── performance.spec.js   # Playwright E2E: virtual list DOM node budget (Phase 5)
     └── README.md
 ```
 
@@ -36,7 +46,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**263 tests across 11 files** — all should pass on every run.
+**401 tests across 18 files** — all should pass on every run.
 
 ### What is mocked
 
@@ -44,8 +54,13 @@ npm run test:ui     # Vitest UI in browser
 
 - **`fake-indexeddb`** — a complete in-memory IDB implementation (no browser required)
 - **`localStorage`** — a Map-backed mock (global)
-- **`crypto.randomUUID`** — returns a deterministic UUID stub
-- **`console.warn`** — silenced during tests (storage-monitor emits many expected warnings)
+- **`document`** — minimal stub (no real DOM methods) so modules can import without crashing
+- **`window`** — stub with no-op `dispatchEvent` / `addEventListener`
+- **`navigator.storage`** — stub that returns fixed quota values
+
+> **Tests that need real DOM** (e.g. `focus-trap.test.js`) import `JSDOM` directly and use
+> `vi.stubGlobal('document', jsdomDoc)` to temporarily replace the setup.js stub with a real
+> jsdom document for the duration of those tests.
 
 ---
 

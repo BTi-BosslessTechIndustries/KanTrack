@@ -40,7 +40,8 @@ export function saveNotesToLocalStorage() {
 
 export async function loadNotebookFromLocalStorage() {
   const items = await getAllNotebookItems();
-  setNotebookItems(items);
+  // Strip page content from in-memory items — loaded lazily in openPageModal()
+  setNotebookItems(items.map(({ content: _c, ...meta }) => meta));
   return notebookItems;
 }
 

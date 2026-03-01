@@ -12,7 +12,9 @@ import {
   MAX_TITLE_LENGTH,
 } from './utils.js';
 import { getPriorityLabel, getPriorityColor, showQuickPriorityMenu } from './priority.js';
-import { sortColumnByPriority } from './sorting.js';
+import { sortColumnByPriority, registerVLUpdater, getPrioritySortValue } from './sorting.js';
+import { checkTaskVisibility, registerVLUpdaterForFilters } from './search.js';
+import { VirtualList } from './virtual-list.js';
 import { showQuickTimeMenu, LONG_PRESS_THRESHOLD } from './timer.js';
 import { exportTaskAsPDF } from './export.js';
 import { enableTouchDrag, setDraggedItemRef } from './drag-drop.js';
@@ -25,6 +27,75 @@ import { deepClone } from './utils.js';
 let openTaskModalFn = null;
 export function setOpenTaskModal(fn) {
   openTaskModalFn = fn;
+}
+
+// ── Virtual List ──────────────────────────────────────────────
+const COLUMN_IDS = ['todo', 'inProgress', 'onHold', 'done'];
+const _virtualListMap = new Map(); // Map<columnId, VirtualList>
+
+/**
+ * Create one VirtualList per column and register VL callbacks with sorting + search.
+ * Called once during bootstrap, replacing the manual forEach card-append loop.
+ * @param {object[]} notes  Full notesData array (all tasks, including deleted)
+ */
+export function initVirtualLists(notes) {
+  for (const columnId of COLUMN_IDS) {
+    const colEl = document.getElementById(columnId);
+    if (!colEl) continue;
+    const isTodo = columnId === 'todo';
+    const columnTasks = notes
+      .filter(t => !t.deleted && t.column === columnId)
+      .sort((a, b) => {
+        const diff =
+          getPrioritySortValue(a.priority, isTodo) - getPrioritySortValue(b.priority, isTodo);
+        return diff !== 0 ? diff : _noteIndex(a.id, notes) - _noteIndex(b.id, notes);
+      });
+    _virtualListMap.set(columnId, new VirtualList(colEl, columnTasks, createNoteElement));
+  }
+  // Register callbacks so sorting.js and search.js delegate to VL
+  registerVLUpdater(updateColumnVirtualList);
+  registerVLUpdaterForFilters(updateColumnVirtualList);
+}
+
+/**
+ * Re-sort and re-filter a column's task list, then push it to the VirtualList.
+ * No-op if the VL for this column hasn't been initialized yet.
+ * @param {string} columnId
+ */
+export function updateColumnVirtualList(columnId) {
+  const vl = _virtualListMap.get(columnId);
+  if (!vl) return;
+
+  const isTodo = columnId === 'todo';
+  const all = state.notesData;
+
+  let columnTasks = all.filter(t => !t.deleted && t.column === columnId);
+
+  // Priority sort (data-level)
+  columnTasks.sort((a, b) => {
+    const diff =
+      getPrioritySortValue(a.priority, isTodo) - getPrioritySortValue(b.priority, isTodo);
+    return diff !== 0 ? diff : _noteIndex(a.id, all) - _noteIndex(b.id, all);
+  });
+
+  // Apply search / tag / column filters
+  columnTasks = columnTasks.filter(t => checkTaskVisibility(t));
+
+  vl.update(columnTasks);
+}
+
+/**
+ * Return the VirtualList for a column, or null if not initialized.
+ * @param {string} columnId
+ * @returns {VirtualList|null}
+ */
+export function getColumnVirtualList(columnId) {
+  return _virtualListMap.get(columnId) ?? null;
+}
+
+/** Index of task in data array — used as stable secondary sort key. */
+function _noteIndex(id, arr) {
+  return arr.findIndex(t => t.id === id);
 }
 
 export function addNote() {
@@ -58,12 +129,15 @@ export function addNote() {
     state.pushToNotesData(newNote);
     saveNotesToLocalStorage();
 
-    const noteElement = createNoteElement(newNote);
-    const todoCol = document.getElementById('todo');
-    if (todoCol) {
-      todoCol.appendChild(noteElement);
-      // Sort the todo column to place new task at top (since it has no priority)
-      sortColumnByPriority('todo');
+    if (_virtualListMap.size > 0) {
+      updateColumnVirtualList('todo');
+    } else {
+      const noteElement = createNoteElement(newNote);
+      const todoCol = document.getElementById('todo');
+      if (todoCol) {
+        todoCol.appendChild(noteElement);
+        sortColumnByPriority('todo');
+      }
     }
 
     // Update column counts
@@ -126,6 +200,7 @@ export async function deleteNote(id, addToHistory = true) {
 
     await deleteTaskImages(id);
 
+    const taskColumn = task.column; // save before marking deleted
     task.deleted = true;
 
     if (addToHistory) {
@@ -135,8 +210,12 @@ export async function deleteNote(id, addToHistory = true) {
 
     saveNotesToLocalStorage();
 
-    const domEl = document.querySelector(`[data-id='${id}']`);
-    if (domEl) domEl.remove();
+    if (_virtualListMap.size > 0) {
+      updateColumnVirtualList(taskColumn);
+    } else {
+      const domEl = document.querySelector(`[data-id='${id}']`);
+      if (domEl) domEl.remove();
+    }
 
     // Update column counts and trash badge
     window.dispatchEvent(new Event('kantrack:updateColumnCounts'));
@@ -197,6 +276,7 @@ export function createNoteElement(content) {
     note.classList.add(`priority-${content.priority}`);
   }
   note.draggable = true;
+  note.tabIndex = 0;
   note.dataset.id = content.id;
 
   note.style.cursor = 'pointer';
@@ -205,6 +285,12 @@ export function createNoteElement(content) {
       if (openTaskModalFn) openTaskModalFn(content.id);
     }
   };
+  note.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('button')) {
+      e.preventDefault();
+      if (openTaskModalFn) openTaskModalFn(content.id);
+    }
+  });
 
   const noteContent = document.createElement('div');
   noteContent.classList.add('note-content');
@@ -437,6 +523,12 @@ export function updateNoteCardDisplay(taskId) {
 
   const noteElement = document.querySelector(`[data-id="${taskId}"]`);
   if (!noteElement) return;
+
+  // Update title
+  const titleEl = noteElement.querySelector('.note-content strong');
+  if (titleEl && titleEl.textContent !== task.title) {
+    titleEl.textContent = task.title;
+  }
 
   const noteText = noteElement.querySelector('.note-text');
   if (noteText) {

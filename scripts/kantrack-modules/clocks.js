@@ -4,7 +4,7 @@
 import * as state from './state.js';
 import { timezones } from './timezones.js';
 import { getAllClocks, saveClocks as _saveClocks } from './repository.js';
-import { debugWarn } from './utils.js';
+import { debugWarn, createFocusTrap } from './utils.js';
 
 export function initializeDefaultClocks() {
   const defaultClocks = [
@@ -324,22 +324,32 @@ export function resetChronometer(id) {
   updateChronometerDisplay(clock);
 }
 
+let _clockModalTrap = null;
+let _clockModalReturnFocus = null;
+
 export function openAddClockModal() {
   const modal = document.getElementById('addClockModal');
   if (modal) {
+    _clockModalReturnFocus = document.activeElement;
     modal.style.display = 'block';
     // Reset selection
     selectClockType('timezone');
     const searchInput = document.getElementById('clockTimezoneSearch');
     if (searchInput) searchInput.value = '';
     filterTimezones();
+    _clockModalTrap = createFocusTrap(modal);
+    _clockModalTrap.activate();
   }
 }
 
 export function closeAddClockModal() {
   const modal = document.getElementById('addClockModal');
   if (modal) {
+    _clockModalTrap?.deactivate();
+    _clockModalTrap = null;
     modal.style.display = 'none';
+    _clockModalReturnFocus?.focus();
+    _clockModalReturnFocus = null;
   }
 }
 

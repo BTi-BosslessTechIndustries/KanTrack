@@ -28,6 +28,14 @@ import {
   idbClearAndBulkPut,
   migrateLocalStorageToIDB,
   runDataMigrations,
+  getMetaValue,
+  setMetaValue,
+  getOrCreateDeviceId,
+  getMetaLamport,
+  idbGetAllOplog,
+  idbPutOplog,
+  idbDeleteOplog,
+  idbDeleteAllUndoneOplog,
 } from '../scripts/kantrack-modules/database.js';
 
 // ---------------------------------------------------------------------------
@@ -318,5 +326,135 @@ describe('runDataMigrations', () => {
 
   it('does not throw when called on a fresh database with empty localStorage', async () => {
     await expect(runDataMigrations()).resolves.toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 3: getMetaValue / setMetaValue
+// ---------------------------------------------------------------------------
+describe('getMetaValue / setMetaValue', () => {
+  it('setMetaValue stores a value; getMetaValue retrieves it', async () => {
+    await setMetaValue('testKey', 'hello');
+    const val = await getMetaValue('testKey');
+    expect(val).toBe('hello');
+  });
+
+  it('getMetaValue returns null for an absent key', async () => {
+    const val = await getMetaValue('noSuchKey');
+    expect(val).toBeNull();
+  });
+
+  it('setMetaValue overwrites an existing value', async () => {
+    await setMetaValue('counter', 1);
+    await setMetaValue('counter', 2);
+    expect(await getMetaValue('counter')).toBe(2);
+  });
+
+  it('stores non-primitive values (objects)', async () => {
+    await setMetaValue('obj', { a: 1, b: [2, 3] });
+    const val = await getMetaValue('obj');
+    expect(val).toEqual({ a: 1, b: [2, 3] });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 3: getOrCreateDeviceId
+// ---------------------------------------------------------------------------
+describe('getOrCreateDeviceId', () => {
+  it('returns a non-empty string UUID', async () => {
+    const id = await getOrCreateDeviceId();
+    expect(typeof id).toBe('string');
+    expect(id.length).toBeGreaterThan(0);
+  });
+
+  it('returns the same ID on repeated calls (idempotent)', async () => {
+    const first = await getOrCreateDeviceId();
+    const second = await getOrCreateDeviceId();
+    expect(first).toBe(second);
+  });
+
+  it('persists the ID in the meta store', async () => {
+    const id = await getOrCreateDeviceId();
+    const stored = await getMetaValue('deviceId');
+    expect(stored).toBe(id);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 3: getMetaLamport
+// ---------------------------------------------------------------------------
+describe('getMetaLamport', () => {
+  it('returns 0 when lamportClock has not been set', async () => {
+    const val = await getMetaLamport();
+    expect(val).toBe(0);
+  });
+
+  it('returns the stored lamport value after setMetaValue', async () => {
+    await setMetaValue('lamportClock', 42);
+    const val = await getMetaLamport();
+    expect(val).toBe(42);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 3: oplog IDB helpers
+// ---------------------------------------------------------------------------
+describe('oplog IDB helpers', () => {
+  const makeEntry = (opId, undone = false) => ({
+    opId,
+    deviceId: 'device-test',
+    lamport: 1,
+    timestamp: Date.now(),
+    entityType: 'task',
+    entityId: 'task-1',
+    actionType: 'update',
+    patch: {},
+    description: 'test op',
+    undone,
+    prevHash: null,
+    hash: null,
+    _action: { type: 'update' },
+  });
+
+  it('idbPutOplog + idbGetAllOplog round-trip', async () => {
+    await idbPutOplog(makeEntry('op-1'));
+    const all = await idbGetAllOplog();
+    expect(all).toHaveLength(1);
+    expect(all[0].opId).toBe('op-1');
+  });
+
+  it('idbGetAllOplog returns empty array when oplog is empty', async () => {
+    const all = await idbGetAllOplog();
+    expect(all).toEqual([]);
+  });
+
+  it('idbDeleteOplog removes a specific entry by opId', async () => {
+    await idbPutOplog(makeEntry('op-keep'));
+    await idbPutOplog(makeEntry('op-delete'));
+    await idbDeleteOplog('op-delete');
+    const all = await idbGetAllOplog();
+    expect(all).toHaveLength(1);
+    expect(all[0].opId).toBe('op-keep');
+  });
+
+  it('idbDeleteOplog does not throw for a non-existent opId', async () => {
+    await expect(idbDeleteOplog('ghost-op')).resolves.toBeUndefined();
+  });
+
+  it('idbDeleteAllUndoneOplog removes only undone=true entries', async () => {
+    await idbPutOplog(makeEntry('done-op', false));
+    await idbPutOplog(makeEntry('undone-op', true));
+    await idbDeleteAllUndoneOplog();
+    const all = await idbGetAllOplog();
+    expect(all).toHaveLength(1);
+    expect(all[0].opId).toBe('done-op');
+  });
+
+  it('idbDeleteAllUndoneOplog is safe when there are no undone entries', async () => {
+    await idbPutOplog(makeEntry('op-a', false));
+    await idbPutOplog(makeEntry('op-b', false));
+    await idbDeleteAllUndoneOplog();
+    const all = await idbGetAllOplog();
+    expect(all).toHaveLength(2);
   });
 });

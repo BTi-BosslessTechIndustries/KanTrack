@@ -10,16 +10,21 @@ export const COLUMN_NAMES = {
   todo: 'To Do',
   inProgress: 'In Progress',
   done: 'Done',
-  onHold: 'On Hold'
+  onHold: 'On Hold',
 };
 
 export function getColumnName(columnId) {
   switch (columnId) {
-    case 'todo': return 'To Do';
-    case 'inProgress': return 'In Progress';
-    case 'done': return 'Done';
-    case 'onHold': return 'On Hold';
-    default: return '';
+    case 'todo':
+      return 'To Do';
+    case 'inProgress':
+      return 'In Progress';
+    case 'done':
+      return 'Done';
+    case 'onHold':
+      return 'On Hold';
+    default:
+      return '';
   }
 }
 
@@ -29,9 +34,17 @@ export function getCurrentDate() {
 }
 
 export function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, s => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-  }[s]));
+  return String(str).replace(
+    /[&<>"']/g,
+    s =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+      })[s]
+  );
 }
 
 export function formatTime(minutes) {
@@ -71,7 +84,7 @@ export function getTextPreview(html) {
 }
 
 export function getImageDimensions(src) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
       resolve({ width: img.naturalWidth, height: img.naturalHeight });
@@ -81,6 +94,65 @@ export function getImageDimensions(src) {
     };
     img.src = src;
   });
+}
+
+/**
+ * Create a focus trap for a modal container.
+ * Returns { activate(), deactivate() }.
+ * activate() focuses the first focusable child and installs a Tab keydown handler
+ * that keeps focus cycling within the container.
+ * deactivate() removes the handler.
+ *
+ * @param {HTMLElement} containerEl
+ * @returns {{ activate: Function, deactivate: Function }}
+ */
+export function createFocusTrap(containerEl) {
+  const SELECTOR = [
+    'button:not([disabled])',
+    '[href]',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(', ');
+
+  function getFocusable() {
+    return Array.from(containerEl.querySelectorAll(SELECTOR)).filter(
+      el => el.offsetParent !== null
+    );
+  }
+
+  function onKeydown(e) {
+    if (e.key !== 'Tab') return;
+    const els = getFocusable();
+    if (!els.length) {
+      e.preventDefault();
+      return;
+    }
+    const first = els[0];
+    const last = els[els.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first || !containerEl.contains(document.activeElement)) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last || !containerEl.contains(document.activeElement)) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  return {
+    activate() {
+      containerEl.addEventListener('keydown', onKeydown);
+      getFocusable()[0]?.focus();
+    },
+    deactivate() {
+      containerEl.removeEventListener('keydown', onKeydown);
+    },
+  };
 }
 
 /**
@@ -113,7 +185,7 @@ export function throttle(func, limit = 100) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => (inThrottle = false), limit);
     }
   };
 }
@@ -149,9 +221,7 @@ export function sanitizeFilename(filename) {
  * @returns {boolean}
  */
 export function isTouchDevice() {
-  return 'ontouchstart' in window ||
-         navigator.maxTouchPoints > 0 ||
-         navigator.msMaxTouchPoints > 0;
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
 }
 
 /**

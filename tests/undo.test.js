@@ -146,7 +146,7 @@ describe('trash IDB persistence', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Undo history: IDB persistence
+// Undo history: oplog persistence (Phase 3)
 // ---------------------------------------------------------------------------
 describe('undo history IDB persistence', () => {
   const makeAction = n => ({
@@ -157,20 +157,36 @@ describe('undo history IDB persistence', () => {
     description: `Move task ${n}`,
   });
 
-  it('recordAction adds to undoStack and writes to IDB', async () => {
+  // Build a minimal oplog entry for pre-population in tests.
+  const makeOplogEntry = (n, lamport, undone = false) => ({
+    opId: `op-${n}`,
+    deviceId: 'test-device',
+    lamport,
+    timestamp: Date.now(),
+    entityType: 'task',
+    entityId: `task-${n}`,
+    actionType: 'update',
+    patch: {},
+    description: `Move task ${n}`,
+    undone,
+    prevHash: null,
+    hash: null,
+    _action: makeAction(n),
+  });
+
+  it('recordAction adds to undoStack and writes to oplog', async () => {
     recordAction(makeAction(1));
     expect(canUndo()).toBe(true);
     await flushPromises();
 
-    const entries = await idbGetAll('undo_history');
+    const entries = await idbGetAll('oplog');
     expect(entries.length).toBeGreaterThan(0);
-    expect(entries[0].action.description).toBe('Move task 1');
+    expect(entries[0]._action.description).toBe('Move task 1');
   });
 
-  it('undo history is restored from IDB on startup (simulates page reload)', async () => {
-    // Pre-populate undo_history as a previous session would have
-    const action = makeAction(42);
-    await idbBulkPut('undo_history', [{ action, savedAt: Date.now() }]);
+  it('undo history is restored from oplog on startup (simulates page reload)', async () => {
+    // Pre-populate oplog as a previous session would have
+    await idbBulkPut('oplog', [makeOplogEntry(42, 1, false)]);
 
     // Fresh init
     await initUndo();
@@ -180,26 +196,23 @@ describe('undo history IDB persistence', () => {
     expect(status.lastUndo).toBe('Move task 42');
   });
 
-  it('preserves undo action order across IDB save/load', async () => {
-    await idbBulkPut('undo_history', [
-      { action: makeAction(1), savedAt: Date.now() },
-      { action: makeAction(2), savedAt: Date.now() },
-      { action: makeAction(3), savedAt: Date.now() },
+  it('preserves undo action order across oplog save/load', async () => {
+    await idbBulkPut('oplog', [
+      makeOplogEntry(1, 1, false),
+      makeOplogEntry(2, 2, false),
+      makeOplogEntry(3, 3, false),
     ]);
 
     await initUndo();
 
     const status = getUndoRedoStatus();
     expect(status.undoCount).toBeGreaterThanOrEqual(3);
-    expect(status.lastUndo).toBe('Move task 3'); // most recent is last pushed
+    expect(status.lastUndo).toBe('Move task 3'); // highest lamport = most recent
   });
 
-  it('does not exceed MAX_HISTORY (200) when loading from IDB', async () => {
-    const entries = Array.from({ length: 250 }, (_, i) => ({
-      action: makeAction(i),
-      savedAt: Date.now(),
-    }));
-    await idbBulkPut('undo_history', entries);
+  it('does not exceed MAX_HISTORY (200) when loading from oplog', async () => {
+    const entries = Array.from({ length: 250 }, (_, i) => makeOplogEntry(i, i + 1, false));
+    await idbBulkPut('oplog', entries);
 
     await initUndo();
 

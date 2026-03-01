@@ -6,7 +6,7 @@ import { db, setDb, notesData, notebookItems } from './state.js';
 import { showError, showWarning } from './notifications.js';
 import { debugWarn } from './utils.js';
 
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 // Data schema version — separate from IDB's structural DB_VERSION.
 // Increment this when the shape of stored records changes.
@@ -61,6 +61,11 @@ export function initIndexedDB() {
         }
         if (!database.objectStoreNames.contains('prefs')) {
           database.createObjectStore('prefs', { keyPath: 'key' });
+        }
+
+        // v3 stores (Phase 3 — Operation Log)
+        if (!database.objectStoreNames.contains('oplog')) {
+          database.createObjectStore('oplog', { keyPath: 'opId' });
         }
       };
     } catch (e) {
@@ -416,4 +421,93 @@ export async function deleteImagesByIds(taskId, imageIds) {
   for (const imageId of imageIds) {
     store.delete(`${taskId}_${imageId}`);
   }
+}
+
+// ==================== META HELPERS ====================
+
+/**
+ * Read a value from the meta store by key. Returns null if not found.
+ */
+export async function getMetaValue(key) {
+  try {
+    const record = await idbGet('meta', key);
+    return record?.value ?? null;
+  } catch (e) {
+    debugWarn(`getMetaValue(${key}) failed (non-fatal):`, e);
+    return null;
+  }
+}
+
+/**
+ * Write a value to the meta store (fire-and-forget async).
+ */
+export function setMetaValue(key, value) {
+  idbPut('meta', { key, value }).catch(e =>
+    debugWarn(`setMetaValue(${key}) failed (non-fatal):`, e)
+  );
+}
+
+/**
+ * Get the deviceId from meta, creating it if it doesn't exist yet.
+ */
+export async function getOrCreateDeviceId() {
+  const existing = await getMetaValue('deviceId');
+  if (existing) return existing;
+  const newId = crypto.randomUUID();
+  await idbPut('meta', { key: 'deviceId', value: newId });
+  return newId;
+}
+
+/**
+ * Read the current Lamport clock from meta. Returns 0 if not set.
+ */
+export async function getMetaLamport() {
+  const value = await getMetaValue('lamportClock');
+  return typeof value === 'number' ? value : 0;
+}
+
+// ==================== OPLOG IDB HELPERS ====================
+
+/**
+ * Get all oplog entries.
+ */
+export function idbGetAllOplog() {
+  return idbGetAll('oplog');
+}
+
+/**
+ * Write a single oplog entry.
+ */
+export function idbPutOplog(entry) {
+  return idbPut('oplog', entry);
+}
+
+/**
+ * Delete a single oplog entry by opId.
+ */
+export function idbDeleteOplog(opId) {
+  return idbDelete('oplog', opId);
+}
+
+/**
+ * Delete all oplog entries where undone === true in a single transaction.
+ */
+export function idbDeleteAllUndoneOplog() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['oplog'], 'readwrite');
+    const store = transaction.objectStore('oplog');
+
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+
+    const request = store.getAll();
+    request.onsuccess = () => {
+      const undoneEntries = request.result.filter(e => e.undone === true);
+      for (const entry of undoneEntries) {
+        store.delete(entry.opId);
+      }
+    };
+    request.onerror = () => reject(request.error);
+  });
 }

@@ -37,14 +37,16 @@ Every feature module of the KanTrack application. Each file has one responsibili
 | `sorting.js`         | Priority-based sort within a kanban column (`sortColumnByPriority()`)                                                                      |
 | `state.js`           | Shared mutable state object — 27 values + 44 setters. The central source of truth for in-memory app state                                  |
 | `storage.js`         | Thin shim: wraps `repository.ts` calls with `state.js` interaction. Provides `loadNotesFromLocalStorage()` and `saveNotesToLocalStorage()` |
+| `sanitize.js`        | Allowlist-based HTML sanitizer (`sanitizeHTML()`); applied to all stored HTML before it enters the live DOM                                |
 | `storage-monitor.js` | Requests durable storage, monitors quota, dispatches warning notifications                                                                 |
 | `sub-kanban.js`      | Nested sub-kanban board inside the task modal                                                                                              |
 | `tags.js`            | Tag creation, assignment, color coding, tag selector render                                                                                |
-| `tasks.js`           | Core task CRUD: `addNote()`, `deleteNote()`, `createNoteElement()`, `updateNoteCardDisplay()`                                              |
+| `tasks.js`           | Core task CRUD: `addNote()`, `deleteNote()`, `createNoteElement()`, `updateNoteCardDisplay()`; cards have `tabIndex=0` for keyboard nav    |
 | `timer.js`           | Task timer: add/remove time, quick-time context menu, long-press support                                                                   |
 | `timezones.js`       | Static timezone data list used by the clock system                                                                                         |
 | `undo.js`            | Undo/redo system: `recordAction()`, `undo()`, `redo()`, trash integration                                                                  |
-| `utils.js`           | Pure utilities: `formatTime()`, `escapeHtml()`, `getTextPreview()`, `deepClone()`, `validateTitle()`                                       |
+| `utils.js`           | Pure utilities: `formatTime()`, `escapeHtml()`, `deepClone()`, `validateTitle()`, `createFocusTrap()`                                      |
+| `virtual-list.js`    | Virtualised card renderer — `VirtualList` class with `IntersectionObserver`; renders only the visible cards in each column                 |
 
 ---
 
@@ -60,4 +62,4 @@ Every feature module of the KanTrack application. Each file has one responsibili
 
 ### Loading on startup
 
-`loadNotesFromLocalStorage()` (storage.js) → `repository.getAllTasks()` → IDB (primary) or localStorage (fallback) → `state.setNotesData()` → render all cards
+`loadNotesFromLocalStorage()` (storage.js) → `repository.getAllTasks()` → localStorage (primary, always written synchronously) or IDB (fallback) → `state.setNotesData()` → render all cards

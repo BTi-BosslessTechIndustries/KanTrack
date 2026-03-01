@@ -8,7 +8,7 @@ CSS stylesheets split by concern. All four files are imported by `index.html`.
 
 ### `base.css`
 
-Reset, typography, CSS variables (colours, spacing, font sizes), and global element defaults. This is the foundation — everything else builds on it.
+Reset, typography, CSS variables (colours, spacing, font sizes), global element defaults, and the `.sr-only` utility class (visually hidden but accessible to screen readers). This is the foundation — everything else builds on it.
 
 ### `components.css`
 
@@ -16,7 +16,7 @@ Reusable UI components: cards (`.note`), buttons, modals, the top header, inputs
 
 ### `features.css`
 
-Feature-specific styles that are large or isolated enough to need their own section: the sub-kanban board, the history panel inside the task modal, the clocks widget, the search overlay, the storage monitor indicator, and the drag-and-drop visual feedback.
+Feature-specific styles that are large or isolated enough to need their own section: the sub-kanban board, the history panel inside the task modal, the clocks widget, the search overlay, the storage monitor indicator, drag-and-drop visual feedback, and `.note:focus-visible` keyboard focus ring for card navigation.
 
 ### `responsive.css`
 

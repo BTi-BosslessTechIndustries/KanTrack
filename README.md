@@ -20,6 +20,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Export** — individual tasks or notebook pages as PDF; entire notebook as ZIP
 - **World clocks** — multiple timezone clocks and a chronometer
 - **Search & filter** — full-text search with tag and column filters
+- **Keyboard shortcuts** — N to focus new task, / for search, ? for the shortcuts reference, arrow keys to navigate cards
 - **Fully offline** — no CDN dependencies at runtime; everything is bundled
 - **No analytics, no telemetry, no cookies** — not ever
 
@@ -66,12 +67,12 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 263 tests across 11 files)
+npm run test:run     # unit tests (Vitest, 401 tests across 18 files)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
 
-npm run e2e          # Playwright E2E — 6 tests (builds automatically before running)
+npm run e2e          # Playwright E2E — 26 tests (builds automatically before running)
 npm run e2e:ui       # Playwright UI mode (interactive test runner)
 ```
 
@@ -92,25 +93,33 @@ KanTrack/
 │
 ├── scripts/                     # Application source code
 │   ├── kantrack.js              # Bootstrap: registers all actions, inits router + store
-│   └── kantrack-modules/        # Feature modules (28 files)
-│       ├── types.ts             # Shared TypeScript types
-│       ├── store.ts             # Flux-like state store
-│       ├── router.ts            # data-action event delegation
-│       ├── repository.ts        # All IDB/localStorage persistence
-│       └── *.js                 # Feature modules (tasks, modal, priority, …)
+│   ├── kantrack-modules/        # Feature modules (30 files)
+│   │   ├── types.ts             # Shared TypeScript types
+│   │   ├── store.ts             # Flux-like state store
+│   │   ├── router.ts            # data-action event delegation
+│   │   ├── repository.ts        # All IDB/localStorage persistence
+│   │   ├── sanitize.js          # Allowlist-based HTML sanitizer (XSS protection)
+│   │   ├── virtual-list.js      # Virtualised card list (performance)
+│   │   └── *.js                 # Feature modules (tasks, modal, priority, …)
+│   └── workers/                 # Web workers
+│       ├── export-worker.js     # JSON serialisation off the main thread
+│       └── compaction-worker.js # Oplog compaction off the main thread
 │
 ├── styles/                      # CSS split by concern
-│   ├── base.css                 # Variables, reset, typography
+│   ├── base.css                 # Variables, reset, typography, .sr-only utility
 │   ├── components.css           # Reusable UI components
 │   ├── features.css             # Feature-specific styles
 │   └── responsive.css           # Media queries (≤ 768 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (263 tests, 11 files)
+│   ├── *.test.js                # Vitest unit tests (401 tests, 18 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests
+│   └── e2e/                     # Playwright end-to-end tests (26 tests, 5 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
-│       └── flows.spec.js        # User flow tests (delete, edit, notes, undo)
+│       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
+│       ├── accessibility.spec.js# Keyboard shortcuts and focus management (Phase 7)
+│       ├── import-export.spec.js# Export/import round-trips (Phase 4)
+│       └── performance.spec.js  # Virtual list DOM budget (Phase 5)
 │
 ├── config/                      # Build and tool configuration
 │   ├── vite.config.js           # Vite build config

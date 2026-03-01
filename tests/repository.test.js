@@ -26,6 +26,11 @@ import {
   saveTrash,
   getAllUndoHistory,
   saveUndoHistory,
+  getAllOplogEntries,
+  appendOplogEntry,
+  updateOplogEntry,
+  clearUndoneOplogEntries,
+  deleteOplogEntriesOlderThan,
   safeGetItem,
   safeSetItem,
   getUIPref,
@@ -95,12 +100,12 @@ describe('getAllTasks', () => {
     expect(tasks).toHaveLength(0);
   });
 
-  it('prefers IDB over localStorage when both have data', async () => {
-    await idbBulkPut('tasks', [validTask('idb-wins')]);
-    localStorage.setItem('kanbanNotes', JSON.stringify([validTask('ls-loses')]));
+  it('prefers localStorage over IDB when both have data (localStorage is always the freshest sync write)', async () => {
+    await idbBulkPut('tasks', [validTask('idb-stale')]);
+    localStorage.setItem('kanbanNotes', JSON.stringify([validTask('ls-wins')]));
     const tasks = await getAllTasks();
-    expect(tasks.find(t => t.id === 'idb-wins')).toBeDefined();
-    expect(tasks.find(t => t.id === 'ls-loses')).toBeUndefined();
+    expect(tasks.find(t => t.id === 'ls-wins')).toBeDefined();
+    expect(tasks.find(t => t.id === 'idb-stale')).toBeUndefined();
   });
 
   it('filters out tasks with invalid columns', async () => {
@@ -167,22 +172,26 @@ describe('saveTasks', () => {
     expect(stored[0].id).toBe('t1');
   });
 
-  it('writes tasks to IDB asynchronously', async () => {
+  it('writes tasks to IDB after debounce fires', async () => {
+    vi.useFakeTimers();
     saveTasks([validTask('t-idb')]);
-    await flushPromises();
+    await vi.advanceTimersByTimeAsync(350);
     const idbTasks = await idbGetAll('tasks');
     expect(idbTasks).toHaveLength(1);
     expect(idbTasks[0].id).toBe('t-idb');
+    vi.useRealTimers();
   });
 
   it('replaces old IDB tasks (not appending)', async () => {
+    vi.useFakeTimers();
     saveTasks([validTask('first')]);
-    await flushPromises();
+    await vi.advanceTimersByTimeAsync(350);
     saveTasks([validTask('second')]);
-    await flushPromises();
+    await vi.advanceTimersByTimeAsync(350);
     const idbTasks = await idbGetAll('tasks');
     expect(idbTasks).toHaveLength(1);
     expect(idbTasks[0].id).toBe('second');
+    vi.useRealTimers();
   });
 
   it('calls the auto-save callback', () => {
@@ -191,6 +200,34 @@ describe('saveTasks', () => {
     saveTasks([validTask()]);
     expect(cb).toHaveBeenCalledTimes(1);
     setAutoSaveCallback(null); // cleanup
+  });
+});
+
+// ===========================================================================
+// saveTasks — debounce behaviour
+// ===========================================================================
+describe('saveTasks — debounced IDB writes', () => {
+  it('does not write to IDB before the debounce timer fires', async () => {
+    vi.useFakeTimers();
+    saveTasks([validTask('early')]);
+    // Timer hasn't fired yet — IDB should be empty
+    const idbTasks = await idbGetAll('tasks');
+    expect(idbTasks).toHaveLength(0);
+    vi.useRealTimers();
+  });
+
+  it('coalesces rapid calls and writes only the last snapshot', async () => {
+    vi.useFakeTimers();
+    saveTasks([validTask('call-1')]);
+    await vi.advanceTimersByTimeAsync(100); // partial — no fire yet
+    saveTasks([validTask('call-2')]); // resets timer
+    await vi.advanceTimersByTimeAsync(100); // still < 300ms from last call
+    expect(await idbGetAll('tasks')).toHaveLength(0); // not yet
+    await vi.advanceTimersByTimeAsync(250); // total 350ms from last call — fires
+    const idbTasks = await idbGetAll('tasks');
+    expect(idbTasks).toHaveLength(1);
+    expect(idbTasks[0].id).toBe('call-2'); // last call's snapshot wins
+    vi.useRealTimers();
   });
 });
 
@@ -217,11 +254,13 @@ describe('notebook items', () => {
     expect(stored).toHaveLength(1);
   });
 
-  it('saveNotebookItems writes to IDB async', async () => {
+  it('saveNotebookItems writes to IDB after debounce fires', async () => {
+    vi.useFakeTimers();
     saveNotebookItems([validNotebookItem('nb-idb')]);
-    await flushPromises();
+    await vi.advanceTimersByTimeAsync(350);
     const idbItems = await idbGetAll('notebook_items');
     expect(idbItems[0].id).toBe('nb-idb');
+    vi.useRealTimers();
   });
 });
 
@@ -408,5 +447,133 @@ describe('getUIPref / setUIPref', () => {
 
   it('getUIPref returns defaultValue when key is absent', () => {
     expect(getUIPref('nonexistent', 99)).toBe(99);
+  });
+});
+
+// ===========================================================================
+// Phase 3: oplog repository functions
+// ===========================================================================
+
+const makeOplogEntry = (opId, lamport = 1, undone = false, timestampOverride = null) => ({
+  opId,
+  deviceId: 'test-device',
+  lamport,
+  timestamp: timestampOverride ?? Date.now(),
+  entityType: 'task',
+  entityId: 'task-1',
+  actionType: 'update',
+  patch: { column: { prev: 'todo', next: 'done' } },
+  description: `Op ${opId}`,
+  undone,
+  prevHash: null,
+  hash: null,
+  _action: { type: 'move', taskId: 'task-1', description: `Op ${opId}` },
+});
+
+describe('getAllOplogEntries', () => {
+  it('returns empty array when oplog is empty', async () => {
+    const entries = await getAllOplogEntries();
+    expect(entries).toEqual([]);
+  });
+
+  it('returns all entries sorted by lamport ascending', async () => {
+    await idbBulkPut('oplog', [
+      makeOplogEntry('op-3', 3),
+      makeOplogEntry('op-1', 1),
+      makeOplogEntry('op-2', 2),
+    ]);
+    const entries = await getAllOplogEntries();
+    expect(entries).toHaveLength(3);
+    expect(entries.map(e => e.lamport)).toEqual([1, 2, 3]);
+  });
+});
+
+describe('appendOplogEntry', () => {
+  it('writes an entry to the oplog store', async () => {
+    await appendOplogEntry(makeOplogEntry('op-new', 5));
+    const stored = await idbGetAll('oplog');
+    expect(stored).toHaveLength(1);
+    expect(stored[0].opId).toBe('op-new');
+  });
+
+  it('does not throw on a second call with a different opId', async () => {
+    await appendOplogEntry(makeOplogEntry('op-a', 1));
+    await expect(appendOplogEntry(makeOplogEntry('op-b', 2))).resolves.toBeUndefined();
+    const stored = await idbGetAll('oplog');
+    expect(stored).toHaveLength(2);
+  });
+});
+
+describe('updateOplogEntry', () => {
+  it('merges changes into an existing entry', async () => {
+    await appendOplogEntry(makeOplogEntry('op-upd', 1, false));
+    await updateOplogEntry('op-upd', { undone: true });
+    const all = await idbGetAll('oplog');
+    expect(all[0].undone).toBe(true);
+  });
+
+  it('does nothing when the opId does not exist', async () => {
+    await expect(updateOplogEntry('ghost-op', { undone: true })).resolves.toBeUndefined();
+    const all = await idbGetAll('oplog');
+    expect(all).toHaveLength(0);
+  });
+
+  it('preserves un-changed fields after update', async () => {
+    await appendOplogEntry(makeOplogEntry('op-p', 7, false));
+    await updateOplogEntry('op-p', { undone: true });
+    const all = await idbGetAll('oplog');
+    expect(all[0].lamport).toBe(7);
+    expect(all[0].deviceId).toBe('test-device');
+  });
+});
+
+describe('clearUndoneOplogEntries', () => {
+  it('deletes all entries where undone is true', async () => {
+    await idbBulkPut('oplog', [
+      makeOplogEntry('op-keep', 1, false),
+      makeOplogEntry('op-del', 2, true),
+    ]);
+    await clearUndoneOplogEntries();
+    const all = await idbGetAll('oplog');
+    expect(all).toHaveLength(1);
+    expect(all[0].opId).toBe('op-keep');
+  });
+
+  it('is safe when there are no undone entries', async () => {
+    await idbBulkPut('oplog', [makeOplogEntry('op-x', 1, false)]);
+    await expect(clearUndoneOplogEntries()).resolves.toBeUndefined();
+    expect(await idbGetAll('oplog')).toHaveLength(1);
+  });
+
+  it('resolves cleanly on an empty oplog', async () => {
+    await expect(clearUndoneOplogEntries()).resolves.toBeUndefined();
+  });
+});
+
+describe('deleteOplogEntriesOlderThan', () => {
+  it('deletes only undone entries older than the cutoff', async () => {
+    const oldTime = Date.now() - 10_000;
+    const nowTime = Date.now();
+    await idbBulkPut('oplog', [
+      makeOplogEntry('old-undone', 1, true, oldTime),
+      makeOplogEntry('old-done', 2, false, oldTime),
+      makeOplogEntry('new-undone', 3, true, nowTime),
+    ]);
+    await deleteOplogEntriesOlderThan(Date.now() - 5_000); // cutoff = 5 seconds ago
+    const remaining = await idbGetAll('oplog');
+    const ids = remaining.map(e => e.opId);
+    expect(ids).toContain('old-done');
+    expect(ids).toContain('new-undone');
+    expect(ids).not.toContain('old-undone');
+  });
+
+  it('does nothing when all undone entries are within the cutoff window', async () => {
+    await idbBulkPut('oplog', [makeOplogEntry('recent-undone', 1, true, Date.now())]);
+    await deleteOplogEntriesOlderThan(Date.now() - 60_000); // 1 minute ago — recent entry is newer
+    expect(await idbGetAll('oplog')).toHaveLength(1);
+  });
+
+  it('resolves cleanly on an empty oplog', async () => {
+    await expect(deleteOplogEntriesOlderThan(Date.now())).resolves.toBeUndefined();
   });
 });

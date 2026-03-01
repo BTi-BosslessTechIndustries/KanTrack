@@ -143,13 +143,13 @@ describe('loadNotesFromLocalStorage', () => {
     expect(notes[0].tags).toEqual([]);
   });
 
-  it('prefers IDB over localStorage when both have data', async () => {
-    await idbBulkPut('tasks', [validTask('idb-wins')]);
-    localStorage.setItem('kanbanNotes', JSON.stringify([validTask('ls-loses')]));
+  it('prefers localStorage over IDB when both have data (localStorage is always the freshest sync write)', async () => {
+    await idbBulkPut('tasks', [validTask('idb-stale')]);
+    localStorage.setItem('kanbanNotes', JSON.stringify([validTask('ls-wins')]));
 
     const notes = await loadNotesFromLocalStorage();
-    expect(notes.find(n => n.id === 'idb-wins')).toBeDefined();
-    expect(notes.find(n => n.id === 'ls-loses')).toBeUndefined();
+    expect(notes.find(n => n.id === 'ls-wins')).toBeDefined();
+    expect(notes.find(n => n.id === 'idb-stale')).toBeUndefined();
   });
 });
 
@@ -167,27 +167,31 @@ describe('saveNotesToLocalStorage', () => {
   });
 
   it('writes tasks to the IDB tasks store (async)', async () => {
+    vi.useFakeTimers();
     state.setNotesData([validTask('saved-idb')]);
     saveNotesToLocalStorage();
-    await flushPromises();
+    await vi.advanceTimersByTimeAsync(350);
 
     const idbTasks = await idbGetAll('tasks');
     expect(idbTasks).toHaveLength(1);
     expect(idbTasks[0].id).toBe('saved-idb');
+    vi.useRealTimers();
   });
 
   it('replaces old IDB tasks on each save (not appending)', async () => {
+    vi.useFakeTimers();
     state.setNotesData([validTask('first')]);
     saveNotesToLocalStorage();
-    await flushPromises();
+    await vi.advanceTimersByTimeAsync(350);
 
     state.setNotesData([validTask('second')]);
     saveNotesToLocalStorage();
-    await flushPromises();
+    await vi.advanceTimersByTimeAsync(350);
 
     const idbTasks = await idbGetAll('tasks');
     expect(idbTasks).toHaveLength(1);
     expect(idbTasks[0].id).toBe('second');
+    vi.useRealTimers();
   });
 });
 
@@ -230,12 +234,14 @@ describe('saveNotebookToLocalStorage', () => {
   });
 
   it('writes notebook items to IDB (async)', async () => {
+    vi.useFakeTimers();
     state.setNotebookItems([validNotebookItem('nb-idb')]);
     saveNotebookToLocalStorage();
-    await flushPromises();
+    await vi.advanceTimersByTimeAsync(350);
 
     const idbItems = await idbGetAll('notebook_items');
     expect(idbItems).toHaveLength(1);
     expect(idbItems[0].id).toBe('nb-idb');
+    vi.useRealTimers();
   });
 });
