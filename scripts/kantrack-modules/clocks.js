@@ -3,24 +3,31 @@
  ***********************/
 import * as state from './state.js';
 import { timezones } from './timezones.js';
+import { getAllClocks, saveClocks as _saveClocks } from './repository.js';
+import { debugWarn, createFocusTrap } from './utils.js';
 
 export function initializeDefaultClocks() {
   const defaultClocks = [
-    { id: Date.now() + 1, type: 'timezone', name: 'Current Time', timezone: null, isCurrent: true },
-    { id: Date.now() + 2, type: 'timezone', name: 'Europe', timezone: 'Europe/Paris' },
-    { id: Date.now() + 3, type: 'timezone', name: 'China', timezone: 'Asia/Shanghai' },
-    { id: Date.now() + 4, type: 'timezone', name: 'Americas', timezone: 'America/New_York' },
-    { id: Date.now() + 5, type: 'timezone', name: 'Africa', timezone: 'Africa/Cairo' }
+    {
+      id: crypto.randomUUID(),
+      type: 'timezone',
+      name: 'Current Time',
+      timezone: null,
+      isCurrent: true,
+    },
+    { id: crypto.randomUUID(), type: 'timezone', name: 'Europe', timezone: 'Europe/Paris' },
+    { id: crypto.randomUUID(), type: 'timezone', name: 'China', timezone: 'Asia/Shanghai' },
+    { id: crypto.randomUUID(), type: 'timezone', name: 'Americas', timezone: 'America/New_York' },
+    { id: crypto.randomUUID(), type: 'timezone', name: 'Africa', timezone: 'Africa/Cairo' },
   ];
   state.setClocksData(defaultClocks);
   saveClocks();
 }
 
-export function loadClocks() {
-  const saved = localStorage.getItem('kanbanClocks');
-  if (saved) {
-    state.setClocksData(JSON.parse(saved));
-    // Reinitialize chronometer state for running chronometers
+export async function loadClocks() {
+  const clocks = await getAllClocks();
+  if (clocks) {
+    state.setClocksData(clocks);
     state.clocksData.forEach(clock => {
       if (clock.type === 'chronometer' && clock.running) {
         clock.elapsed = Date.now() - clock.startTime;
@@ -29,13 +36,13 @@ export function loadClocks() {
   } else {
     initializeDefaultClocks();
   }
+
   renderClocks();
-  // Start update interval
   setInterval(updateClocks, 1000);
 }
 
 export function saveClocks() {
-  localStorage.setItem('kanbanClocks', JSON.stringify(state.clocksData));
+  _saveClocks(state.clocksData);
 }
 
 export function renderClocks() {
@@ -74,7 +81,7 @@ export function createClockElement(clock) {
     const deleteBtn = document.createElement('button');
     deleteBtn.classList.add('clock-delete');
     deleteBtn.innerHTML = '&times;';
-    deleteBtn.onclick = (e) => {
+    deleteBtn.onclick = e => {
       e.stopPropagation();
       deleteClock(clock.id);
     };
@@ -99,7 +106,6 @@ export function createClockElement(clock) {
     dateEl.classList.add('clock-date');
     dateEl.id = `clock-date-${clock.id}`;
     clockEl.appendChild(dateEl);
-
   } else if (clock.type === 'chronometer') {
     // Chronometer display
     const timeEl = document.createElement('div');
@@ -115,17 +121,26 @@ export function createClockElement(clock) {
     const startBtn = document.createElement('button');
     startBtn.textContent = 'Start';
     startBtn.classList.add('start-btn');
-    startBtn.onclick = (e) => { e.stopPropagation(); startChronometer(clock.id); };
+    startBtn.onclick = e => {
+      e.stopPropagation();
+      startChronometer(clock.id);
+    };
 
     const pauseBtn = document.createElement('button');
     pauseBtn.textContent = 'Pause';
     pauseBtn.classList.add('pause-btn');
-    pauseBtn.onclick = (e) => { e.stopPropagation(); pauseChronometer(clock.id); };
+    pauseBtn.onclick = e => {
+      e.stopPropagation();
+      pauseChronometer(clock.id);
+    };
 
     const resetBtn = document.createElement('button');
     resetBtn.textContent = 'Reset';
     resetBtn.classList.add('reset-btn');
-    resetBtn.onclick = (e) => { e.stopPropagation(); resetChronometer(clock.id); };
+    resetBtn.onclick = e => {
+      e.stopPropagation();
+      resetChronometer(clock.id);
+    };
 
     controlsEl.appendChild(startBtn);
     controlsEl.appendChild(pauseBtn);
@@ -139,10 +154,10 @@ export function createClockElement(clock) {
   }
 
   // Drag events
-  clockEl.ondragstart = (e) => handleClockDragStart(e, clock);
+  clockEl.ondragstart = e => handleClockDragStart(e, clock);
   clockEl.ondragend = handleClockDragEnd;
-  clockEl.ondragover = (e) => handleClockDragOver(e, clock);
-  clockEl.ondrop = (e) => handleClockDrop(e, clock);
+  clockEl.ondragover = e => handleClockDragOver(e, clock);
+  clockEl.ondrop = e => handleClockDrop(e, clock);
 
   // Initial time update for timezone clocks
   if (clock.type === 'timezone') {
@@ -309,22 +324,32 @@ export function resetChronometer(id) {
   updateChronometerDisplay(clock);
 }
 
+let _clockModalTrap = null;
+let _clockModalReturnFocus = null;
+
 export function openAddClockModal() {
   const modal = document.getElementById('addClockModal');
   if (modal) {
-    modal.style.display = 'block';
+    _clockModalReturnFocus = document.activeElement;
+    modal.style.display = 'flex';
     // Reset selection
     selectClockType('timezone');
     const searchInput = document.getElementById('clockTimezoneSearch');
     if (searchInput) searchInput.value = '';
     filterTimezones();
+    _clockModalTrap = createFocusTrap(modal);
+    _clockModalTrap.activate();
   }
 }
 
 export function closeAddClockModal() {
   const modal = document.getElementById('addClockModal');
   if (modal) {
+    _clockModalTrap?.deactivate();
+    _clockModalTrap = null;
     modal.style.display = 'none';
+    _clockModalReturnFocus?.focus();
+    _clockModalReturnFocus = null;
   }
 }
 
@@ -383,10 +408,10 @@ export function addTimezoneClock() {
   const name = customName || timezone.split('/').pop().replace(/_/g, ' ');
 
   const newClock = {
-    id: Date.now(),
+    id: crypto.randomUUID(),
     type: 'timezone',
     timezone: timezone,
-    name: name
+    name: name,
   };
 
   state.pushToClocksData(newClock);
@@ -402,12 +427,12 @@ export function addChronometer() {
   const name = nameInput?.value.trim() || 'Chronometer';
 
   const newClock = {
-    id: Date.now(),
+    id: crypto.randomUUID(),
     type: 'chronometer',
     name: name,
     elapsed: 0,
     running: false,
-    startTime: null
+    startTime: null,
   };
 
   state.pushToClocksData(newClock);

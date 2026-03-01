@@ -5,6 +5,7 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { escapeHtml } from './utils.js';
+import { getAllTags, saveTags as _saveTags } from './repository.js';
 
 // Maximum tags per task
 export const MAX_TAGS_PER_TASK = 5;
@@ -20,11 +21,8 @@ export const TAG_COLORS = [
   { name: 'indigo', color: '#6366f1', bg: 'rgba(99, 102, 241, 0.2)' },
   { name: 'purple', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)' },
   { name: 'pink', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.2)' },
-  { name: 'gray', color: '#6b7280', bg: 'rgba(107, 114, 128, 0.2)' }
+  { name: 'gray', color: '#6b7280', bg: 'rgba(107, 114, 128, 0.2)' },
 ];
-
-// Storage key for user-created tags
-const TAGS_STORAGE_KEY = 'kantrackTags';
 
 // In-memory tag definitions
 let tagDefinitions = [];
@@ -32,42 +30,41 @@ let tagDefinitions = [];
 /**
  * Initialize tags system
  */
-export function initTags() {
-  loadTagDefinitions();
+export async function initTags() {
+  await loadTagDefinitions();
 }
 
 // Old default tag IDs to remove during migration
 const OLD_DEFAULT_TAG_IDS = ['urgent', 'review', 'user-story', 'incident', 'rollout'];
 
 /**
- * Load tag definitions from localStorage
+ * Load tag definitions from IDB (with localStorage fallback)
  */
-function loadTagDefinitions() {
+async function loadTagDefinitions() {
   try {
-    const saved = localStorage.getItem(TAGS_STORAGE_KEY);
-    if (saved) {
-      tagDefinitions = JSON.parse(saved);
+    const loaded = await getAllTags();
+
+    if (loaded.length > 0) {
+      tagDefinitions = loaded;
       const beforeCount = tagDefinitions.length;
 
-      // Get tags currently in use by tasks
+      // Get tags currently in use by tasks (reads from state, tasks must be loaded first)
       const usedTagIds = getUsedTagIds();
 
       // Remove old default tags (unless they're in use)
-      tagDefinitions = tagDefinitions.filter(tag =>
-        !OLD_DEFAULT_TAG_IDS.includes(tag.id) || usedTagIds.has(tag.id)
+      tagDefinitions = tagDefinitions.filter(
+        tag => !OLD_DEFAULT_TAG_IDS.includes(tag.id) || usedTagIds.has(tag.id)
       );
 
       // Keep tags that are pinned OR in use by tasks
-      tagDefinitions = tagDefinitions.filter(tag =>
-        tag.pinned === true || usedTagIds.has(tag.id)
-      );
+      tagDefinitions = tagDefinitions.filter(tag => tag.pinned === true || usedTagIds.has(tag.id));
 
       // Save if any tags were removed
       if (tagDefinitions.length !== beforeCount) {
         saveTagDefinitions();
       }
     } else {
-      // Start with empty tags - users create their own
+      // Start with empty tags — users create their own
       tagDefinitions = [];
     }
   } catch (e) {
@@ -77,35 +74,24 @@ function loadTagDefinitions() {
 }
 
 /**
- * Get all tag IDs currently in use by tasks
+ * Get all tag IDs currently in use by tasks.
+ * Reads from state (tasks must be loaded before initTags is called).
  */
 function getUsedTagIds() {
   const usedTagIds = new Set();
-  try {
-    const savedNotes = localStorage.getItem('kanbanNotes');
-    if (savedNotes) {
-      const notes = JSON.parse(savedNotes);
-      notes.forEach(task => {
-        if (task.tags && task.tags.length > 0) {
-          task.tags.forEach(tagId => usedTagIds.add(tagId));
-        }
-      });
+  state.notesData.forEach(task => {
+    if (task.tags && task.tags.length > 0) {
+      task.tags.forEach(tagId => usedTagIds.add(tagId));
     }
-  } catch (e) {
-    console.warn('Error reading notes for tag check:', e);
-  }
+  });
   return usedTagIds;
 }
 
 /**
- * Save tag definitions to localStorage
+ * Save tag definitions via repository.js
  */
 function saveTagDefinitions() {
-  try {
-    localStorage.setItem(TAGS_STORAGE_KEY, JSON.stringify(tagDefinitions));
-  } catch (e) {
-    console.warn('Error saving tags:', e);
-  }
+  _saveTags([...tagDefinitions]);
 }
 
 /**
@@ -147,7 +133,7 @@ export function createTag(name, colorIndex = 9, pinned = false) {
     id,
     name,
     colorIndex: Math.min(Math.max(0, colorIndex), TAG_COLORS.length - 1),
-    pinned
+    pinned,
   };
 
   tagDefinitions.push(tag);
@@ -242,9 +228,7 @@ export function cleanupUnusedTags() {
   // Filter out unused tags (keep pinned tags)
   const previousCount = tagDefinitions.length;
 
-  tagDefinitions = tagDefinitions.filter(tag =>
-    usedTagIds.has(tag.id) || tag.pinned
-  );
+  tagDefinitions = tagDefinitions.filter(tag => usedTagIds.has(tag.id) || tag.pinned);
 
   // Save if any tags were removed
   if (tagDefinitions.length !== previousCount) {
@@ -306,7 +290,7 @@ export function getTaskTags(taskId) {
       id: tagId,
       name: tagDef ? tagDef.name : tagId,
       color: color.color,
-      bg: color.bg
+      bg: color.bg,
     };
   });
 }
@@ -318,11 +302,12 @@ export function renderTaskTagsHTML(taskId) {
   const tags = getTaskTags(taskId);
   if (tags.length === 0) return '';
 
-  return `<div class="task-tags">${
-    tags.map(tag =>
-      `<span class="task-tag" style="background: ${tag.bg}; color: ${tag.color}; border-color: ${tag.color};">${escapeHtml(tag.name)}</span>`
-    ).join('')
-  }</div>`;
+  return `<div class="task-tags">${tags
+    .map(
+      tag =>
+        `<span class="task-tag" style="background: ${tag.bg}; color: ${tag.color}; border-color: ${tag.color};">${escapeHtml(tag.name)}</span>`
+    )
+    .join('')}</div>`;
 }
 
 /**
@@ -344,11 +329,12 @@ export function renderTagSelector(taskId, container) {
     <div class="tag-selector">
       <div class="tag-selector-current">
         ${currentTags.length === 0 ? '<span class="no-tags">No tags</span>' : ''}
-        ${currentTags.map(tagId => {
-          const tag = getTagById(tagId);
-          const color = getTagColor(tagId);
-          const isPinned = tag?.pinned || false;
-          return `
+        ${currentTags
+          .map(tagId => {
+            const tag = getTagById(tagId);
+            const color = getTagColor(tagId);
+            const isPinned = tag?.pinned || false;
+            return `
             <span class="tag-chip" style="background: ${color.bg}; color: ${color.color}; border-color: ${color.color};">
               ${escapeHtml(tag ? tag.name : tagId)}
               <button class="tag-pin${isPinned ? ' pinned' : ''}" data-tag-id="${tagId}" title="${isPinned ? 'Unpin tag' : 'Pin tag for reuse'}">
@@ -359,23 +345,28 @@ export function renderTagSelector(taskId, container) {
               <button class="tag-remove" data-tag-id="${tagId}" title="Remove tag">&times;</button>
             </span>
           `;
-        }).join('')}
+          })
+          .join('')}
       </div>
       <div class="tag-selector-add">
-        ${atMaxTags
-          ? '<span class="max-tags-message">Maximum 5 tags reached</span>'
-          : '<button class="tag-add-btn" id="tagAddBtn">+ Add Tag</button>'
+        ${
+          atMaxTags
+            ? '<span class="max-tags-message">Maximum 5 tags reached</span>'
+            : '<button class="tag-add-btn" id="tagAddBtn">+ Add Tag</button>'
         }
       </div>
       <div class="tag-selector-dropdown" id="tagDropdown" style="display: none;">
         <div class="tag-dropdown-list">
-          ${pinnedTags.length > 0 ? `
+          ${
+            pinnedTags.length > 0
+              ? `
             <div class="tag-dropdown-section">
               <span class="tag-dropdown-section-label">Pinned Tags</span>
             </div>
-            ${pinnedTags.map(tag => {
-              const color = TAG_COLORS[tag.colorIndex];
-              return `
+            ${pinnedTags
+              .map(tag => {
+                const color = TAG_COLORS[tag.colorIndex];
+                return `
                 <div class="tag-dropdown-row">
                   <button class="tag-dropdown-item" data-tag-id="${tag.id}" style="--tag-color: ${color.color}; --tag-bg: ${color.bg};">
                     <span class="tag-color-dot" style="background: ${color.color};"></span>
@@ -388,13 +379,19 @@ export function renderTagSelector(taskId, container) {
                   </button>
                 </div>
               `;
-            }).join('')}
-          ` : ''}
-          ${unpinnedTags.length > 0 ? `
+              })
+              .join('')}
+          `
+              : ''
+          }
+          ${
+            unpinnedTags.length > 0
+              ? `
             ${pinnedTags.length > 0 ? '<div class="tag-dropdown-section"><span class="tag-dropdown-section-label">Other Tags</span></div>' : ''}
-            ${unpinnedTags.map(tag => {
-              const color = TAG_COLORS[tag.colorIndex];
-              return `
+            ${unpinnedTags
+              .map(tag => {
+                const color = TAG_COLORS[tag.colorIndex];
+                return `
                 <div class="tag-dropdown-row">
                   <button class="tag-dropdown-item" data-tag-id="${tag.id}" style="--tag-color: ${color.color}; --tag-bg: ${color.bg};">
                     <span class="tag-color-dot" style="background: ${color.color};"></span>
@@ -407,15 +404,19 @@ export function renderTagSelector(taskId, container) {
                   </button>
                 </div>
               `;
-            }).join('')}
-          ` : ''}
+              })
+              .join('')}
+          `
+              : ''
+          }
           ${availableTags.length === 0 ? '<div class="tag-dropdown-empty">No saved tags. Create one below!</div>' : ''}
         </div>
         <div class="tag-dropdown-create">
           <input type="text" id="newTagInput" placeholder="Create new tag..." maxlength="20">
           <div class="tag-color-picker" id="tagColorPicker">
-            ${TAG_COLORS.map((c, i) =>
-              `<button class="tag-color-option${i === 5 ? ' selected' : ''}" data-color-index="${i}" style="background: ${c.color};" title="${c.name}"></button>`
+            ${TAG_COLORS.map(
+              (c, i) =>
+                `<button class="tag-color-option${i === 5 ? ' selected' : ''}" data-color-index="${i}" style="background: ${c.color};" title="${c.name}"></button>`
             ).join('')}
           </div>
           <label class="tag-pin-checkbox">
@@ -445,14 +446,14 @@ function setupTagSelectorEvents(taskId, container) {
   let selectedColorIndex = 5;
 
   // Toggle dropdown
-  addBtn?.addEventListener('click', (e) => {
+  addBtn?.addEventListener('click', e => {
     e.stopPropagation();
     dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
   });
 
   // Add existing tag
   container.querySelectorAll('.tag-dropdown-item').forEach(item => {
-    item.addEventListener('click', (e) => {
+    item.addEventListener('click', e => {
       e.stopPropagation();
       const tagId = item.dataset.tagId;
       addTagToTask(taskId, tagId);
@@ -463,7 +464,7 @@ function setupTagSelectorEvents(taskId, container) {
 
   // Remove tag
   container.querySelectorAll('.tag-remove').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
       const tagId = btn.dataset.tagId;
       removeTagFromTask(taskId, tagId);
@@ -474,7 +475,7 @@ function setupTagSelectorEvents(taskId, container) {
 
   // Pin/unpin tag from current tags
   container.querySelectorAll('.tag-chip .tag-pin').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
       const tagId = btn.dataset.tagId;
       toggleTagPinned(tagId);
@@ -484,7 +485,7 @@ function setupTagSelectorEvents(taskId, container) {
 
   // Pin/unpin tag from dropdown
   container.querySelectorAll('.tag-dropdown-pin').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
       const tagId = btn.dataset.tagId;
       toggleTagPinned(tagId);
@@ -494,16 +495,18 @@ function setupTagSelectorEvents(taskId, container) {
 
   // Color picker
   colorPicker?.querySelectorAll('.tag-color-option').forEach(opt => {
-    opt.addEventListener('click', (e) => {
+    opt.addEventListener('click', e => {
       e.stopPropagation();
-      colorPicker.querySelectorAll('.tag-color-option').forEach(o => o.classList.remove('selected'));
+      colorPicker
+        .querySelectorAll('.tag-color-option')
+        .forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       selectedColorIndex = parseInt(opt.dataset.colorIndex);
     });
   });
 
   // Create new tag
-  createTagBtn?.addEventListener('click', (e) => {
+  createTagBtn?.addEventListener('click', e => {
     e.stopPropagation();
     const name = newTagInput.value.trim();
     if (name) {
@@ -518,7 +521,7 @@ function setupTagSelectorEvents(taskId, container) {
   });
 
   // Enter key in input
-  newTagInput?.addEventListener('keydown', (e) => {
+  newTagInput?.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       e.preventDefault();
       createTagBtn?.click();
@@ -548,10 +551,12 @@ export function renderTagFilterButtons() {
     return;
   }
 
-  container.innerHTML = pinnedTags.map(tag => {
-    const color = TAG_COLORS[tag.colorIndex];
-    return `<button class="tag-filter-btn" data-tag="${tag.id}" title="Filter by ${escapeHtml(tag.name)}" style="--tag-color: ${color.color}; --tag-bg: ${color.bg};">${escapeHtml(tag.name)}</button>`;
-  }).join('');
+  container.innerHTML = pinnedTags
+    .map(tag => {
+      const color = TAG_COLORS[tag.colorIndex];
+      return `<button class="tag-filter-btn" data-tag="${tag.id}" title="Filter by ${escapeHtml(tag.name)}" style="--tag-color: ${color.color}; --tag-bg: ${color.bg};">${escapeHtml(tag.name)}</button>`;
+    })
+    .join('');
 
   // Re-attach event listeners
   container.querySelectorAll('.tag-filter-btn').forEach(btn => {

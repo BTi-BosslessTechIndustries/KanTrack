@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self';"
+    />
     <title>KanTrack</title>
     <!-- Link to External CSS -->
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/features.css">
     <link rel="stylesheet" href="styles/responsive.css">
-    <!-- jsPDF Library for PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- JSZip Library for ZIP Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 	<!-- Top Header Bar -->
 	<header class="top-header">
 		<div class="header-left">
-			<button class="notebook-toggle-btn" onclick="toggleNotebookSidebar()" title="Toggle Notebook (Ctrl+B)">
+			<button class="notebook-toggle-btn" data-action="notebook:toggleSidebar" title="Toggle Notebook (Ctrl+B)" aria-label="Toggle Notebook (Ctrl+B)">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
 					<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
@@ -28,24 +28,46 @@
 			<div class="header-logo">
 				<img src="images/kantrack_logo.png" alt="KanTrack">
 			</div>
+			<a href="https://buymeacoffee.com/bosslesstechindustries" target="_blank" rel="noopener noreferrer" class="support-us-btn" aria-label="Support Us on Buy Me a Coffee">
+				☕ Support Us
+			</a>
+		</div>
+		<div class="header-center">
+			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn">
+				Developed by BTi – Bossless Tech Industries
+			</a>
 		</div>
 		<div class="header-right">
 			<div class="header-undo-redo">
-				<button id="undoBtn" class="header-action-btn" onclick="undo()" title="Undo (Ctrl+Z)">
+				<button id="undoBtn" class="header-action-btn" data-action="history:undo" title="Undo (Ctrl+Z)" aria-label="Undo (Ctrl+Z)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M3 7v6h6"></path>
 						<path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
 					</svg>
 				</button>
-				<button id="redoBtn" class="header-action-btn" onclick="redo()" title="Redo (Ctrl+Y)">
+				<button id="redoBtn" class="header-action-btn" data-action="history:redo" title="Redo (Ctrl+Y)" aria-label="Redo (Ctrl+Y)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 7v6h-6"></path>
 						<path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
 					</svg>
 				</button>
 			</div>
+			<div class="header-menu-wrapper" id="headerMenuWrapper">
+				<button class="header-action-btn header-menu-btn" id="headerMenuBtn" data-action="menu:toggle" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="5" r="1"></circle>
+						<circle cx="12" cy="12" r="1"></circle>
+						<circle cx="12" cy="19" r="1"></circle>
+					</svg>
+				</button>
+				<div class="header-dropdown" id="headerDropdown" style="display:none;" role="menu">
+					<button class="header-dropdown-item" data-action="about:open" role="menuitem">About KanTrack</button>
+					<a class="header-dropdown-item" href="https://github.com/BTi-BosslessTechIndustries/KanTrack" target="_blank" rel="noopener noreferrer" role="menuitem">View the Code</a>
+					<button class="header-dropdown-item" data-action="shortcuts:open" role="menuitem">Help</button>
+				</div>
+			</div>
 			<div class="header-divider"></div>
-			<button id="trashToggleBtn" class="header-action-btn header-trash-btn" onclick="toggleTrashPanel()" title="View Trash">
+			<button id="trashToggleBtn" class="header-action-btn header-trash-btn" data-action="trash:togglePanel" title="View Trash" aria-label="View Trash">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="3 6 5 6 21 6"></polyline>
 					<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -60,8 +82,8 @@
 		<div class="trash-panel-header">
 			<h3>Trash</h3>
 			<div class="trash-panel-actions">
-				<button onclick="emptyAllTrash()" class="empty-trash-btn" title="Empty Trash">Empty All</button>
-				<button onclick="toggleTrashPanel()" class="close-trash-btn">&times;</button>
+				<button data-action="trash:emptyAll" class="empty-trash-btn" title="Empty Trash">Empty All</button>
+				<button data-action="trash:togglePanel" class="close-trash-btn">&times;</button>
 			</div>
 		</div>
 		<div id="trashList" class="trash-list">
@@ -75,14 +97,14 @@
 		<div class="notebook-sidebar-header">
 			<h3>Notebook</h3>
 			<div class="notebook-header-actions">
-				<button class="notebook-action-btn" onclick="createNotebookItem('folder', null)" title="New Folder">
+				<button class="notebook-action-btn" data-action="notebook:createFolder" title="New Folder" aria-label="New Folder">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
 						<line x1="12" y1="11" x2="12" y2="17"></line>
 						<line x1="9" y1="14" x2="15" y2="14"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn" onclick="createNotebookItem('page', null)" title="New Page">
+				<button class="notebook-action-btn" data-action="notebook:createPage" title="New Page" aria-label="New Page">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 						<polyline points="14 2 14 8 20 8"></polyline>
@@ -90,22 +112,22 @@
 						<line x1="9" y1="15" x2="15" y2="15"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn" onclick="document.getElementById('notebookImportFile').click()" title="Import (ZIP)">
+				<button class="notebook-action-btn" data-action="notebook:triggerImport" title="Import (ZIP)" aria-label="Import (ZIP)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 						<polyline points="17 8 12 3 7 8"></polyline>
 						<line x1="12" y1="3" x2="12" y2="15"></line>
 					</svg>
 				</button>
-				<input type="file" id="notebookImportFile" accept=".zip" style="display: none;" onchange="importNotebookFromZip(event)">
-				<button class="notebook-action-btn" onclick="exportAllNotebook()" title="Export All (ZIP)">
+				<input type="file" id="notebookImportFile" accept=".zip" style="display: none;">
+				<button class="notebook-action-btn" data-action="notebook:exportAll" title="Export All (ZIP)" aria-label="Export All (ZIP)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 						<polyline points="7 10 12 15 17 10"></polyline>
 						<line x1="12" y1="15" x2="12" y2="3"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn notebook-close-btn" onclick="toggleNotebookSidebar()" title="Close">
+				<button class="notebook-action-btn notebook-close-btn" data-action="notebook:toggleSidebar" title="Close" aria-label="Close Notebook">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<line x1="18" y1="6" x2="6" y2="18"></line>
 						<line x1="6" y1="6" x2="18" y2="18"></line>
@@ -114,7 +136,7 @@
 			</div>
 		</div>
 		<div class="notebook-search">
-			<input type="text" id="notebookSearchInput" placeholder="Search pages..." oninput="filterNotebookItems()">
+			<input type="text" id="notebookSearchInput" placeholder="Search pages...">
 		</div>
 		<div id="notebookTree" class="notebook-tree">
 			<!-- Tree items will be rendered here -->
@@ -123,14 +145,14 @@
 
 	<!-- Notebook Context Menu -->
 	<div id="notebookContextMenu" class="notebook-context-menu">
-		<div class="context-menu-item" onclick="contextMenuAction('rename')">
+		<div class="context-menu-item" data-action="notebook:contextMenu" data-action-param="rename">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
 				<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
 			</svg>
 			<span>Rename</span>
 		</div>
-		<div class="context-menu-item folder-only" onclick="contextMenuAction('newFolder')">
+		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="newFolder">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
 				<line x1="12" y1="11" x2="12" y2="17"></line>
@@ -138,7 +160,7 @@
 			</svg>
 			<span>New Subfolder</span>
 		</div>
-		<div class="context-menu-item folder-only" onclick="contextMenuAction('newPage')">
+		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="newPage">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 				<polyline points="14 2 14 8 20 8"></polyline>
@@ -148,7 +170,7 @@
 			<span>New Page Inside</span>
 		</div>
 		<div class="context-menu-divider"></div>
-		<div class="context-menu-item folder-only" onclick="contextMenuAction('exportFolder')">
+		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="exportFolder">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 				<polyline points="7 10 12 15 17 10"></polyline>
@@ -157,7 +179,7 @@
 			<span>Export Folder (ZIP)</span>
 		</div>
 		<div class="context-menu-divider"></div>
-		<div class="context-menu-item context-menu-delete" onclick="contextMenuAction('delete')">
+		<div class="context-menu-item context-menu-delete" data-action="notebook:contextMenu" data-action-param="delete">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<polyline points="3 6 5 6 21 6"></polyline>
 				<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -167,16 +189,16 @@
 	</div>
 
 	<!-- Page Editor Modal -->
-	<div id="pageModal" class="modal page-modal">
+	<div id="pageModal" class="modal page-modal" role="dialog" aria-modal="true" aria-labelledby="pageModalTitle">
 		<div class="modal-content page-modal-content">
-			<span class="modal-close" onclick="closePageModal()">&times;</span>
+			<span class="modal-close" data-action="notebook:closePage" aria-label="Close">&times;</span>
 			<div class="page-modal-header">
 				<h2 id="pageModalTitle" contenteditable="true" data-placeholder="Untitled Page">Untitled Page</h2>
 			</div>
 			<div class="page-modal-actions">
-				<button onclick="saveAndClosePage()">Save & Close</button>
-				<button class="export-btn" onclick="exportPageAsPDF()">Export PDF</button>
-				<button class="delete-btn" onclick="deletePageFromModal()">Delete</button>
+				<button data-action="notebook:savePage">Save & Close</button>
+				<button class="export-btn" data-action="notebook:exportPagePDF">Export PDF</button>
+				<button class="delete-btn" data-action="notebook:deletePage">Delete</button>
 			</div>
 			<div class="page-editor-container">
 				<div id="pageEditor" class="page-editor" contenteditable="true" data-placeholder="Start writing..."></div>
@@ -187,7 +209,7 @@
         <div class="clock-container" id="clockContainer">
             <!-- Clocks will be dynamically generated here -->
         </div>
-        <div class="clock-add-button" onclick="openAddClockModal()">
+        <div class="clock-add-button" data-action="clock:openModal">
             <div class="clock-add-content">
                 <span class="clock-add-icon">+</span>
             </div>
@@ -198,7 +220,7 @@
         <div class="controls-unified-row">
             <div class="controls-row-main">
                 <input type="text" id="newNote" placeholder="New task title..." maxlength="200">
-                <button onclick="addNote()">Add</button>
+                <button data-action="task:add">Add</button>
             </div>
             <div class="controls-row-search">
                 <div class="search-wrapper">
@@ -207,7 +229,7 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                     <input type="text" id="taskSearchInput" placeholder="Search...">
-                    <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="Clear search">&times;</button>
+                    <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="Clear search" aria-label="Clear search">&times;</button>
                 </div>
                 <div class="tag-filters" id="tagFilters">
                     <!-- Tag filter buttons will be dynamically generated -->
@@ -238,31 +260,35 @@
 
     <div class="controls-bottom">
         <div class="controls-row-secondary">
-            <button class="export-btn" onclick="exportBoardAsHTML()">Export Board (HTML)</button>
-            <button class="import-btn" onclick="document.getElementById('importFile').click()">Import Board</button>
-            <input type="file" id="importFile" accept=".html,.txt" style="display: none;" onchange="importBoardFromFile(event)">
+            <button class="export-btn" data-action="board:exportJSON">Download workspace</button>
+            <button class="export-btn" data-action="board:exportJSONLite">Download workspace (lightweight)</button>
+            <button class="export-btn" data-action="board:exportEncrypted">Download workspace (encrypted)</button>
+            <button class="export-btn" data-action="board:exportHTML">Share as HTML (read-only)</button>
+            <button class="import-btn" data-action="board:triggerImport">Import workspace</button>
+            <input type="file" id="importFile" accept=".kantrack.json,.kantrack.enc,.html,.txt" style="display: none;">
         </div>
+        <p id="storageMonitorInfo" class="storage-monitor-info" style="display: none;"></p>
     </div>
 
     <!-- Task Details Modal -->
-    <div id="taskModal" class="modal">
+    <div id="taskModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeTaskModal()">&times;</span>
+            <span class="modal-close" data-action="task:closeModal" aria-label="Close">&times;</span>
             <div class="modal-title-row">
-                <h2 id="modalTitle" ondblclick="enableTitleEdit()" title="Double-click to edit">Task Details</h2>
+                <h2 id="modalTitle" title="Double-click to edit">Task Details</h2>
                 <span id="autoSaveIndicator" class="auto-save-indicator" style="display: none;">Saved</span>
             </div>
 
             <div class="modal-actions-top">
-                <button onclick="saveAndCloseModal()">Save & Close</button>
-                <button class="export-btn" onclick="exportTaskAsPDF()">Export PDF</button>
-                <button class="delete-btn" onclick="deleteTaskFromModal()">Delete</button>
+                <button data-action="task:saveModal">Save & Close</button>
+                <button class="export-btn" data-action="task:exportPDF">Export PDF</button>
+                <button class="delete-btn" data-action="task:deleteModal">Delete</button>
             </div>
 
             <div class="modal-section">
                 <div class="notes-header">
                     <h4>Notes</h4>
-                    <button id="clearNotesBtn" class="clear-btn" onclick="clearNotes()" style="display: none;">Clear All</button>
+                    <button id="clearNotesBtn" class="clear-btn" data-action="task:clearNotes" style="display: none;">Clear All</button>
                 </div>
                 <div id="modalNotesEditor" class="notes-editor" contenteditable="true" data-placeholder="Write your notes here..."></div>
             </div>
@@ -270,10 +296,10 @@
             <div class="modal-section priority-section">
                 <h4>Priority: <span id="modalPriorityLabel">None</span></h4>
                 <div class="priority-controls">
-                    <button class="priority-btn" data-priority="none" onclick="setModalPriority(null)">None</button>
-                    <button class="priority-btn" data-priority="low" onclick="setModalPriority('low')">Low</button>
-                    <button class="priority-btn" data-priority="medium" onclick="setModalPriority('medium')">Medium</button>
-                    <button class="priority-btn" data-priority="high" onclick="setModalPriority('high')">High</button>
+                    <button class="priority-btn" data-priority="none" data-action="task:setPriority" data-action-param="none">None</button>
+                    <button class="priority-btn" data-priority="low" data-action="task:setPriority" data-action-param="low">Low</button>
+                    <button class="priority-btn" data-priority="medium" data-action="task:setPriority" data-action-param="medium">Medium</button>
+                    <button class="priority-btn" data-priority="high" data-action="task:setPriority" data-action-param="high">High</button>
                 </div>
             </div>
 
@@ -291,33 +317,33 @@
                 <h4>Worked Time: <span id="modalTimerTotal">0m</span></h4>
                 <div class="timer-controls-wrapper">
                     <div class="timer-controls">
-                        <button onclick="addTime(1)">+1m</button>
-                        <button onclick="addTime(5)">+5m</button>
-                        <button onclick="addTime(10)">+10m</button>
-                        <button onclick="addTime(15)">+15m</button>
-                        <button onclick="addTime(30)">+30m</button>
-                        <button onclick="addTime(60)">+60m</button>
+                        <button data-action="task:addTime" data-action-param="1">+1m</button>
+                        <button data-action="task:addTime" data-action-param="5">+5m</button>
+                        <button data-action="task:addTime" data-action-param="10">+10m</button>
+                        <button data-action="task:addTime" data-action-param="15">+15m</button>
+                        <button data-action="task:addTime" data-action-param="30">+30m</button>
+                        <button data-action="task:addTime" data-action-param="60">+60m</button>
                     </div>
                     <div class="timer-controls subtract">
-                        <button onclick="addTime(-1)">-1m</button>
-                        <button onclick="addTime(-5)">-5m</button>
-                        <button onclick="addTime(-10)">-10m</button>
-                        <button onclick="addTime(-15)">-15m</button>
-                        <button onclick="addTime(-30)">-30m</button>
-                        <button onclick="addTime(-60)">-60m</button>
+                        <button data-action="task:addTime" data-action-param="-1">-1m</button>
+                        <button data-action="task:addTime" data-action-param="-5">-5m</button>
+                        <button data-action="task:addTime" data-action-param="-10">-10m</button>
+                        <button data-action="task:addTime" data-action-param="-15">-15m</button>
+                        <button data-action="task:addTime" data-action-param="-30">-30m</button>
+                        <button data-action="task:addTime" data-action-param="-60">-60m</button>
                     </div>
                 </div>
             </div>
 
             <div class="modal-section sub-kanban-section">
-                <h4 class="sub-kanban-toggle-header" onclick="toggleSubKanban()">
+                <h4 class="sub-kanban-toggle-header" data-action="task:toggleSubKanban">
                     <span>Sub-Tasks <span id="subKanbanCount" class="sub-kanban-count"></span></span>
                     <span id="subKanbanToggle" class="sub-kanban-toggle">&#9660;</span>
                 </h4>
                 <div id="subKanbanContent" class="sub-kanban-content" style="display: none;">
                     <div class="sub-kanban-add-row">
-                        <input type="text" id="newSubTaskInput" placeholder="Add sub-task..." onkeydown="if(event.key==='Enter')addSubKanbanItem()">
-                        <button onclick="addSubKanbanItem()">Add</button>
+                        <input type="text" id="newSubTaskInput" placeholder="Add sub-task...">
+                        <button data-action="task:addSubItem">Add</button>
                     </div>
                     <div id="subKanbanBoard" class="sub-kanban-board">
                         <div class="sub-kanban-column" data-column="todo">
@@ -341,7 +367,7 @@
             </div>
 
             <div class="modal-section">
-                <h4 class="history-header" onclick="toggleHistory()">
+                <h4 class="history-header" data-action="task:toggleHistory">
                     <span>History</span>
                     <span id="historyToggle" class="history-toggle">&#9660;</span>
                 </h4>
@@ -351,13 +377,14 @@
     </div>
 
     <!-- Image Viewer Modal -->
-    <div id="imageModal" class="modal image-modal">
+    <div id="imageModal" class="modal image-modal" role="dialog" aria-modal="true" aria-labelledby="imageModalTitle">
         <div class="image-modal-content">
-            <span class="modal-close" onclick="closeImageModal()">&times;</span>
+            <h2 id="imageModalTitle" class="sr-only">Image Viewer</h2>
+            <span class="modal-close" data-action="image:closeModal" aria-label="Close">&times;</span>
             <div class="image-controls">
-                <button onclick="zoomImage(-0.1)">-</button>
-                <button onclick="resetZoom()">Reset</button>
-                <button onclick="zoomImage(0.1)">+</button>
+                <button data-action="image:zoom" data-action-param="-0.1">-</button>
+                <button data-action="image:resetZoom">Reset</button>
+                <button data-action="image:zoom" data-action-param="0.1">+</button>
             </div>
             <div class="image-container">
                 <img id="modalImage" src="" alt="Screenshot">
@@ -366,17 +393,17 @@
     </div>
 
     <!-- Add Clock Modal -->
-    <div id="addClockModal" class="modal">
+    <div id="addClockModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="clockModalTitle">
         <div class="modal-content clock-modal-content">
-            <span class="modal-close" onclick="closeAddClockModal()">&times;</span>
-            <h2>Add Clock</h2>
+            <span class="modal-close" data-action="clock:closeModal" aria-label="Close">&times;</span>
+            <h2 id="clockModalTitle">Add Clock</h2>
 
             <div class="clock-type-selection">
-                <button class="clock-type-btn" data-type="timezone" onclick="selectClockType('timezone')">
+                <button class="clock-type-btn" data-type="timezone" data-action="clock:selectType" data-action-param="timezone">
                     <span class="clock-type-icon">&#127758;</span>
                     <span class="clock-type-label">Timezone Clock</span>
                 </button>
-                <button class="clock-type-btn" data-type="chronometer" onclick="selectClockType('chronometer')">
+                <button class="clock-type-btn" data-type="chronometer" data-action="clock:selectType" data-action-param="chronometer">
                     <span class="clock-type-icon">&#9201;</span>
                     <span class="clock-type-label">Chronometer</span>
                 </button>
@@ -388,11 +415,11 @@
                 <input type="text" id="clockName" placeholder="e.g., New York">
 
                 <label for="clockTimezoneSearch">Timezone (search):</label>
-                <input type="text" id="clockTimezoneSearch" placeholder="Type to search timezones..." autocomplete="off" oninput="filterTimezones()">
+                <input type="text" id="clockTimezoneSearch" placeholder="Type to search timezones..." autocomplete="off">
                 <div id="timezoneList" class="timezone-list"></div>
                 <input type="hidden" id="clockTimezoneSelected">
 
-                <button class="modal-action-btn" onclick="addTimezoneClock()">Add Clock</button>
+                <button class="modal-action-btn" data-action="clock:addTimezone">Add Clock</button>
             </div>
 
             <div id="chronometerForm" class="clock-form" style="display: none;">
@@ -400,7 +427,194 @@
                 <label for="chronometerName">Chronometer Name:</label>
                 <input type="text" id="chronometerName" placeholder="e.g., Work Timer">
 
-                <button class="modal-action-btn" onclick="addChronometer()">Add Chronometer</button>
+                <button class="modal-action-btn" data-action="clock:addChronometer">Add Chronometer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About & Security Transparency Modal -->
+    <div id="aboutModal" class="modal about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" style="display:none;">
+        <div class="modal-content about-modal-content">
+            <span class="modal-close" data-action="about:close" aria-label="Close">&times;</span>
+            <h2 id="aboutModalTitle">About KanTrack</h2>
+
+            <div class="about-modal-section">
+                <p class="about-intro">
+                    KanTrack is a privacy-first, local-only Kanban board built for focus and clarity.
+                    No accounts. No cloud. No distractions — just you and your work.
+                </p>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>Features</h3>
+                <ul class="about-modal-features">
+                    <li>Four-column board — To Do, In Progress, On Hold, Done</li>
+                    <li>Rich task details with notes, timers, priorities, due dates &amp; tags</li>
+                    <li>Built-in Notebook for freeform notes and documentation</li>
+                    <li>World clocks and chronometer widgets</li>
+                    <li>Full-text search, column filters, and tag filters</li>
+                    <li>Keyboard shortcuts for efficient navigation</li>
+                    <li>Export to PDF, HTML, JSON, and encrypted backup</li>
+                    <li>Undo / redo for all task actions</li>
+                </ul>
+            </div>
+
+            <div class="about-modal-divider"></div>
+
+            <div class="about-modal-section">
+                <h3>Where Your Data Lives</h3>
+                <table class="about-data-table">
+                    <tbody>
+                        <tr>
+                            <td>Tasks, notes, tags, history</td>
+                            <td>localStorage + IndexedDB — your browser only</td>
+                        </tr>
+                        <tr>
+                            <td>Notebook pages &amp; images</td>
+                            <td>IndexedDB — your browser only</td>
+                        </tr>
+                        <tr>
+                            <td>UI preferences</td>
+                            <td>localStorage — your browser only</td>
+                        </tr>
+                        <tr>
+                            <td>Encryption keys</td>
+                            <td>Never stored — derived per-session from your password</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="about-privacy-note">
+                    Nothing is sent to any server. KanTrack has no backend, no accounts, and makes no network requests. All storage is local to your browser.
+                </p>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>What KanTrack Protects Against</h3>
+                <ul class="about-modal-features">
+                    <li>XSS via imported data — an allowlist-based sanitizer strips all event handlers and unsafe tags before any HTML is rendered to the page</li>
+                    <li>Inline script injection — a strict Content Security Policy (<code>script-src 'self'</code>) blocks inline scripts and <code>javascript:</code> URL execution</li>
+                    <li>Malicious import files — the sanitizer also runs on content from imported <code>.kantrack.json</code> workspace files</li>
+                    <li>Encrypted exports use AES-256-GCM with PBKDF2 key derivation (100,000 iterations, SHA-256)</li>
+                </ul>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>Known Limitations — Read These</h3>
+                <ul class="about-modal-features about-modal-features--warn">
+                    <li>Device compromise — if your device is infected or physically accessed, data in localStorage and IndexedDB is readable. KanTrack cannot protect against OS-level access.</li>
+                    <li>Browser extensions — extensions with broad permissions can read page content and storage. Use a minimal-extension browser profile for sensitive data.</li>
+                    <li>Unencrypted exports — standard <code>.kantrack.json</code> exports are plain JSON. Use the encrypted export for sensitive data.</li>
+                    <li>Data at rest — KanTrack does not encrypt data in localStorage or IndexedDB. Anyone with access to your logged-in account can read it via browser DevTools.</li>
+                    <li>Password strength — the encrypted export is only as strong as the password you choose.</li>
+                </ul>
+                <p class="about-honest-note">We cannot protect your data if your device is compromised. That is an honest limitation we cannot engineer away.</p>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>Report a Vulnerability</h3>
+                <p class="about-privacy-note">
+                    Found a security issue? Do not open a public issue.<br>
+                    Contact: <a href="mailto:general@bosslesstechindustries.com" class="about-mailto">general@bosslesstechindustries.com</a>
+                </p>
+            </div>
+
+            <div class="about-modal-divider"></div>
+
+            <div class="about-modal-section about-modal-section--footer">
+                <span class="about-built-by">Built by</span>
+                <a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="about-bti-link">BTi – Bossless Tech Industries</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Dialog -->
+    <div id="shortcutsModal" class="modal shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle" style="display:none;">
+        <div class="modal-content shortcuts-modal-content">
+            <span class="modal-close" data-action="shortcuts:close" aria-label="Close">&times;</span>
+            <h2 id="shortcutsModalTitle">Help</h2>
+
+            <!-- Keyboard shortcuts -->
+            <div class="shortcuts-groups">
+                <section class="shortcuts-group">
+                    <h3>Board</h3>
+                    <dl>
+                        <dt>N</dt><dd>Focus new task input</dd>
+                        <dt>/</dt><dd>Focus search</dd>
+                        <dt>?</dt><dd>Open Help</dd>
+                        <dt>↑ / ↓</dt><dd>Navigate cards in column</dd>
+                        <dt>← / →</dt><dd>Jump to adjacent column</dd>
+                        <dt>Enter / Space</dt><dd>Open focused card</dd>
+                    </dl>
+                </section>
+                <section class="shortcuts-group">
+                    <h3>General</h3>
+                    <dl>
+                        <dt>Escape</dt><dd>Close modal or panel</dd>
+                        <dt>Ctrl+Z</dt><dd>Undo</dd>
+                        <dt>Ctrl+Shift+Z / Ctrl+Y</dt><dd>Redo</dd>
+                        <dt>Ctrl+B</dt><dd>Toggle notebook</dd>
+                    </dl>
+                </section>
+            </div>
+
+            <!-- Exports & Imports reference -->
+            <div class="help-section">
+                <h3>Exports &amp; Imports</h3>
+
+                <p class="help-section-label">Board — controls at the bottom of the board</p>
+                <table class="help-exports-table">
+                    <thead>
+                        <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>.kantrack.json</code> full</td>
+                            <td>Everything — tasks, tags, notebook pages &amp; images, clocks</td>
+                            <td>Yes — merge or replace</td>
+                        </tr>
+                        <tr>
+                            <td><code>.kantrack.json</code> lite</td>
+                            <td>Same as full, without embedded images (smaller file)</td>
+                            <td>Yes — merge or replace</td>
+                        </tr>
+                        <tr>
+                            <td><code>.kantrack.enc</code></td>
+                            <td>Full backup, passphrase-encrypted</td>
+                            <td>Yes — passphrase required</td>
+                        </tr>
+                        <tr>
+                            <td><code>.html</code></td>
+                            <td>Read-only visual snapshot of the board</td>
+                            <td>Yes (board data only)</td>
+                        </tr>
+                        <tr>
+                            <td>Task <code>.pdf</code></td>
+                            <td>Single task with notes &amp; history</td>
+                            <td>No</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="help-section-label">Notebook — controls inside the notebook sidebar</p>
+                <table class="help-exports-table">
+                    <thead>
+                        <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Folder / All pages <code>.zip</code></td>
+                            <td>Pages &amp; images, folder structure preserved</td>
+                            <td>Yes — via notebook import button</td>
+                        </tr>
+                        <tr>
+                            <td>Page <code>.pdf</code></td>
+                            <td>Single note page</td>
+                            <td>No</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="help-exports-note">On import, <strong>Merge</strong> adds new items without touching existing ones. <strong>Replace</strong> overwrites everything — an automatic lightweight backup is downloaded first.</p>
             </div>
         </div>
     </div>

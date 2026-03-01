@@ -14,13 +14,16 @@ import {
   setNotebookSidebarOpen,
   setPageHasChanges,
   setNotebookDraggedItem,
-  pushToNotebookItems
+  pushToNotebookItems,
 } from './state.js';
 import { saveNotebookToLocalStorage } from './storage.js';
+import { getUIPref, setUIPref, getNotebookItemContent } from './repository.js';
 import { storeNotebookImage, getNotebookImage, deletePageImages } from './database.js';
 import { openImageViewer } from './images.js';
 import { initMentionHandler, setOpenPageModal } from './mentions.js';
 import { exportFolderAsZip } from './notebook-export.js';
+import { sanitizeHTML } from './sanitize.js';
+import { createFocusTrap } from './utils.js';
 
 /***********************
  * SIDEBAR UI
@@ -41,7 +44,7 @@ export function toggleNotebookSidebar() {
   }
 
   // Persist sidebar state
-  localStorage.setItem('notebookSidebarOpen', notebookSidebarOpen);
+  setUIPref('notebookSidebarOpen', notebookSidebarOpen);
 }
 
 export function setupSidebarResize() {
@@ -53,7 +56,7 @@ export function setupSidebarResize() {
   let startX = 0;
   let startWidth = 0;
 
-  const startResize = (e) => {
+  const startResize = e => {
     isResizing = true;
     startX = e.clientX || e.touches[0].clientX;
     startWidth = sidebar.offsetWidth;
@@ -70,7 +73,7 @@ export function setupSidebarResize() {
     e.preventDefault();
   };
 
-  const doResize = (e) => {
+  const doResize = e => {
     if (!isResizing) return;
 
     const clientX = e.clientX || e.touches[0].clientX;
@@ -97,8 +100,10 @@ export function setupSidebarResize() {
     document.removeEventListener('touchend', stopResize);
 
     // Save the width
-    const currentWidth = getComputedStyle(document.documentElement).getPropertyValue('--notebook-sidebar-width');
-    localStorage.setItem('notebookSidebarWidth', currentWidth.trim());
+    const currentWidth = getComputedStyle(document.documentElement).getPropertyValue(
+      '--notebook-sidebar-width'
+    );
+    setUIPref('notebookSidebarWidth', currentWidth.trim());
   };
 
   resizeHandle.addEventListener('mousedown', startResize);
@@ -117,7 +122,8 @@ export function renderNotebookTree() {
   const rootItems = getChildItems(null);
 
   if (rootItems.length === 0 && !searchTerm) {
-    treeContainer.innerHTML = '<div class="notebook-tree-empty">No items yet. Click the folder or page icon above to create one.</div>';
+    treeContainer.innerHTML =
+      '<div class="notebook-tree-empty">No items yet. Click the folder or page icon above to create one.</div>';
     return;
   }
 
@@ -131,9 +137,10 @@ function renderTreeItem(container, item, level, searchTerm = '') {
   // Filter logic
   const matchesSearch = !searchTerm || item.name.toLowerCase().includes(searchTerm);
   const children = getChildItems(item.id);
-  const hasMatchingChildren = children.some(child =>
-    child.name.toLowerCase().includes(searchTerm) ||
-    getChildItems(child.id).some(grandchild => grandchild.name.toLowerCase().includes(searchTerm))
+  const hasMatchingChildren = children.some(
+    child =>
+      child.name.toLowerCase().includes(searchTerm) ||
+      getChildItems(child.id).some(grandchild => grandchild.name.toLowerCase().includes(searchTerm))
   );
 
   // Skip if doesn't match and has no matching children
@@ -156,7 +163,7 @@ function renderTreeItem(container, item, level, searchTerm = '') {
       expandEl.classList.add('expanded');
     }
     expandEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
-    expandEl.onclick = (e) => {
+    expandEl.onclick = e => {
       e.stopPropagation();
       toggleFolderExpand(item.id);
     };
@@ -182,7 +189,7 @@ function renderTreeItem(container, item, level, searchTerm = '') {
   itemEl.appendChild(nameEl);
 
   // Double-click to rename
-  nameEl.ondblclick = (e) => {
+  nameEl.ondblclick = e => {
     e.stopPropagation();
     startInlineRename(item.id);
   };
@@ -197,15 +204,15 @@ function renderTreeItem(container, item, level, searchTerm = '') {
   };
 
   // Right-click context menu
-  itemEl.oncontextmenu = (e) => {
+  itemEl.oncontextmenu = e => {
     e.preventDefault();
     showContextMenu(e, item.id);
   };
 
   // Drag events
-  itemEl.ondragstart = (e) => handleTreeDragStart(e, item);
-  itemEl.ondragover = (e) => handleTreeDragOver(e, item);
-  itemEl.ondrop = (e) => handleTreeDrop(e, item);
+  itemEl.ondragstart = e => handleTreeDragStart(e, item);
+  itemEl.ondragover = e => handleTreeDragOver(e, item);
+  itemEl.ondrop = e => handleTreeDrop(e, item);
   itemEl.ondragend = handleTreeDragEnd;
   itemEl.ondragleave = handleTreeDragLeave;
 
@@ -220,9 +227,7 @@ function renderTreeItem(container, item, level, searchTerm = '') {
 }
 
 export function getChildItems(parentId) {
-  return notebookItems
-    .filter(item => item.parentId === parentId)
-    .sort((a, b) => a.order - b.order);
+  return notebookItems.filter(item => item.parentId === parentId).sort((a, b) => a.order - b.order);
 }
 
 /***********************
@@ -234,13 +239,13 @@ export function createNotebookItem(type, parentId) {
   const maxOrder = siblings.length > 0 ? Math.max(...siblings.map(s => s.order)) : -1;
 
   const newItem = {
-    id: Date.now(),
+    id: crypto.randomUUID(),
     type: type,
     parentId: parentId,
     name: type === 'folder' ? 'New Folder' : 'New Page',
     order: maxOrder + 1,
     createdAt: timestamp,
-    updatedAt: timestamp
+    updatedAt: timestamp,
   };
 
   if (type === 'folder') {
@@ -305,7 +310,7 @@ export function startInlineRename(itemId) {
   };
 
   nameEl.onblur = finishRename;
-  nameEl.onkeydown = (e) => {
+  nameEl.onkeydown = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
       nameEl.blur();
@@ -331,7 +336,7 @@ export async function deleteNotebookItem(itemId, skipConfirm = false) {
   if (!item) return;
 
   // Get all descendants
-  const getDescendants = (parentId) => {
+  const getDescendants = parentId => {
     const children = notebookItems.filter(i => i.parentId === parentId);
     let descendants = [...children];
     children.forEach(child => {
@@ -344,9 +349,10 @@ export async function deleteNotebookItem(itemId, skipConfirm = false) {
   const totalItems = 1 + descendants.length;
 
   if (!skipConfirm) {
-    const message = item.type === 'folder' && descendants.length > 0
-      ? `Delete "${item.name}" and ${descendants.length} item(s) inside it?`
-      : `Delete "${item.name}"?`;
+    const message =
+      item.type === 'folder' && descendants.length > 0
+        ? `Delete "${item.name}" and ${descendants.length} item(s) inside it?`
+        : `Delete "${item.name}"?`;
 
     if (!confirm(message)) {
       return;
@@ -430,10 +436,17 @@ export function expandToItem(itemId) {
   renderNotebookTree();
 }
 
+// Track last-opened page id for idle preload
+let _lastOpenedPageId = null;
+
 /***********************
  * PAGE MODAL
  ***********************/
+let _pageModalTrap = null;
+let _pageModalReturnFocus = null;
+
 export async function openPageModal(pageId) {
+  _pageModalReturnFocus = document.activeElement;
   const page = notebookItems.find(i => i.id === pageId && i.type === 'page');
   if (!page) return;
 
@@ -445,7 +458,18 @@ export async function openPageModal(pageId) {
   const editorEl = document.getElementById('pageEditor');
 
   titleEl.textContent = page.name;
-  editorEl.innerHTML = page.content || '';
+
+  // Lazy-load content: use in-memory content if freshly saved, otherwise fetch from IDB
+  const content = page.content != null ? page.content : await getNotebookItemContent(pageId);
+  editorEl.innerHTML = sanitizeHTML(content);
+
+  // Preload the next page we open on idle (warm the IDB cache)
+  if (_lastOpenedPageId && _lastOpenedPageId !== pageId) {
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(() => getNotebookItemContent(_lastOpenedPageId));
+    }
+  }
+  _lastOpenedPageId = pageId;
 
   // Restore images from IndexedDB
   if (page.images && page.images.length > 0) {
@@ -463,12 +487,16 @@ export async function openPageModal(pageId) {
   }
 
   // Mark title changes
-  titleEl.oninput = () => { setPageHasChanges(true); };
+  titleEl.oninput = () => {
+    setPageHasChanges(true);
+  };
 
   // Setup clipboard paste for page editor
   setupPageClipboardPaste();
 
-  modal.style.display = 'block';
+  modal.style.display = 'flex';
+  _pageModalTrap = createFocusTrap(modal);
+  _pageModalTrap.activate();
 }
 
 // Register openPageModal with mentions.js
@@ -481,10 +509,14 @@ export function closePageModal() {
     }
   }
 
+  _pageModalTrap?.deactivate();
+  _pageModalTrap = null;
   const modal = document.getElementById('pageModal');
   modal.style.display = 'none';
   setCurrentPageId(null);
   setPageHasChanges(false);
+  _pageModalReturnFocus?.focus();
+  _pageModalReturnFocus = null;
 }
 
 export async function saveAndClosePage() {
@@ -506,7 +538,7 @@ export async function saveAndClosePage() {
 
   for (let i = 0; i < images.length; i++) {
     const img = images[i];
-    const imageId = img.dataset.imageId || `img_${Date.now()}_${i}`;
+    const imageId = img.dataset.imageId || `img_${crypto.randomUUID()}`;
     img.dataset.imageId = imageId;
     imageIds.push(imageId);
 
@@ -540,10 +572,12 @@ function setupPageClipboardPaste() {
   initMentionHandler(editorEl);
 
   // Mark changes on input
-  editorEl.oninput = () => { setPageHasChanges(true); };
+  editorEl.oninput = () => {
+    setPageHasChanges(true);
+  };
 
   // Prevent formatting shortcuts
-  editorEl.onkeydown = (e) => {
+  editorEl.onkeydown = e => {
     if (e.ctrlKey || e.metaKey) {
       const allowedKeys = ['c', 'v', 'x', 'a', 'z', 'y'];
       if (!allowedKeys.includes(e.key.toLowerCase())) {
@@ -552,7 +586,7 @@ function setupPageClipboardPaste() {
     }
   };
 
-  editorEl.onpaste = async (e) => {
+  editorEl.onpaste = async e => {
     const items = e.clipboardData.items;
     let hasImage = false;
 
@@ -565,12 +599,12 @@ function setupPageClipboardPaste() {
         const blob = items[i].getAsFile();
         const reader = new FileReader();
 
-        reader.onload = (event) => {
+        reader.onload = event => {
           const img = document.createElement('img');
           img.src = event.target.result;
           img.style.maxWidth = '100%';
           img.style.cursor = 'pointer';
-          img.dataset.imageId = `img_${Date.now()}_${i}`;
+          img.dataset.imageId = `img_${crypto.randomUUID()}`;
           img.onclick = () => openImageViewer(img.src);
 
           const selection = window.getSelection();
@@ -810,7 +844,7 @@ export async function importNotebookFromZip(event) {
       if (relativePath.endsWith('.pdf') && !zipEntry.dir) {
         pdfFiles.push({
           path: relativePath,
-          entry: zipEntry
+          entry: zipEntry,
         });
       }
     });
@@ -821,7 +855,11 @@ export async function importNotebookFromZip(event) {
       return;
     }
 
-    if (!confirm(`Found ${pdfFiles.length} PDF file(s). Import them as notebook pages?\n\nNote: Only file names will be imported. PDF content cannot be extracted.`)) {
+    if (
+      !confirm(
+        `Found ${pdfFiles.length} PDF file(s). Import them as notebook pages?\n\nNote: Only file names will be imported. PDF content cannot be extracted.`
+      )
+    ) {
       event.target.value = '';
       return;
     }
@@ -861,14 +899,14 @@ export async function importNotebookFromZip(event) {
             parentId = existingFolder.id;
           } else {
             const newFolder = {
-              id: Date.now() + Math.random(),
+              id: crypto.randomUUID(),
               type: 'folder',
               parentId: parentId,
               name: folderName,
               order: getChildItems(parentId).length,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
-              expanded: true
+              expanded: true,
             };
             pushToNotebookItems(newFolder);
             folderMap.set(currentPath, newFolder.id);
@@ -881,7 +919,7 @@ export async function importNotebookFromZip(event) {
 
       const timestamp = new Date().toISOString();
       const newPage = {
-        id: Date.now() + Math.random(),
+        id: crypto.randomUUID(),
         type: 'page',
         parentId: parentId,
         name: pageName,
@@ -889,7 +927,7 @@ export async function importNotebookFromZip(event) {
         createdAt: timestamp,
         updatedAt: timestamp,
         content: `<p><em>Imported from: ${pdfFile.path}</em></p><p>Note: PDF content cannot be extracted in the browser. This page was created as a placeholder for the imported file.</p>`,
-        images: []
+        images: [],
       };
 
       pushToNotebookItems(newPage);
@@ -900,7 +938,6 @@ export async function importNotebookFromZip(event) {
     renderNotebookTree();
 
     alert(`Successfully imported ${importedCount} page(s) to the notebook.`);
-
   } catch (err) {
     console.error('Import error:', err);
     alert('Error importing ZIP file: ' + err.message);
@@ -922,7 +959,11 @@ async function importFromNotebookData(dataFile) {
   const itemCount = data.items.length;
   const pageCount = data.items.filter(i => i.type === 'page').length;
 
-  if (!confirm(`Found ${pageCount} page(s) and ${itemCount - pageCount} folder(s). Import them to your notebook?`)) {
+  if (
+    !confirm(
+      `Found ${pageCount} page(s) and ${itemCount - pageCount} folder(s). Import them to your notebook?`
+    )
+  ) {
     return;
   }
 
@@ -931,7 +972,7 @@ async function importFromNotebookData(dataFile) {
 
   // First pass: create new IDs for all items
   for (const item of data.items) {
-    const newId = Date.now() + Math.random();
+    const newId = crypto.randomUUID();
     idMap.set(item.id, newId);
   }
 
@@ -941,7 +982,7 @@ async function importFromNotebookData(dataFile) {
       ...item,
       id: idMap.get(item.id),
       parentId: item.parentId ? idMap.get(item.parentId) : null,
-      order: item.order || 0
+      order: item.order || 0,
     };
 
     // Restore images from embedded data
@@ -970,7 +1011,7 @@ async function importFromNotebookData(dataFile) {
  ***********************/
 export function setupNotebookEventListeners() {
   // Click outside to close context menu
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', e => {
     const menu = document.getElementById('notebookContextMenu');
     if (menu && !menu.contains(e.target)) {
       hideContextMenu();
@@ -978,7 +1019,7 @@ export function setupNotebookEventListeners() {
   });
 
   // Keyboard shortcut: Ctrl+B to toggle sidebar
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
       e.preventDefault();
       toggleNotebookSidebar();
@@ -986,13 +1027,13 @@ export function setupNotebookEventListeners() {
   });
 
   // Restore sidebar state
-  const savedSidebarState = localStorage.getItem('notebookSidebarOpen');
-  if (savedSidebarState === 'true') {
+  const savedSidebarState = getUIPref('notebookSidebarOpen', null);
+  if (savedSidebarState === true || savedSidebarState === 'true') {
     toggleNotebookSidebar();
   }
 
   // Restore sidebar width
-  const savedSidebarWidth = localStorage.getItem('notebookSidebarWidth');
+  const savedSidebarWidth = getUIPref('notebookSidebarWidth', null);
   if (savedSidebarWidth) {
     document.documentElement.style.setProperty('--notebook-sidebar-width', savedSidebarWidth);
   }
@@ -1009,54 +1050,66 @@ export function setupNotebookEventListeners() {
     let longPressTimer = null;
     let touchedItem = null;
 
-    treeContainer.addEventListener('touchstart', (e) => {
-      const itemEl = e.target.closest('.notebook-tree-item');
-      if (!itemEl) return;
+    treeContainer.addEventListener(
+      'touchstart',
+      e => {
+        const itemEl = e.target.closest('.notebook-tree-item');
+        if (!itemEl) return;
 
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      touchStartTime = Date.now();
-      touchedItem = itemEl;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+        touchedItem = itemEl;
 
-      // Long press for context menu
-      longPressTimer = setTimeout(() => {
-        const itemId = parseInt(itemEl.dataset.id);
-        showContextMenu({ clientX: touchStartX, clientY: touchStartY }, itemId);
-        touchedItem = null;
-      }, 600);
-    }, { passive: true });
+        // Long press for context menu
+        longPressTimer = setTimeout(() => {
+          const itemId = parseInt(itemEl.dataset.id);
+          showContextMenu({ clientX: touchStartX, clientY: touchStartY }, itemId);
+          touchedItem = null;
+        }, 600);
+      },
+      { passive: true }
+    );
 
-    treeContainer.addEventListener('touchmove', (e) => {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
-    }, { passive: true });
+    treeContainer.addEventListener(
+      'touchmove',
+      e => {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+      },
+      { passive: true }
+    );
 
-    treeContainer.addEventListener('touchend', (e) => {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
+    treeContainer.addEventListener(
+      'touchend',
+      e => {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
 
-      if (!touchedItem) return;
+        if (!touchedItem) return;
 
-      const touchDuration = Date.now() - touchStartTime;
-      if (touchDuration < 300) {
-        // Short tap - trigger click
-        const itemId = parseInt(touchedItem.dataset.id);
-        const item = notebookItems.find(i => i.id === itemId);
-        if (item) {
-          if (item.type === 'page') {
-            openPageModal(itemId);
-          } else {
-            toggleFolderExpand(itemId);
+        const touchDuration = Date.now() - touchStartTime;
+        if (touchDuration < 300) {
+          // Short tap - trigger click
+          const itemId = parseInt(touchedItem.dataset.id);
+          const item = notebookItems.find(i => i.id === itemId);
+          if (item) {
+            if (item.type === 'page') {
+              openPageModal(itemId);
+            } else {
+              toggleFolderExpand(itemId);
+            }
           }
         }
-      }
 
-      touchedItem = null;
-    }, { passive: true });
+        touchedItem = null;
+      },
+      { passive: true }
+    );
   }
 
   // iOS touch support for page modal close
@@ -1064,13 +1117,13 @@ export function setupNotebookEventListeners() {
   if (pageModal) {
     const pageCloseBtn = pageModal.querySelector('.modal-close');
     if (pageCloseBtn) {
-      pageCloseBtn.addEventListener('touchend', (e) => {
+      pageCloseBtn.addEventListener('touchend', e => {
         e.preventDefault();
         closePageModal();
       });
     }
 
-    pageModal.addEventListener('touchend', (e) => {
+    pageModal.addEventListener('touchend', e => {
       if (e.target === pageModal) {
         e.preventDefault();
         closePageModal();

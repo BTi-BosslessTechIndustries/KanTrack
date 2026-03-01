@@ -18,7 +18,7 @@ export function setupClipboardPaste() {
   });
 
   // Prevent any formatting keyboard shortcuts
-  notesEditor.addEventListener('keydown', (e) => {
+  notesEditor.addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey) {
       // Allow only basic shortcuts: Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+Z, Ctrl+Y
       const allowedKeys = ['c', 'v', 'x', 'a', 'z', 'y'];
@@ -28,7 +28,7 @@ export function setupClipboardPaste() {
     }
   });
 
-  notesEditor.addEventListener('paste', async (e) => {
+  notesEditor.addEventListener('paste', async e => {
     const items = e.clipboardData.items;
     let hasImage = false;
 
@@ -42,7 +42,7 @@ export function setupClipboardPaste() {
         const blob = items[i].getAsFile();
         const reader = new FileReader();
 
-        reader.onload = async (event) => {
+        reader.onload = async event => {
           const img = document.createElement('img');
           img.src = event.target.result;
           img.style.maxWidth = '100%';
@@ -115,41 +115,47 @@ export function openImageViewer(imageSrc) {
   state.setImageZoomLevel(1);
   state.setImagePanOffset({ x: 0, y: 0 });
   updateImageTransform(img);
-  modal.style.display = 'block';
+  modal.style.display = 'flex';
   if (backButton) backButton.style.display = 'none';
 
   // Add scroll wheel zoom
-  imageContainer.onwheel = function(e) {
+  imageContainer.onwheel = function (e) {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
     zoomImage(delta);
   };
 
   // Click outside image to close
-  imageContainer.onclick = function(e) {
+  imageContainer.onclick = function (e) {
     if (e.target === imageContainer) {
       closeImageModal();
     }
   };
 
   // Drag to pan when zoomed
-  img.onmousedown = function(e) {
+  img.onmousedown = function (e) {
     if (state.imageZoomLevel > 1) {
       state.setIsDraggingImage(true);
-      state.setDragStart({ x: e.clientX - state.imagePanOffset.x, y: e.clientY - state.imagePanOffset.y });
+      state.setDragStart({
+        x: e.clientX - state.imagePanOffset.x,
+        y: e.clientY - state.imagePanOffset.y,
+      });
       img.style.cursor = 'grabbing';
       e.preventDefault();
     }
   };
 
-  document.onmousemove = function(e) {
+  document.onmousemove = function (e) {
     if (state.isDraggingImage) {
-      state.setImagePanOffset({ x: e.clientX - state.dragStart.x, y: e.clientY - state.dragStart.y });
+      state.setImagePanOffset({
+        x: e.clientX - state.dragStart.x,
+        y: e.clientY - state.dragStart.y,
+      });
       updateImageTransform(img);
     }
   };
 
-  document.onmouseup = function() {
+  document.onmouseup = function () {
     if (state.isDraggingImage) {
       state.setIsDraggingImage(false);
       img.style.cursor = state.imageZoomLevel > 1 ? 'grab' : 'default';
