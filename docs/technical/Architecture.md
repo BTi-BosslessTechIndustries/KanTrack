@@ -11,7 +11,7 @@ KanTrack is a single-page, local-first Kanban board application. It runs entirel
 
 **Key properties:**
 
-- Vanilla JavaScript + TypeScript, ES modules, no runtime framework
+- Vanilla JavaScript, ES modules, no runtime framework
 - Build: Vite 5 (Rollup under the hood)
 - Persistence: `localStorage` (synchronous, primary) + IndexedDB (asynchronous, fallback)
 - Test suite: Vitest (529 unit) + Playwright (43 E2E)
@@ -32,10 +32,10 @@ KanTrack/
 │   └── kantrack-modules/             # Feature modules (ES modules, tree-shaken)
 │       ├── state.js                  # Shared mutable in-memory state
 │       ├── storage.js                # Thin shim: state ↔ repository
-│       ├── repository.ts             # Persistence logic (localStorage + IDB, debounce)
+│       ├── repository.js             # Persistence logic (localStorage + IDB, debounce)
 │       ├── database.js               # IndexedDB schema + CRUD helpers
-│       ├── store.ts                  # Minimal flux store (typed, frozen snapshots)
-│       ├── router.ts                 # data-action event delegation
+│       ├── store.js                  # Minimal flux store (frozen snapshots)
+│       ├── router.js                 # data-action event delegation
 │       │
 │       ├── tasks.js                  # Task CRUD, virtual list init
 │       ├── modal.js                  # Task detail modal (open/close/save)
@@ -71,7 +71,7 @@ KanTrack/
 │       ├── loading.js                # Loading state helpers
 │       ├── context-menu.js           # Context menu utility
 │       ├── utils.js                  # Shared utilities + createFocusTrap
-│       └── types.ts                  # Shared TypeScript interfaces
+│       └── types.ts                  # TypeScript type definitions (non-runtime)
 │
 │   └── workers/
 │       ├── export-worker.js          # JSON.stringify() off main thread
@@ -109,14 +109,14 @@ KanTrack/
 ┌─────────────────────────────────────────────────────┐
 │                    State Layer                      │
 │  state.js  — mutable in-memory singleton            │
-│  store.ts  — immutable snapshots / flux dispatch    │
+│  store.js  — immutable snapshots / flux dispatch    │
 └───────────────────────┬─────────────────────────────┘
                         │ serialise / load
                         ▼
 ┌─────────────────────────────────────────────────────┐
 │                 Repository Layer                    │
 │  storage.js  — state ↔ repo shim                   │
-│  repository.ts — persistence logic, debounce, sync  │
+│  repository.js — persistence logic, debounce, sync  │
 └───────────┬───────────────────────┬─────────────────┘
             │ sync write            │ async write (300ms)
             ▼                       ▼
@@ -148,9 +148,9 @@ Key exports:
 
 Setter functions (e.g. `setNotesData`, `setModalHasChanges`) are co-exported to allow atomic updates and signal intent.
 
-### 4.2 `store.ts`
+### 4.2 `store.js`
 
-A minimal, typed flux store layered _on top of_ `state.js`. It maintains frozen immutable snapshots that components can subscribe to reactively. Currently used for bootstrapping; not all writes flow through it.
+A minimal flux store layered _on top of_ `state.js`. It maintains frozen immutable snapshots that components can subscribe to reactively. Currently used for bootstrapping; not all writes flow through it.
 
 ```
 dispatch(TASK_ADD, task) → reducer(state, action) → frozen snapshot → notify subscribers
@@ -168,18 +168,18 @@ Every write goes to **localStorage synchronously**, then to **IndexedDB asynchro
 - Durable long-term storage (IDB, survives localStorage clears in some browsers)
 - Non-blocking main thread (IDB writes deferred)
 
-**On boot**, `repository.ts` reads from `localStorage` first. If the key is absent or empty, it falls back to an IDB `getAll`. This means fresh private-browsing tabs that inherit IDB from a prior session still load data correctly.
+**On boot**, `repository.js` reads from `localStorage` first. If the key is absent or empty, it falls back to an IDB `getAll`. This means fresh private-browsing tabs that inherit IDB from a prior session still load data correctly.
 
 ```
 saveNotesToLocalStorage()
-    └─ repository.ts:saveTasks(tasks)
+    └─ repository.js:saveTasks(tasks)
             ├─ localStorage.setItem('kanbanNotes', JSON.stringify(tasks))     ← sync
             └─ setTimeout(300ms) → idbClearAndBulkPut('tasks', snapshot)     ← async
 ```
 
 ### 5.2 `storage.js`
 
-A thin shim that adds state.js interaction around `repository.ts`. It is the _only_ public API that other modules call when they want to persist tasks.
+A thin shim that adds state.js interaction around `repository.js`. It is the _only_ public API that other modules call when they want to persist tasks.
 
 ```js
 // storage.js
@@ -188,7 +188,7 @@ export function saveNotesToLocalStorage() {
 }
 ```
 
-### 5.3 `repository.ts`
+### 5.3 `repository.js`
 
 Business logic for persistence. Rules enforced here:
 
@@ -250,7 +250,7 @@ DOMContentLoaded
 
 ---
 
-## 7. Router (`router.ts`)
+## 7. Router (`router.js`)
 
 A single delegated click listener on `document` maps `data-action` attributes to registered handler functions. This eliminates all inline `onclick` handlers and allows dynamic markup to participate in the action system without re-attaching listeners.
 
@@ -571,19 +571,19 @@ npm run typecheck      # tsc --noEmit
 
 ```
 kantrack.js
-  ├── router.ts
+  ├── router.js
   ├── state.js
-  ├── storage.js ──────── repository.ts ──── database.js
+  ├── storage.js ──────── repository.js ──── database.js
   ├── tasks.js ─────────── state.js, storage.js, undo.js, virtual-list.js
   ├── modal.js ─────────── state.js, storage.js, undo.js, due-dates.js, tags.js, timer.js
-  ├── undo.js ──────────── state.js, storage.js, repository.ts, notifications.js
+  ├── undo.js ──────────── state.js, storage.js, repository.js, notifications.js
   ├── search.js ─────────── state.js
-  ├── tags.js ──────────── state.js, storage.js, repository.ts
+  ├── tags.js ──────────── state.js, storage.js, repository.js
   ├── due-dates.js ────────── state.js, storage.js, undo.js, utils.js
   ├── sorting.js ──────────── state.js
   ├── drag-drop.js ──────── state.js, storage.js, undo.js
-  ├── notebook.js ──────── state.js, storage.js, repository.ts, database.js
-  ├── export.js ──────────── state.js, repository.ts, database.js, crypto.js, sanitize.js
+  ├── notebook.js ──────── state.js, storage.js, repository.js, database.js
+  ├── export.js ──────────── state.js, repository.js, database.js, crypto.js, sanitize.js
   ├── clocks.js ─────────── state.js, storage.js
   └── utils.js              (no upstream imports)
 ```
@@ -602,7 +602,7 @@ User types title in #newNote input, presses Enter
   → { id, title, column:'todo', noteEntries:[], timer:0, … }
   → recordAction({ type:'create', … })      [undo.js]
   → state.notesData.push(newTask)
-  → saveNotesToLocalStorage()               [storage.js → repository.ts]
+  → saveNotesToLocalStorage()               [storage.js → repository.js]
       → localStorage.setItem(…)            [sync]
       → IDB write in 300 ms               [async]
   → updateColumnVirtualList('todo')
