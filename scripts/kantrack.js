@@ -109,6 +109,54 @@ import { registerAction, initRouter } from './kantrack-modules/router.js';
 import { dispatch, TASK_SET_ALL } from './kantrack-modules/store.js';
 
 /***********************
+ * ABOUT MODAL
+ ***********************/
+let _aboutTrap = null;
+let _aboutReturnFocus = null;
+
+function openAboutModal() {
+  const modal = document.getElementById('aboutModal');
+  if (!modal) return;
+  _aboutReturnFocus = document.activeElement;
+  modal.style.display = 'flex';
+  _aboutTrap = createFocusTrap(modal);
+  _aboutTrap.activate();
+  // Reset scroll AFTER the focus trap focuses its first element (focus() causes
+  // the browser to scroll that element into view, which we must undo here).
+  const content = modal.querySelector('.modal-content');
+  if (content) content.scrollTop = 0;
+}
+
+function closeAboutModal() {
+  const modal = document.getElementById('aboutModal');
+  if (!modal) return;
+  _aboutTrap?.deactivate();
+  _aboutTrap = null;
+  modal.style.display = 'none';
+  _aboutReturnFocus?.focus();
+  _aboutReturnFocus = null;
+}
+
+/***********************
+ * HEADER MENU DROPDOWN
+ ***********************/
+function toggleHeaderMenu() {
+  const dropdown = document.getElementById('headerDropdown');
+  const btn = document.getElementById('headerMenuBtn');
+  if (!dropdown) return;
+  const open = dropdown.style.display !== 'none' && dropdown.style.display !== '';
+  dropdown.style.display = open ? 'none' : 'block';
+  if (btn) btn.setAttribute('aria-expanded', String(!open));
+}
+
+function closeHeaderMenu() {
+  const dropdown = document.getElementById('headerDropdown');
+  const btn = document.getElementById('headerMenuBtn');
+  if (dropdown) dropdown.style.display = 'none';
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+/***********************
  * SHORTCUTS DIALOG
  ***********************/
 let _shortcutsTrap = null;
@@ -141,6 +189,14 @@ function closeShortcutsDialog() {
 
 // Shortcuts dialog
 registerAction('shortcuts:close', () => closeShortcutsDialog());
+registerAction('shortcuts:open', () => openShortcutsDialog());
+
+// About modal
+registerAction('about:open', () => openAboutModal());
+registerAction('about:close', () => closeAboutModal());
+
+// Header menu dropdown
+registerAction('menu:toggle', () => toggleHeaderMenu());
 
 // History
 registerAction('history:undo', () => undo());
@@ -514,7 +570,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Global keyboard shortcuts ──
 
   function isAnyModalOpen() {
-    const ids = ['taskModal', 'pageModal', 'imageModal', 'addClockModal', 'shortcutsModal'];
+    const ids = [
+      'taskModal',
+      'pageModal',
+      'imageModal',
+      'addClockModal',
+      'shortcutsModal',
+      'aboutModal',
+    ];
     return ids.some(id => {
       const el = document.getElementById(id);
       return el && el.style.display !== 'none' && el.style.display !== '';
@@ -549,6 +612,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (isOpen(shortcutsModal)) {
       closeShortcutsDialog();
+      return;
+    }
+    const aboutModal = document.getElementById('aboutModal');
+    if (isOpen(aboutModal)) {
+      closeAboutModal();
       return;
     }
     if (isOpen(trashPanel)) toggleTrashPanel();
@@ -677,6 +745,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateColumnCounts();
   });
 
+  // ── Header menu: close when clicking outside ──
+
+  document.addEventListener('click', e => {
+    const wrapper = document.getElementById('headerMenuWrapper');
+    if (wrapper && !wrapper.contains(e.target)) closeHeaderMenu();
+  });
+
   // ── Modal backdrop: click outside to close ──
 
   document.addEventListener('click', e => {
@@ -684,6 +759,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const imageModal = document.getElementById('imageModal');
     const addClockModal = document.getElementById('addClockModal');
     const pageModal = document.getElementById('pageModal');
+    const shortcutsModal = document.getElementById('shortcutsModal');
+    const aboutModal = document.getElementById('aboutModal');
+
+    if (e.target === shortcutsModal) {
+      closeShortcutsDialog();
+      return;
+    }
+
+    if (e.target === aboutModal) {
+      closeAboutModal();
+      return;
+    }
 
     if (e.target === addClockModal) {
       closeAddClockModal();
@@ -755,6 +842,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         else if (modal.id === 'imageModal') closeImageModal();
         else if (modal.id === 'addClockModal') closeAddClockModal();
         else if (modal.id === 'pageModal') closePageModal();
+        else if (modal.id === 'aboutModal') closeAboutModal();
+        else if (modal.id === 'shortcutsModal') closeShortcutsDialog();
       }
     });
   });

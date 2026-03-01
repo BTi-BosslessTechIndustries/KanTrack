@@ -4,6 +4,14 @@ Project documentation. Organized by audience and purpose.
 
 ---
 
+## Engineering roadmaps
+
+| File                                                     | What it covers                                                                                 |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| [`KanTrack_Cloud_Roadmap.md`](KanTrack_Cloud_Roadmap.md) | Phases 8–12 — account infrastructure, E2EE vault, multi-device sync, long-term vision (future) |
+
+---
+
 ## Product and business context
 
 | File                                                                                                   | What it covers                                                       |
@@ -11,7 +19,7 @@ Project documentation. Organized by audience and purpose.
 | [`product/KanTrack_Vision_Deck_Narrative.md`](product/KanTrack_Vision_Deck_Narrative.md)               | The product vision narrative — what KanTrack is trying to be and why |
 | [`product/KanTrack_Homepage_Structure_Blueprint.md`](product/KanTrack_Homepage_Structure_Blueprint.md) | Planned homepage layout and marketing structure                      |
 | [`product/KanTrack_Public_Homepage_Version.md`](product/KanTrack_Public_Homepage_Version.md)           | Public-facing homepage copy                                          |
-| [`product/KanTrack_Sponsor_Brief_Expanded.md`](product/KanTrack_Sponsor_Brief_Expanded.md)             | Expanded sponsor briefing document                                   |
+| [`product/KanTrack_Sponsor_Brief.md`](product/KanTrack_Sponsor_Brief.md)                               | Sponsor briefing document                                            |
 
 ---
 
@@ -28,6 +36,15 @@ These documents define the non-negotiable principles that govern every design an
 | [`philosophy/KanTrack_Brand_Philosophy.md`](philosophy/KanTrack_Brand_Philosophy.md)             | Brand values and positioning                                           |
 | [`philosophy/KanTrack_Builder_Ethos.md`](philosophy/KanTrack_Builder_Ethos.md)                   | How the project should be built and by whom                            |
 | [`philosophy/KanTrack_Roadmap_Philosophy.md`](philosophy/KanTrack_Roadmap_Philosophy.md)         | How to think about the roadmap and prioritize phases                   |
+
+---
+
+## Technical reference
+
+| File                                                     | What it covers                                                                                                                                                             |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`technical/Architecture.md`](technical/Architecture.md) | Full system architecture: directory structure, layer model, IDB schema, bootstrap sequence, virtual list, undo/redo, export/import, accessibility, CSS, data flow examples |
+| [`technical/Trust_Model.md`](technical/Trust_Model.md)   | Security reference: threat model, input sanitiser, CSP, browser storage trust, encryption details, trust boundaries, third-party code audit                                |
 
 ---
 

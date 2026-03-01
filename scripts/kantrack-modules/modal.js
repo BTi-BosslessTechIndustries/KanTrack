@@ -91,7 +91,7 @@ export async function openTaskModal(taskId) {
     renderDueDatePicker(taskId, dueDateContainer);
   }
 
-  modal.style.display = 'block';
+  modal.style.display = 'flex';
   _taskModalTrap = createFocusTrap(modal);
   _taskModalTrap.activate();
 }

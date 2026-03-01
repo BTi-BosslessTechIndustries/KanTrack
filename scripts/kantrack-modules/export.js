@@ -4,7 +4,7 @@
 import jsPDF from 'jspdf';
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
-import { getImage, storeImage } from './database.js';
+import { getImage, storeImage, getNotebookImage, storeNotebookImage } from './database.js';
 import {
   getColumnName,
   getCurrentDate,
@@ -320,8 +320,9 @@ async function _buildWorkspacePayload(mode) {
   const notebook_items = await getAllNotebookItems();
   const clocks = (await getAllClocks()) || [];
 
-  // For full export, embed images into note entries
+  // For full export, embed images into note entries and notebook pages
   let exportTasks = tasks;
+  let exportNotebookItems = notebook_items;
   if (mode === 'full') {
     exportTasks = [];
     for (const task of tasks) {
@@ -342,6 +343,19 @@ async function _buildWorkspacePayload(mode) {
       }
       exportTasks.push(taskExport);
     }
+
+    exportNotebookItems = [];
+    for (const item of notebook_items) {
+      const itemExport = { ...item };
+      if (item.images && item.images.length > 0) {
+        itemExport.imageData = {};
+        for (const imageId of item.images) {
+          const dataUrl = await getNotebookImage(item.id, imageId);
+          if (dataUrl) itemExport.imageData[imageId] = dataUrl;
+        }
+      }
+      exportNotebookItems.push(itemExport);
+    }
   }
 
   return {
@@ -350,7 +364,7 @@ async function _buildWorkspacePayload(mode) {
     exportedAt: new Date().toISOString(),
     tasks: exportTasks,
     tags,
-    notebook_items,
+    notebook_items: exportNotebookItems,
     clocks,
     settings: {},
     integrity: {
@@ -540,14 +554,22 @@ async function _autoBackup() {
 
 /** Apply imported data to IDB stores. mode: 'replace' | 'merge'. */
 async function _applyImport(data, mode) {
-  // Restore images FIRST (before saveTasks) so imageData is never serialised
-  // into the tasks IDB store — images belong only in the images store.
+  // Restore images FIRST (before saving) so imageData is never serialised
+  // into the IDB stores — images belong only in the images store.
   for (const task of data.tasks ?? []) {
     for (const entry of task.noteEntries || []) {
       if (entry.imageData) {
         for (const [imageId, dataUrl] of Object.entries(entry.imageData)) {
           await storeImage(task.id, imageId, dataUrl);
         }
+      }
+    }
+  }
+
+  for (const item of data.notebook_items ?? []) {
+    if (item.imageData) {
+      for (const [imageId, dataUrl] of Object.entries(item.imageData)) {
+        await storeNotebookImage(item.id, imageId, dataUrl);
       }
     }
   }
@@ -560,7 +582,10 @@ async function _applyImport(data, mode) {
   }));
 
   const tags = data.tags ?? [];
-  const notebookItems = data.notebook_items ?? [];
+  // Strip imageData from notebook items before saving to IDB
+  const notebookItems = (data.notebook_items ?? []).map(
+    ({ imageData: _stripped, ...item }) => item
+  );
   const clocks = data.clocks ?? [];
 
   if (mode === 'replace') {

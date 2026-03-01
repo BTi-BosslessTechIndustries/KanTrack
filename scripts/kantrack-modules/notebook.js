@@ -494,7 +494,7 @@ export async function openPageModal(pageId) {
   // Setup clipboard paste for page editor
   setupPageClipboardPaste();
 
-  modal.style.display = 'block';
+  modal.style.display = 'flex';
   _pageModalTrap = createFocusTrap(modal);
   _pageModalTrap.activate();
 }

@@ -6,13 +6,15 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ## Spec files
 
-| File                    | Tests | What it covers                                                         |
-| ----------------------- | ----- | ---------------------------------------------------------------------- |
-| `smoke.spec.js`         | 2     | Create task + persist; set priority + persist after reload             |
-| `flows.spec.js`         | 6     | Delete, edit title, add note, undo, undo-persist, redo                 |
-| `accessibility.spec.js` | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav  |
-| `import-export.spec.js` | 8     | JSON export/import, encrypted export/import, format-version validation |
-| `performance.spec.js`   | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)             |
+| File                    | Tests | What it covers                                                           |
+| ----------------------- | ----- | ------------------------------------------------------------------------ |
+| `smoke.spec.js`         | 2     | Create task + persist; set priority + persist after reload               |
+| `flows.spec.js`         | 6     | Delete, edit title, add note, undo, undo-persist, redo                   |
+| `accessibility.spec.js` | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav    |
+| `import-export.spec.js` | 8     | JSON export/import, encrypted export/import, format-version validation   |
+| `performance.spec.js`   | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)               |
+| `search.spec.js`        | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match    |
+| `header.spec.js`        | 12    | Support Us link, credit button, ⋮ dropdown, About modal, Shortcuts modal |
 
 ---
 
@@ -119,6 +121,33 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 - 200 tasks renders fewer than 30 `.note` DOM nodes initially
 - Scrolling to the bottom keeps the DOM count below 60
+
+---
+
+### `search.spec.js` — live search & filter
+
+- Typing in the search box shows only cards whose titles match
+- Search is case-insensitive (uppercase title, lowercase query)
+- Clearing the search box restores all cards
+- Pressing ESC while the search input is focused clears the term and restores cards
+- A search with no matches results in zero matching cards rendered
+
+---
+
+### `header.spec.js` — header UI
+
+- **Support Us link** — visible, has the correct Buy Me a Coffee href
+- **Credit button** — visible, contains "BTi"
+- **⋮ menu button** — clicking opens `#headerDropdown`
+- **Click outside** — clicking the board area closes the open dropdown
+- **Toggle** — clicking the menu button a second time closes the dropdown
+- **About modal** — "About KanTrack" item opens `#aboutModal`
+- **ESC** closes the About modal
+- **Backdrop click** closes the About modal
+- **Close button** closes the About modal
+- **Scroll position** — About modal opens scrolled to the top
+- **Shortcuts from dropdown** — "Shortcuts" item opens `#shortcutsModal`
+- **Backdrop click** closes the Shortcuts modal
 
 ---
 

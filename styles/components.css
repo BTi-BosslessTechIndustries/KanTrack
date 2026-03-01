@@ -3,9 +3,11 @@
  * Clocks, modals, sub-kanban, history, timers, priority
  ***********************/
 
-/* ===== Keyboard Shortcuts Dialog ===== */
+/* ===== Help Dialog ===== */
 .shortcuts-modal-content {
-  max-width: 480px;
+  max-width: 640px;
+  max-height: 88vh;
+  overflow-y: auto;
 }
 .shortcuts-groups {
   display: grid;
@@ -39,6 +41,68 @@
   font-size: 0.83rem;
   opacity: 0.75;
   margin: 0;
+}
+
+/* Exports & Imports section inside Help dialog */
+.help-section {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.help-section h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.5;
+  margin: 0 0 0.75rem;
+}
+.help-section-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.45;
+  margin: 0.9rem 0 0.3rem;
+}
+.help-section-label:first-of-type {
+  margin-top: 0;
+}
+.help-exports-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.81rem;
+}
+.help-exports-table th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.4;
+  padding: 0 0.5rem 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.help-exports-table td {
+  padding: 0.3rem 0.5rem;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  opacity: 0.82;
+}
+.help-exports-table td:last-child {
+  white-space: nowrap;
+}
+.help-exports-table code {
+  font-family: monospace;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.79rem;
+  opacity: 1;
+}
+.help-exports-note {
+  font-size: 0.78rem;
+  opacity: 0.55;
+  margin: 0.65rem 0 0;
+  font-style: italic;
+  line-height: 1.4;
 }
 
 /* ── Virtual List ─────────────────────────────────────────── */
@@ -293,12 +357,15 @@
 .modal {
   display: none;
   position: fixed;
-  z-index: 1000;
+  z-index: 10050; /* above sidebar (9999) and header (10000) */
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto;
+  /* centering — JS sets display:flex when open */
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
   background-color: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
 }
@@ -306,7 +373,7 @@
 .modal-content {
   background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(25, 25, 25, 0.95) 100%);
   backdrop-filter: blur(30px);
-  margin: 3% auto;
+  margin: 0;
   padding: 36px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
@@ -1425,4 +1492,162 @@
 
 .mention-item-icon.priority-high svg {
   color: #f44336;
+}
+
+/* About / Security Transparency Modal */
+.about-modal-content {
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.about-intro {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-modal-section {
+  margin-bottom: 1.25rem;
+}
+
+.about-modal-section h3 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.36);
+  margin-bottom: 0.6rem;
+}
+
+.about-modal-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 1.25rem 0;
+}
+
+.about-modal-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.about-modal-features li {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding-left: 1.25rem;
+  position: relative;
+  line-height: 1.45;
+}
+
+.about-modal-features li code {
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+.about-modal-features li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: rgba(99, 102, 241, 0.6);
+}
+
+.about-modal-features--warn li::before {
+  content: '!';
+  font-weight: 700;
+  color: rgba(245, 158, 11, 0.7);
+}
+
+.about-modal-features--warn li {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.about-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 0.75rem;
+}
+
+.about-data-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: top;
+  line-height: 1.4;
+}
+
+.about-data-table td:first-child {
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  padding-right: 16px;
+  width: 40%;
+}
+
+.about-data-table td:last-child {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.about-data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.about-privacy-note {
+  font-size: 0.81rem;
+  color: rgba(255, 255, 255, 0.52);
+  padding: 0.65rem 0.9rem;
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.14);
+  border-radius: 8px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.about-honest-note {
+  font-size: 0.81rem;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 0.65rem 0.9rem;
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  border-radius: 8px;
+  line-height: 1.55;
+  margin: 0.5rem 0 0;
+}
+
+.about-mailto {
+  color: rgba(99, 102, 241, 0.8);
+  text-decoration: none;
+}
+
+.about-mailto:hover {
+  color: rgba(99, 102, 241, 1);
+  text-decoration: underline;
+}
+
+.about-modal-section--footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.about-built-by {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.about-bti-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.about-bti-link:hover {
+  color: rgba(255, 255, 255, 0.92);
 }

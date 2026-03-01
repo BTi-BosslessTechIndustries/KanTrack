@@ -93,3 +93,49 @@ describe('sortColumnByPriority — VL updater delegation', () => {
     expect(() => sortColumnByPriority('todo')).not.toThrow();
   });
 });
+
+// ── Unknown/arbitrary priority strings ───────────────────────
+
+describe('getPrioritySortValue — unknown priority strings', () => {
+  it('treats an unknown string as "none" in a non-todo column (returns 3)', () => {
+    expect(getPrioritySortValue('critical', false)).toBe(3);
+  });
+
+  it('treats an unknown string as "none" in the todo column (returns 0)', () => {
+    expect(getPrioritySortValue('critical', true)).toBe(0);
+  });
+
+  it('returns the same value as null for an unknown non-todo priority', () => {
+    expect(getPrioritySortValue('??', false)).toBe(getPrioritySortValue(null, false));
+  });
+
+  it('returns the same value as null for an unknown todo priority', () => {
+    expect(getPrioritySortValue('??', true)).toBe(getPrioritySortValue(null, true));
+  });
+
+  it('empty string is treated as unknown (same as null) in non-todo column', () => {
+    expect(getPrioritySortValue('', false)).toBe(getPrioritySortValue(null, false));
+  });
+});
+
+// ── Complete ordering contract ────────────────────────────────
+
+describe('getPrioritySortValue — complete ordering contract', () => {
+  it('enforces full non-todo order: high < medium < low < none', () => {
+    const values = ['high', 'medium', 'low', null].map(p => getPrioritySortValue(p, false));
+    for (let i = 0; i < values.length - 1; i++) {
+      expect(values[i]).toBeLessThan(values[i + 1]);
+    }
+  });
+
+  it('enforces full todo order: none < high < medium < low', () => {
+    const values = [null, 'high', 'medium', 'low'].map(p => getPrioritySortValue(p, true));
+    for (let i = 0; i < values.length - 1; i++) {
+      expect(values[i]).toBeLessThan(values[i + 1]);
+    }
+  });
+
+  it('non-todo high (0) sorts strictly before todo high (1)', () => {
+    expect(getPrioritySortValue('high', false)).toBeLessThan(getPrioritySortValue('high', true));
+  });
+});

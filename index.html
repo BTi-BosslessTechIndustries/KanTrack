@@ -28,6 +28,14 @@
 			<div class="header-logo">
 				<img src="images/kantrack_logo.png" alt="KanTrack">
 			</div>
+			<a href="https://buymeacoffee.com/bosslesstechindustries" target="_blank" rel="noopener noreferrer" class="support-us-btn" aria-label="Support Us on Buy Me a Coffee">
+				☕ Support Us
+			</a>
+		</div>
+		<div class="header-center">
+			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn">
+				Developed by BTi – Bossless Tech Industries
+			</a>
 		</div>
 		<div class="header-right">
 			<div class="header-undo-redo">
@@ -43,6 +51,20 @@
 						<path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
 					</svg>
 				</button>
+			</div>
+			<div class="header-menu-wrapper" id="headerMenuWrapper">
+				<button class="header-action-btn header-menu-btn" id="headerMenuBtn" data-action="menu:toggle" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="5" r="1"></circle>
+						<circle cx="12" cy="12" r="1"></circle>
+						<circle cx="12" cy="19" r="1"></circle>
+					</svg>
+				</button>
+				<div class="header-dropdown" id="headerDropdown" style="display:none;" role="menu">
+					<button class="header-dropdown-item" data-action="about:open" role="menuitem">About KanTrack</button>
+					<a class="header-dropdown-item" href="https://github.com/BTi-BosslessTechIndustries/KanTrack" target="_blank" rel="noopener noreferrer" role="menuitem">View the Code</a>
+					<button class="header-dropdown-item" data-action="shortcuts:open" role="menuitem">Help</button>
+				</div>
 			</div>
 			<div class="header-divider"></div>
 			<button id="trashToggleBtn" class="header-action-btn header-trash-btn" data-action="trash:togglePanel" title="View Trash" aria-label="View Trash">
@@ -410,18 +432,115 @@
         </div>
     </div>
 
-    <!-- Keyboard Shortcuts Dialog -->
+    <!-- About & Security Transparency Modal -->
+    <div id="aboutModal" class="modal about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" style="display:none;">
+        <div class="modal-content about-modal-content">
+            <span class="modal-close" data-action="about:close" aria-label="Close">&times;</span>
+            <h2 id="aboutModalTitle">About KanTrack</h2>
+
+            <div class="about-modal-section">
+                <p class="about-intro">
+                    KanTrack is a privacy-first, local-only Kanban board built for focus and clarity.
+                    No accounts. No cloud. No distractions — just you and your work.
+                </p>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>Features</h3>
+                <ul class="about-modal-features">
+                    <li>Four-column board — To Do, In Progress, On Hold, Done</li>
+                    <li>Rich task details with notes, timers, priorities, due dates &amp; tags</li>
+                    <li>Built-in Notebook for freeform notes and documentation</li>
+                    <li>World clocks and chronometer widgets</li>
+                    <li>Full-text search, column filters, and tag filters</li>
+                    <li>Keyboard shortcuts for efficient navigation</li>
+                    <li>Export to PDF, HTML, JSON, and encrypted backup</li>
+                    <li>Undo / redo for all task actions</li>
+                </ul>
+            </div>
+
+            <div class="about-modal-divider"></div>
+
+            <div class="about-modal-section">
+                <h3>Where Your Data Lives</h3>
+                <table class="about-data-table">
+                    <tbody>
+                        <tr>
+                            <td>Tasks, notes, tags, history</td>
+                            <td>localStorage + IndexedDB — your browser only</td>
+                        </tr>
+                        <tr>
+                            <td>Notebook pages &amp; images</td>
+                            <td>IndexedDB — your browser only</td>
+                        </tr>
+                        <tr>
+                            <td>UI preferences</td>
+                            <td>localStorage — your browser only</td>
+                        </tr>
+                        <tr>
+                            <td>Encryption keys</td>
+                            <td>Never stored — derived per-session from your password</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="about-privacy-note">
+                    Nothing is sent to any server. KanTrack has no backend, no accounts, and makes no network requests. All storage is local to your browser.
+                </p>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>What KanTrack Protects Against</h3>
+                <ul class="about-modal-features">
+                    <li>XSS via imported data — an allowlist-based sanitizer strips all event handlers and unsafe tags before any HTML is rendered to the page</li>
+                    <li>Inline script injection — a strict Content Security Policy (<code>script-src 'self'</code>) blocks inline scripts and <code>javascript:</code> URL execution</li>
+                    <li>Malicious import files — the sanitizer also runs on content from imported <code>.kantrack.json</code> workspace files</li>
+                    <li>Encrypted exports use AES-256-GCM with PBKDF2 key derivation (100,000 iterations, SHA-256)</li>
+                </ul>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>Known Limitations — Read These</h3>
+                <ul class="about-modal-features about-modal-features--warn">
+                    <li>Device compromise — if your device is infected or physically accessed, data in localStorage and IndexedDB is readable. KanTrack cannot protect against OS-level access.</li>
+                    <li>Browser extensions — extensions with broad permissions can read page content and storage. Use a minimal-extension browser profile for sensitive data.</li>
+                    <li>Unencrypted exports — standard <code>.kantrack.json</code> exports are plain JSON. Use the encrypted export for sensitive data.</li>
+                    <li>Data at rest — KanTrack does not encrypt data in localStorage or IndexedDB. Anyone with access to your logged-in account can read it via browser DevTools.</li>
+                    <li>Password strength — the encrypted export is only as strong as the password you choose.</li>
+                </ul>
+                <p class="about-honest-note">We cannot protect your data if your device is compromised. That is an honest limitation we cannot engineer away.</p>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>Report a Vulnerability</h3>
+                <p class="about-privacy-note">
+                    Found a security issue? Do not open a public issue.<br>
+                    Contact: <a href="mailto:general@bosslesstechindustries.com" class="about-mailto">general@bosslesstechindustries.com</a>
+                </p>
+            </div>
+
+            <div class="about-modal-divider"></div>
+
+            <div class="about-modal-section about-modal-section--footer">
+                <span class="about-built-by">Built by</span>
+                <a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="about-bti-link">BTi – Bossless Tech Industries</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Dialog -->
     <div id="shortcutsModal" class="modal shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle" style="display:none;">
         <div class="modal-content shortcuts-modal-content">
-            <span class="modal-close" data-action="shortcuts:close" aria-label="Close shortcuts">&times;</span>
-            <h2 id="shortcutsModalTitle">Keyboard Shortcuts</h2>
+            <span class="modal-close" data-action="shortcuts:close" aria-label="Close">&times;</span>
+            <h2 id="shortcutsModalTitle">Help</h2>
+
+            <!-- Keyboard shortcuts -->
             <div class="shortcuts-groups">
                 <section class="shortcuts-group">
                     <h3>Board</h3>
                     <dl>
                         <dt>N</dt><dd>Focus new task input</dd>
                         <dt>/</dt><dd>Focus search</dd>
-                        <dt>?</dt><dd>Show shortcuts</dd>
+                        <dt>?</dt><dd>Open Help</dd>
                         <dt>↑ / ↓</dt><dd>Navigate cards in column</dd>
                         <dt>← / →</dt><dd>Jump to adjacent column</dd>
                         <dt>Enter / Space</dt><dd>Open focused card</dd>
@@ -436,6 +555,66 @@
                         <dt>Ctrl+B</dt><dd>Toggle notebook</dd>
                     </dl>
                 </section>
+            </div>
+
+            <!-- Exports & Imports reference -->
+            <div class="help-section">
+                <h3>Exports &amp; Imports</h3>
+
+                <p class="help-section-label">Board — controls at the bottom of the board</p>
+                <table class="help-exports-table">
+                    <thead>
+                        <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>.kantrack.json</code> full</td>
+                            <td>Everything — tasks, tags, notebook pages &amp; images, clocks</td>
+                            <td>Yes — merge or replace</td>
+                        </tr>
+                        <tr>
+                            <td><code>.kantrack.json</code> lite</td>
+                            <td>Same as full, without embedded images (smaller file)</td>
+                            <td>Yes — merge or replace</td>
+                        </tr>
+                        <tr>
+                            <td><code>.kantrack.enc</code></td>
+                            <td>Full backup, passphrase-encrypted</td>
+                            <td>Yes — passphrase required</td>
+                        </tr>
+                        <tr>
+                            <td><code>.html</code></td>
+                            <td>Read-only visual snapshot of the board</td>
+                            <td>Yes (board data only)</td>
+                        </tr>
+                        <tr>
+                            <td>Task <code>.pdf</code></td>
+                            <td>Single task with notes &amp; history</td>
+                            <td>No</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="help-section-label">Notebook — controls inside the notebook sidebar</p>
+                <table class="help-exports-table">
+                    <thead>
+                        <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Folder / All pages <code>.zip</code></td>
+                            <td>Pages &amp; images, folder structure preserved</td>
+                            <td>Yes — via notebook import button</td>
+                        </tr>
+                        <tr>
+                            <td>Page <code>.pdf</code></td>
+                            <td>Single note page</td>
+                            <td>No</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="help-exports-note">On import, <strong>Merge</strong> adds new items without touching existing ones. <strong>Replace</strong> overwrites everything — an automatic lightweight backup is downloaded first.</p>
             </div>
         </div>
     </div>

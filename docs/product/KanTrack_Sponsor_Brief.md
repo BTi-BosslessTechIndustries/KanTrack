@@ -1,4 +1,5 @@
 # KanTrack — Sponsor & Funding Brief (Expanded)
+
 ## Privacy‑First • Local‑First • Individual‑First Productivity
 
 ---
@@ -22,7 +23,7 @@ KanTrack positions itself at the intersection of:
 • Productivity  
 • Privacy  
 • Digital autonomy  
-• Data ownership  
+• Data ownership
 
 ---
 
@@ -38,7 +39,7 @@ Consequences for individuals:
 • Lack of personal workflow control  
 • Cognitive overload  
 • Hidden personal tracking methods (notes, spreadsheets, private lists)  
-• Stress and burnout  
+• Stress and burnout
 
 Millions of professionals already maintain private systems to survive corporate tooling.
 
@@ -59,19 +60,22 @@ KanTrack acts as a personal operational layer that sits alongside corporate tool
 Core capabilities:
 
 ### Local Mode (Free)
+
 • Runs entirely in the browser  
 • No account required  
 • Works offline  
-• Data never leaves the device  
+• Data never leaves the device
 
 ### Encrypted Vault (Paid)
+
 • Backup and cross‑device sync  
 • End‑to‑end encryption  
-• Zero‑knowledge storage  
+• Zero‑knowledge storage
 
 ### Future Desktop App (Optional)
+
 • Unlimited storage  
-• High‑performance local database  
+• High‑performance local database
 
 ---
 
@@ -110,7 +114,7 @@ A professional working inside structured environments who must manage tasks acro
 • Product managers  
 • Researchers  
 • Remote workers  
-• Freelancers embedded in teams  
+• Freelancers embedded in teams
 
 ### Characteristics
 
@@ -119,7 +123,7 @@ A professional working inside structured environments who must manage tasks acro
 • Needs a private planning space  
 • Values autonomy  
 • Feels friction from corporate tools  
-• Often privacy‑aware  
+• Often privacy‑aware
 
 ### Pain Points
 
@@ -127,7 +131,7 @@ A professional working inside structured environments who must manage tasks acro
 • Tasks scattered across tools  
 • Lack of control over priorities  
 • Meetings dictating workflow  
-• No place to think privately  
+• No place to think privately
 
 ### Why KanTrack Works for Them
 
@@ -135,7 +139,7 @@ KanTrack restores control by giving users:
 
 • A private workspace  
 • A unified view of personal responsibilities  
-• A way to plan independently of organizational structures  
+• A way to plan independently of organizational structures
 
 ---
 
@@ -149,7 +153,7 @@ KanTrack addresses:
 • Freelancers working across clients  
 • Regulated industries  
 • Privacy‑conscious professionals  
-• Remote workforce  
+• Remote workforce
 
 The potential user base spans hundreds of millions of knowledge workers globally.
 
@@ -160,18 +164,23 @@ The potential user base spans hundreds of millions of knowledge workers globally
 ## Unique Differentiators
 
 ### Individual‑First Design
+
 Built for personal workflow rather than organizational oversight.
 
 ### Local‑First Architecture
+
 Works without internet or accounts.
 
 ### Zero‑Knowledge Sync
+
 Cloud services cannot read user data.
 
 ### User‑Controlled Data Location
+
 Users choose where their data lives.
 
 ### No Vendor Lock‑In
+
 Full export capability at all times.
 
 ---
@@ -181,12 +190,15 @@ Full export capability at all times.
 KanTrack follows an adoption‑first strategy:
 
 ## Free Tier
+
 Local Mode — unlimited individual use without account.
 
 ## Paid Tier
+
 Encrypted Vault for backup, sync, and expanded storage.
 
 ## Future Enterprise Tier
+
 Secure team collaboration built on the same privacy principles.
 
 Revenue grows organically as individual users adopt the platform.
@@ -196,15 +208,19 @@ Revenue grows organically as individual users adopt the platform.
 # Development Roadmap
 
 ### Phase 1 — Stabilize Local Mode
+
 Storage reliability, performance, data integrity.
 
 ### Phase 2 — Backup & Export
+
 Workspace export, encrypted backups.
 
 ### Phase 3 — Encrypted Cloud Vault
+
 Storage expansion and sync.
 
 ### Phase 4 — Multi‑Device Sync
+
 Seamless experience across devices.
 
 ---
@@ -215,7 +231,7 @@ KanTrack sits at the convergence of three major trends:
 
 • Growing distrust of centralized SaaS  
 • Demand for privacy‑respecting software  
-• Increasing cognitive load on knowledge workers  
+• Increasing cognitive load on knowledge workers
 
 By empowering individuals rather than organizations, KanTrack unlocks viral, bottom‑up adoption within companies.
 

@@ -18,8 +18,9 @@ tests/
 ├── undo.test.js              # recordAction, undo, redo, trash
 ├── utils.test.js             # pure utility functions: escapeHtml, formatTime, deepClone, etc.
 ├── priority.test.js          # getPriorityLabel, getPriorityColor
-├── due-dates.test.js         # formatDueDate, formatRelativeDueDate, sortByDueDate
-├── tags.test.js              # getTagDefinitions, getTagById, getTagColor, getPinnedTags
+├── due-dates.test.js         # formatDueDate, formatRelativeDueDate, sortByDueDate, isOverdue, isDueToday, isDueSoon, getDueDateStatus, getDueDate, getOverdueTasks, getTasksDueToday, getTasksDueSoon, setDueDate
+├── timer.test.js             # addTime(), quickAddTime(), LONG_PRESS_THRESHOLD
+├── tags.test.js              # getTagDefinitions, getTagById, getTagColor, getPinnedTags, createTag, toggleTagPinned, setTagPinned, updateTag, deleteTag, cleanupUnusedTags, addTagToTask, removeTagFromTask, getTaskTags
 ├── search.test.js            # full-text search and tag/column filter logic
 ├── sorting.test.js           # priority-based column sort
 ├── import-validator.test.js  # .kantrack.json import validation and error cases
@@ -33,6 +34,8 @@ tests/
     ├── accessibility.spec.js # Playwright E2E: keyboard shortcuts, ESC, arrow nav, focus (Phase 7)
     ├── import-export.spec.js # Playwright E2E: export/import round-trips (Phase 4)
     ├── performance.spec.js   # Playwright E2E: virtual list DOM node budget (Phase 5)
+    ├── search.spec.js        # Playwright E2E: live search, case-insensitivity, ESC clear, no-match
+    ├── header.spec.js        # Playwright E2E: header UI — dropdown, About modal, Shortcuts modal
     └── README.md
 ```
 
@@ -46,7 +49,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**401 tests across 18 files** — all should pass on every run.
+**529 tests across 19 files** — all should pass on every run.
 
 ### What is mocked
 

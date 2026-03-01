@@ -331,7 +331,7 @@ export function openAddClockModal() {
   const modal = document.getElementById('addClockModal');
   if (modal) {
     _clockModalReturnFocus = document.activeElement;
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
     // Reset selection
     selectClockType('timezone');
     const searchInput = document.getElementById('clockTimezoneSearch');
