@@ -12,8 +12,6 @@
  *   That is intentional and documented here.
  ***********************/
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore — database.js is not yet typed
 import {
   idbGet,
   idbGetAll,
