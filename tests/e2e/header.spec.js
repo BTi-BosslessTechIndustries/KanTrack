@@ -2,17 +2,20 @@
  * KanTrack E2E header UI tests.
  *
  * Covers the header elements added post-Phase 7:
- *   1.  Support Us link has the correct Buy Me a Coffee href.
- *   2.  Credit button contains "BTi".
- *   3.  Clicking the ⋮ menu button opens the dropdown.
- *   4.  Clicking outside the dropdown closes it.
- *   5.  "About KanTrack" item opens the About modal.
- *   6.  ESC closes the About modal.
- *   7.  Clicking the About modal backdrop closes it.
- *   8.  Clicking the close button on the About modal closes it.
- *   9.  About modal opens scrolled to the top (not the bottom).
- *   10. "Shortcuts" item opens the Shortcuts modal.
- *   11. Clicking the Shortcuts modal backdrop closes it.
+ *   1.  Support Us button opens the Support modal.
+ *   2.  ESC closes the Support modal.
+ *   3.  Clicking the Support modal backdrop closes it.
+ *   4.  Clicking the close button on the Support modal closes it.
+ *   5.  Credit button contains "BTi".
+ *   6.  Clicking the ⋮ menu button opens the dropdown.
+ *   7.  Clicking outside the dropdown closes it.
+ *   8.  "About KanTrack" item opens the About modal.
+ *   9.  ESC closes the About modal.
+ *   10. Clicking the About modal backdrop closes it.
+ *   11. Clicking the close button on the About modal closes it.
+ *   12. About modal opens scrolled to the top (not the bottom).
+ *   13. "Shortcuts" item opens the Shortcuts modal.
+ *   14. Clicking the Shortcuts modal backdrop closes it.
  *
  * All tests run against the production build served by `npm run preview`.
  */
@@ -26,10 +29,34 @@ test.describe('KanTrack header UI', () => {
 
   // ── Support Us ────────────────────────────────────────────────────────────
 
-  test('Support Us link has the correct Buy Me a Coffee href', async ({ page }) => {
-    const link = page.locator('.support-us-btn');
-    await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('href', 'https://buymeacoffee.com/bosslesstechindustries');
+  test('clicking Support Us button opens the Support modal', async ({ page }) => {
+    await page.locator('.support-us-btn').click();
+    await expect(page.locator('#supportModal')).toBeVisible();
+  });
+
+  test('ESC closes the Support modal', async ({ page }) => {
+    await page.locator('.support-us-btn').click();
+    await expect(page.locator('#supportModal')).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#supportModal')).toBeHidden();
+  });
+
+  test('clicking the Support modal backdrop closes it', async ({ page }) => {
+    await page.locator('.support-us-btn').click();
+    const modal = page.locator('#supportModal');
+    await expect(modal).toBeVisible();
+
+    await modal.click({ position: { x: 5, y: 5 } });
+    await expect(modal).toBeHidden();
+  });
+
+  test('clicking the close button on the Support modal closes it', async ({ page }) => {
+    await page.locator('.support-us-btn').click();
+    await expect(page.locator('#supportModal')).toBeVisible();
+
+    await page.locator('#supportModal [data-action="support:close"]').click();
+    await expect(page.locator('#supportModal')).toBeHidden();
   });
 
   // ── Credit button ─────────────────────────────────────────────────────────
