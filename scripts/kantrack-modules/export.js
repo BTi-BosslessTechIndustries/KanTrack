@@ -3,7 +3,6 @@
  ***********************/
 import jsPDF from 'jspdf';
 import * as state from './state.js';
-import { saveNotesToLocalStorage } from './storage.js';
 import { getImage, storeImage, getNotebookImage, storeNotebookImage } from './database.js';
 import {
   getColumnName,
@@ -13,7 +12,6 @@ import {
   getImageDimensions,
 } from './utils.js';
 import { getPriorityLabel } from './priority.js';
-import { createNoteElement } from './tasks.js';
 import {
   getAllTasks,
   getAllTags,
@@ -736,7 +734,7 @@ function _showPassphraseDialog({ title, message, confirmLabel, onConfirm, onCanc
   input.focus();
 }
 
-// Import from HTML (current format)
+// Import from HTML (current format and old SkoiZz94.github.io format)
 async function importBoardFromHTML(file) {
   const reader = new FileReader();
   reader.onload = async e => {
@@ -758,21 +756,31 @@ async function importBoardFromHTML(file) {
         return;
       }
 
+      // Column display-name → ID map for old format compatibility
+      const columnNameMap = {
+        'To Do': 'todo',
+        'In Progress': 'inProgress',
+        'On Hold': 'onHold',
+        Done: 'done',
+      };
+
       if (
         confirm(
           `This will replace your current board with ${importData.tasks.length} tasks.\n\nContinue?`
         )
       ) {
-        state.setNotesData([]);
-        document.querySelectorAll('.note').forEach(note => note.remove());
+        const processedTasks = [];
 
         for (const task of importData.tasks) {
+          if (task.deleted) continue;
+
+          // New format: noteEntriesWithImages → noteEntries
           if (task.noteEntriesWithImages) {
             task.noteEntries = [];
             for (const entry of task.noteEntriesWithImages) {
               if (entry.imageData) {
                 for (const [imageId, dataUrl] of Object.entries(entry.imageData)) {
-                  await storeImage(task.id, imageId, dataUrl);
+                  await storeImage(String(task.id), imageId, dataUrl);
                 }
                 delete entry.imageData;
               }
@@ -781,17 +789,42 @@ async function importBoardFromHTML(file) {
             delete task.noteEntriesWithImages;
           }
 
-          state.notesData.push(task);
-
-          if (!task.deleted) {
-            const noteElement = createNoteElement(task);
-            const col = document.getElementById(task.column);
-            if (col) col.appendChild(noteElement);
+          // Old format: notes string → noteEntries array
+          if (task.notes && !task.noteEntries) {
+            task.noteEntries = [
+              {
+                timestamp: task.actions?.[0]?.timestamp || new Date().toLocaleString(),
+                notesHTML: task.notes,
+                images: task.images || [],
+              },
+            ];
+            delete task.notes;
+            delete task.images;
           }
+
+          // Normalise column — handle both IDs and display names from old version
+          const column = VALID_COLUMNS.includes(task.column)
+            ? task.column
+            : columnNameMap[task.column] || 'todo';
+
+          processedTasks.push({
+            ...task,
+            id: String(task.id),
+            column,
+            noteEntries: task.noteEntries || [],
+            tags: task.tags || [],
+            actions: task.actions || [
+              { action: 'Imported', timestamp: new Date().toLocaleString(), type: 'created' },
+            ],
+            timer: task.timer || 0,
+            priority: task.priority || null,
+            deleted: false,
+          });
         }
 
-        saveNotesToLocalStorage();
-        alert('Board imported successfully!');
+        saveTasks(processedTasks);
+        alert('Board imported successfully! The page will now reload.');
+        location.reload();
       }
     } catch (err) {
       console.error('Import error:', err);
@@ -892,7 +925,7 @@ async function importBoardFromTXT(file) {
 
         // Create the task object with exact same structure as new notes
         const newTask = {
-          id: Date.now() + Math.random(),
+          id: crypto.randomUUID(),
           title: title,
           noteEntries: [],
           timer: 0,
@@ -932,18 +965,9 @@ async function importBoardFromTXT(file) {
           `This will replace your current board with ${convertedTasks.length} imported tasks.\n\nContinue?`
         )
       ) {
-        state.setNotesData([]);
-        document.querySelectorAll('.note').forEach(note => note.remove());
-
-        convertedTasks.forEach(task => {
-          state.notesData.push(task);
-          const noteElement = createNoteElement(task);
-          const col = document.getElementById(task.column);
-          if (col) col.appendChild(noteElement);
-        });
-
-        saveNotesToLocalStorage();
-        alert('Board imported successfully from TXT!');
+        saveTasks(convertedTasks);
+        alert('Board imported successfully from TXT! The page will now reload.');
+        location.reload();
       }
     } catch (err) {
       console.error('TXT Import error:', err);
