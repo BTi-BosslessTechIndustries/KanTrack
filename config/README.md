@@ -10,7 +10,7 @@ Build tool and linter configuration files. All npm scripts reference these via `
 
 Vite build configuration.
 
-- Entry point: `index.html` (project root)
+- Entry points: `index.html` (main app) and `privacy.html` (Privacy & Cookie Policy page) — both built as separate pages
 - Output: `dist/`
 - Resolve alias: strips `.js` from relative imports so Rollup can find the `.ts` equivalents (e.g. `./store.js` → resolves `store.ts`)
 - `optimizeDeps.exclude`: `['jspdf', 'html2canvas', 'dompurify']` — jsPDF v4 bundles these with complex ESM chunk structures that Vite's dep optimizer cannot pre-bundle; excluding them makes Vite serve them directly from `node_modules`

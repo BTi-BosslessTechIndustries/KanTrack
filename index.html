@@ -8,6 +8,7 @@
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self';"
     />
     <title>KanTrack</title>
+    <link rel="icon" type="image/png" href="images/kantrack_icon.png">
     <!-- Link to External CSS -->
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/components.css">
@@ -25,17 +26,17 @@
 				</svg>
 			</button>
 			<div class="header-divider"></div>
-			<div class="header-logo">
-				<img src="images/kantrack_logo.png" alt="KanTrack">
-			</div>
+			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn" aria-label="Developed by BTi – Bossless Tech Industries">
+				<img src="images/bti-logo.png" alt="BTi – Bossless Tech Industries" class="header-credit-logo">
+			</a>
 			<button class="support-us-btn" data-action="support:open" aria-label="Support Us">
 				☕ Support Us
 			</button>
 		</div>
 		<div class="header-center">
-			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn">
-				Developed by BTi – Bossless Tech Industries
-			</a>
+			<div class="header-logo">
+				<img src="images/kantrack_logo.png" alt="KanTrack">
+			</div>
 		</div>
 		<div class="header-right">
 			<div class="header-undo-redo">
@@ -64,6 +65,7 @@
 					<button class="header-dropdown-item" data-action="about:open" role="menuitem">About KanTrack</button>
 					<a class="header-dropdown-item" href="https://github.com/BTi-BosslessTechIndustries/KanTrack" target="_blank" rel="noopener noreferrer" role="menuitem">View the Code</a>
 					<button class="header-dropdown-item" data-action="shortcuts:open" role="menuitem">Help</button>
+					<a class="header-dropdown-item" href="privacy.html" target="_blank" rel="noopener noreferrer" role="menuitem">Privacy Policy</a>
 				</div>
 			</div>
 			<div class="header-divider"></div>
@@ -523,6 +525,8 @@
             <div class="about-modal-section about-modal-section--footer">
                 <span class="about-built-by">Built by</span>
                 <a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="about-bti-link">BTi – Bossless Tech Industries</a>
+                <span class="about-footer-sep">·</span>
+                <a href="privacy.html" target="_blank" rel="noopener noreferrer" class="about-privacy-link">Privacy Policy</a>
             </div>
         </div>
     </div>
@@ -562,10 +566,11 @@
             <div class="about-modal-divider"></div>
 
             <div class="support-modal-cta">
-                <p>To support us <a href="https://paypal.me/btibossless" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link">CLICK HERE</a></p>
+                <a href="https://paypal.me/btibossless" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link">Support Us</a>
             </div>
         </div>
     </div>
+
 
     <!-- Help Dialog -->
     <div id="shortcutsModal" class="modal shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle" style="display:none;">

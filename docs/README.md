@@ -58,9 +58,10 @@ These documents define the non-negotiable principles that govern every design an
 
 ## Legal and policy
 
-| File                                                       | What it covers                                              |
-| ---------------------------------------------------------- | ----------------------------------------------------------- |
-| [`PRIVACY.md`](PRIVACY.md)                                 | Privacy policy — no data collection, local-first by default |
-| [`../.github/SECURITY.md`](../.github/SECURITY.md)         | Security policy and vulnerability reporting                 |
-| [`../.github/CONTRIBUTING.md`](../.github/CONTRIBUTING.md) | Contribution guidelines                                     |
-| [`../LICENSE`](../LICENSE)                                 | Project license                                             |
+| File                                                       | What it covers                                                               |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [`../privacy.html`](../privacy.html)                       | Live GDPR-compliant Privacy & Cookie Policy page (served at `/privacy.html`) |
+| [`PRIVACY.md`](PRIVACY.md)                                 | Internal privacy reference — no data collection, local-first by default      |
+| [`../.github/SECURITY.md`](../.github/SECURITY.md)         | Security policy and vulnerability reporting                                  |
+| [`../.github/CONTRIBUTING.md`](../.github/CONTRIBUTING.md) | Contribution guidelines                                                      |
+| [`../LICENSE`](../LICENSE)                                 | Project license                                                              |

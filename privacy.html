@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Privacy &amp; Cookie Policy – KanTrack by BTi – Bossless Tech Industries" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'self';" />
+    <title>Privacy &amp; Cookie Policy – KanTrack</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0d0d0d;
+            --surface: #1a1a1a;
+            --surface-2: #222;
+            --border: rgba(255,255,255,0.08);
+            --text: #f0f0f0;
+            --muted: rgba(255,255,255,0.55);
+            --accent: #3b82f6;
+            --accent-muted: rgba(59,130,246,0.15);
+            --warn: rgba(249,115,22,0.12);
+        }
+
+        html { background: var(--bg); }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%);
+            min-height: 100vh;
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code {
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 0.85em;
+            background: rgba(255,255,255,0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ─── Header ─── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(20,20,20,0.96);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .site-header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .site-header-brand img { height: 28px; }
+        .site-header-back {
+            font-size: 0.85rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .site-header-back:hover { color: var(--text); text-decoration: none; }
+
+        /* ─── Hero ─── */
+        .hero {
+            padding: 56px 24px 40px;
+            text-align: center;
+        }
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: var(--accent-muted);
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -.03em;
+            margin-bottom: 14px;
+        }
+        .hero-lead {
+            font-size: 1.05rem;
+            color: var(--muted);
+            max-width: 560px;
+            margin: 0 auto 12px;
+        }
+        .hero-date {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.35);
+        }
+
+        /* ─── Layout ─── */
+        .content-wrapper {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 28px;
+            align-items: start;
+        }
+        @media (max-width: 700px) {
+            .content-wrapper { grid-template-columns: 1fr; }
+            .sidebar { order: -1; }
+        }
+
+        /* ─── Cards ─── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px 24px;
+            margin-bottom: 16px;
+        }
+        .card h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .card p, .card li {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.75;
+        }
+        .card p + p { margin-top: 10px; }
+        .card ul {
+            padding-left: 18px;
+            margin-top: 8px;
+        }
+        .card ul li { margin-bottom: 6px; }
+        .card strong { color: rgba(255,255,255,0.82); }
+        .card em { color: rgba(255,255,255,0.65); }
+
+        /* ─── Sidebar / Quick summary ─── */
+        .sidebar { position: sticky; top: 72px; }
+        .sidebar .card {
+            background: var(--surface-2);
+        }
+        .sidebar .card > div:first-child {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: .01em;
+            margin-bottom: 14px;
+        }
+        .notice {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        .notice strong { color: rgba(255,255,255,0.88); display: block; margin-bottom: 2px; }
+        .notice span { color: var(--muted); }
+
+        /* ─── Local data table ─── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 0.85rem;
+        }
+        .data-table th {
+            text-align: left;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: 8px 10px;
+            color: var(--muted);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: top;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        .tag-local { background: rgba(34,197,94,0.15); color: #4ade80; }
+
+        /* ─── Footer ─── */
+        .site-footer {
+            border-top: 1px solid var(--border);
+            padding: 24px;
+            text-align: center;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.3);
+        }
+        .site-footer a { color: rgba(255,255,255,0.45); }
+        .site-footer a:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+        <a class="site-header-brand" href="index.html">
+            <img src="images/kantrack_logo.png" alt="KanTrack" />
+            KanTrack
+        </a>
+        <a class="site-header-back" href="index.html" onclick="window.close(); return false;">
+            ← Back to app
+        </a>
+    </header>
+
+    <section class="hero">
+        <div class="hero-kicker">Legal</div>
+        <h1>Privacy &amp; Cookie Policy</h1>
+        <p class="hero-lead">
+            No tracking. No ads. No data sent anywhere. Here's the full picture.
+        </p>
+        <p class="hero-date">Last updated: April 2026</p>
+    </section>
+
+    <div class="content-wrapper">
+
+        <!-- ─── Main content ─── -->
+        <main>
+
+            <div class="card">
+                <h2>1. Who we are</h2>
+                <p>
+                    KanTrack is developed and operated by <strong>BTi – Bossless Tech Industries</strong>, a small software studio based in <strong>Portugal</strong>.
+                    BTi – Bossless Tech Industries is the data controller within the meaning of the General Data Protection Regulation (GDPR — EU 2016/679) for any personal data processed in connection with serving this application.
+                </p>
+                <p>
+                    For any questions regarding this policy or to exercise your rights, contact us at:
+                    <a href="mailto:general@bosslesstechindustries.com">general@bosslesstechindustries.com</a>.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>2. How KanTrack works — a local-first app</h2>
+                <p>
+                    KanTrack is a <strong>local-first application</strong>. All your tasks, notes, tags, and preferences are stored exclusively on <strong>your own device</strong> — in your browser's IndexedDB and localStorage — and are <strong>never transmitted to any server</strong>, including ours.
+                </p>
+                <p>
+                    No account is required. No login exists. KanTrack has no backend and no database of its own. The application is delivered to your browser as static files, and everything you do inside it stays on your device.
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Where it lives</th>
+                            <th>Who controls it</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tasks, notes, tags, priorities, history</td>
+                            <td>Your device (IndexedDB)</td>
+                            <td><span class="tag tag-local">You</span></td>
+                        </tr>
+                        <tr>
+                            <td>Notebook pages &amp; embedded images</td>
+                            <td>Your device (IndexedDB)</td>
+                            <td><span class="tag tag-local">You</span></td>
+                        </tr>
+                        <tr>
+                            <td>UI preferences &amp; permanent notes</td>
+                            <td>Your device (localStorage)</td>
+                            <td><span class="tag tag-local">You</span></td>
+                        </tr>
+                        <tr>
+                            <td>Encryption keys (encrypted exports)</td>
+                            <td>Never stored — derived per session</td>
+                            <td><span class="tag tag-local">You</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top:14px;">
+                    You can <strong>export</strong> all your data at any time (JSON, encrypted JSON, HTML, PDF) and <strong>delete</strong> it in full from within the app. KanTrack functions entirely offline once loaded.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>3. Data we (or our infrastructure) may process</h2>
+                <p>
+                    KanTrack itself collects no personal data. However, like any website, serving the application files involves network requests. When your browser loads KanTrack, standard HTTP request data — including your <strong>IP address</strong> and request metadata (browser type, timestamp, requested resource) — is processed by our hosting provider as part of delivering the service.
+                </p>
+                <p>
+                    <strong>Lawful basis (GDPR Art. 6):</strong> This processing is necessary for the performance of delivering the service to you (Art. 6(1)(b)) and on the basis of our legitimate interest in operating a secure, reliable infrastructure (Art. 6(1)(f)).
+                </p>
+                <p>
+                    <strong>Retention:</strong> Standard server logs (if any are retained at all) are subject to our hosting provider's retention policy. See Section 5 for details on Cloudflare's practices. We do not independently retain server logs.
+                </p>
+                <p>
+                    KanTrack does <strong>not</strong> collect: email addresses, usernames, analytics events, click or page-view data, behavioral metrics, device fingerprints, or any other personal data.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>4. Cookies</h2>
+                <p>
+                    <strong>We do not set any first-party cookies.</strong>
+                </p>
+                <p>
+                    KanTrack uses your browser's IndexedDB and localStorage — not cookies — to persist your data locally. There are no session cookies, preference cookies, analytics cookies, or advertising cookies set by this application.
+                    No cookie consent banner is required because we do not use cookies that require consent.
+                </p>
+                <p>
+                    <strong>Cloudflare technical cookies:</strong> KanTrack is served through Cloudflare's network. As part of its bot management and DDoS-protection infrastructure, Cloudflare may set strictly necessary technical cookies (such as <code>__cf_bm</code>) on your device. These cookies are set by Cloudflare, not by us, and are strictly necessary for the security and integrity of the service. They do not track you across websites, do not require your consent under the ePrivacy Directive, and are governed by <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's Privacy Policy</a>.
+                </p>
+                <p>
+                    Should any non-essential cookies be introduced in a future version of this application, this policy will be updated and any required consent mechanism will be put in place before their use.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>5. Third-party services &amp; data processors</h2>
+                <p>
+                    KanTrack is hosted on <strong>Cloudflare Pages</strong> (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). As our hosting provider, Cloudflare acts as a <strong>data processor</strong> on our behalf within the meaning of GDPR Art. 28. In this capacity, Cloudflare may process certain technical data (such as IP addresses and HTTP request metadata) as part of providing hosting, CDN, and DDoS-protection services.
+                </p>
+                <p>
+                    Cloudflare's processing is subject to a Data Processing Addendum (DPA) in accordance with GDPR Art. 28, and data transfers outside the EEA are governed by Standard Contractual Clauses (SCCs). For further details, see <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's Privacy Policy</a>.
+                </p>
+                <p>
+                    KanTrack does not embed any social media widgets, advertising networks, analytics scripts, or other third-party services. All application code is self-hosted. The application's Content Security Policy enforces this by blocking any external script execution.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>6. Your rights (GDPR)</h2>
+                <p>
+                    If you are located in the European Union or European Economic Area, you have the following rights under the GDPR. As described above, the only personal data we may hold about you is standard HTTP request data processed by our hosting infrastructure. Your rights are listed below in full for transparency:
+                </p>
+                <ul>
+                    <li><strong>Right of access (Art. 15)</strong> — you may request confirmation of whether we hold any personal data about you, and a copy of it.</li>
+                    <li><strong>Right to rectification (Art. 16)</strong> — you may ask us to correct inaccurate or incomplete data.</li>
+                    <li><strong>Right to erasure (Art. 17)</strong> — you may ask us to delete any personal data we hold, where no legal obligation requires us to retain it.</li>
+                    <li><strong>Right to restriction of processing (Art. 18)</strong> — you may ask us to restrict how we use your data in certain circumstances.</li>
+                    <li><strong>Right to data portability (Art. 20)</strong> — where processing is based on consent or contract and carried out by automated means, you may request your data in a structured, machine-readable format.</li>
+                    <li><strong>Right to object (Art. 21)</strong> — you may object to processing based on legitimate interest. We will stop unless we can demonstrate compelling legitimate grounds.</li>
+                    <li><strong>Right to lodge a complaint (Art. 77)</strong> — you have the right to file a complaint with your local data protection authority. In Portugal, the competent authority is the <a href="https://www.cnpd.pt" target="_blank" rel="noopener noreferrer">CNPD — Comissão Nacional de Proteção de Dados</a>.</li>
+                </ul>
+                <p>
+                    Regarding your <strong>task data, notes, and all other app content</strong>: this data is stored exclusively on your own device and is under your sole control. You can export or permanently delete it at any time from within the KanTrack application — no request to us is needed.
+                </p>
+                <p>
+                    To exercise any rights regarding infrastructure-level data, contact us at <a href="mailto:general@bosslesstechindustries.com">general@bosslesstechindustries.com</a>. We will respond within 30 days as required by GDPR Art. 12.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>7. Changes to this policy</h2>
+                <p>
+                    We may update this policy from time to time. Any changes will be posted on this page with an updated date. Since we do not collect your email address, we cannot notify you directly — please check back if you have questions.
+                </p>
+            </div>
+
+        </main>
+
+        <!-- ─── Sidebar ─── -->
+        <aside class="sidebar">
+            <div class="card">
+                <div>Quick summary</div>
+                <div class="notice">
+                    <strong>Your data stays on your device</strong>
+                    <span>Tasks, notes, and settings are never sent anywhere. You're in full control.</span>
+                </div>
+                <div class="notice">
+                    <strong>No cookies</strong>
+                    <span>We don't set any cookies. Cloudflare may set strictly necessary technical ones.</span>
+                </div>
+                <div class="notice">
+                    <strong>No tracking</strong>
+                    <span>No analytics, no ads, no tracking pixels — ever.</span>
+                </div>
+                <div class="notice">
+                    <strong>No data sales</strong>
+                    <span>We never sell or share your data with third parties.</span>
+                </div>
+                <div class="notice" style="margin-bottom:0;">
+                    <strong>Questions?</strong>
+                    <span><a href="mailto:general@bosslesstechindustries.com">Email us anytime.</a></span>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <footer class="site-footer">
+        <p>
+            © <span id="year"></span> BTi – Bossless Tech Industries ·
+            <a href="index.html" onclick="window.close(); return false;">Back to KanTrack</a>
+        </p>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

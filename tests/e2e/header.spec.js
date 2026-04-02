@@ -61,10 +61,10 @@ test.describe('KanTrack header UI', () => {
 
   // ── Credit button ─────────────────────────────────────────────────────────
 
-  test('credit button is visible and contains "BTi"', async ({ page }) => {
+  test('credit button is visible and links to the BTi website', async ({ page }) => {
     const credit = page.locator('.header-credit-btn');
     await expect(credit).toBeVisible();
-    await expect(credit).toContainText('BTi');
+    await expect(credit).toHaveAttribute('href', 'https://www.bosslesstechindustries.com');
   });
 
   // ── Info dropdown ─────────────────────────────────────────────────────────
