@@ -1652,60 +1652,37 @@
   color: rgba(255, 255, 255, 0.92);
 }
 
-.about-footer-sep {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.2);
-}
-
-.about-privacy-link {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.about-privacy-link:hover {
-  color: rgba(255, 255, 255, 0.92);
-}
-
-/* ── Support modal links ── */
-.support-modal-cta-link {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.support-modal-cta-link:hover {
-  color: #60a5fa;
-  text-decoration: underline;
+/* Support Us Modal */
+.support-modal-content {
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 2rem 2rem 1.75rem;
+  margin: 0;
 }
 
 .support-modal-cta {
-  display: flex;
-  justify-content: center;
-  margin-top: 0.25rem;
+  text-align: center;
+  padding: 0.75rem 0 0.25rem;
 }
 
-.support-modal-cta .support-modal-cta-link {
-  display: inline-block;
-  padding: 10px 32px;
-  background: #3b82f6;
-  color: #fff;
-  border-radius: 8px;
+.support-modal-cta p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+.support-modal-cta-link {
   font-weight: 700;
-  font-size: 0.9rem;
-  letter-spacing: 0.03em;
+  color: #fbbf24;
   text-decoration: none;
+  border-bottom: 2px solid rgba(251, 191, 36, 0.4);
   transition:
-    background 0.2s ease,
-    transform 0.15s ease;
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.support-modal-cta .support-modal-cta-link:hover {
-  background: #2563eb;
-  color: #fff;
-  text-decoration: none;
-  transform: translateY(-1px);
+.support-modal-cta-link:hover {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.7);
 }

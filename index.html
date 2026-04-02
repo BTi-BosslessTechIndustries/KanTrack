@@ -26,9 +26,9 @@
 				</svg>
 			</button>
 			<div class="header-divider"></div>
-			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn" aria-label="Developed by BTi – Bossless Tech Industries">
-				<img src="images/bti-logo.png" alt="BTi – Bossless Tech Industries" class="header-credit-logo">
-			</a>
+			<div class="header-logo">
+				<img src="images/kantrack_logo.png" alt="KanTrack">
+			</div>
 			<button class="support-us-btn" data-action="support:open" aria-label="Support Us">
 				☕ Support Us
 			</button>
@@ -443,14 +443,14 @@
             <div class="about-modal-section">
                 <p class="about-intro">
                     KanTrack is a privacy-first, local-only Kanban board built for focus and clarity.
-                    No accounts. No cloud. No distractions — just you and your work.
+                    No accounts. No cloud. No distractions. Just you and your work.
                 </p>
             </div>
 
             <div class="about-modal-section">
                 <h3>Features</h3>
                 <ul class="about-modal-features">
-                    <li>Four-column board — To Do, In Progress, On Hold, Done</li>
+                    <li>Four-column board - To Do, In Progress, On Hold, Done</li>
                     <li>Rich task details with notes, timers, priorities, due dates &amp; tags</li>
                     <li>Built-in Notebook for freeform notes and documentation</li>
                     <li>World clocks and chronometer widgets</li>
@@ -469,19 +469,19 @@
                     <tbody>
                         <tr>
                             <td>Tasks, notes, tags, history</td>
-                            <td>localStorage + IndexedDB — your browser only</td>
+                            <td>localStorage + IndexedDB -> your browser only</td>
                         </tr>
                         <tr>
                             <td>Notebook pages &amp; images</td>
-                            <td>IndexedDB — your browser only</td>
+                            <td>IndexedDB -> your browser only</td>
                         </tr>
                         <tr>
                             <td>UI preferences</td>
-                            <td>localStorage — your browser only</td>
+                            <td>localStorage -> your browser only</td>
                         </tr>
                         <tr>
                             <td>Encryption keys</td>
-                            <td>Never stored — derived per-session from your password</td>
+                            <td>Never stored -> derived per-session from your password</td>
                         </tr>
                     </tbody>
                 </table>
@@ -493,21 +493,21 @@
             <div class="about-modal-section">
                 <h3>What KanTrack Protects Against</h3>
                 <ul class="about-modal-features">
-                    <li>XSS via imported data — an allowlist-based sanitizer strips all event handlers and unsafe tags before any HTML is rendered to the page</li>
-                    <li>Inline script injection — a strict Content Security Policy (<code>script-src 'self'</code>) blocks inline scripts and <code>javascript:</code> URL execution</li>
-                    <li>Malicious import files — the sanitizer also runs on content from imported <code>.kantrack.json</code> workspace files</li>
+                    <li>XSS via imported data - an allowlist-based sanitizer strips all event handlers and unsafe tags before any HTML is rendered to the page</li>
+                    <li>Inline script injection - a strict Content Security Policy (<code>script-src 'self'</code>) blocks inline scripts and <code>javascript:</code> URL execution</li>
+                    <li>Malicious import files - the sanitizer also runs on content from imported <code>.kantrack.json</code> workspace files</li>
                     <li>Encrypted exports use AES-256-GCM with PBKDF2 key derivation (100,000 iterations, SHA-256)</li>
                 </ul>
             </div>
 
             <div class="about-modal-section">
-                <h3>Known Limitations — Read These</h3>
+                <h3>Known Limitations - Read These</h3>
                 <ul class="about-modal-features about-modal-features--warn">
-                    <li>Device compromise — if your device is infected or physically accessed, data in localStorage and IndexedDB is readable. KanTrack cannot protect against OS-level access.</li>
-                    <li>Browser extensions — extensions with broad permissions can read page content and storage. Use a minimal-extension browser profile for sensitive data.</li>
-                    <li>Unencrypted exports — standard <code>.kantrack.json</code> exports are plain JSON. Use the encrypted export for sensitive data.</li>
-                    <li>Data at rest — KanTrack does not encrypt data in localStorage or IndexedDB. Anyone with access to your logged-in account can read it via browser DevTools.</li>
-                    <li>Password strength — the encrypted export is only as strong as the password you choose.</li>
+                    <li>Device compromise - if your device is infected or physically accessed, data in localStorage and IndexedDB is readable. KanTrack cannot protect against OS-level access.</li>
+                    <li>Browser extensions - extensions with broad permissions can read page content and storage. Use a minimal-extension browser profile for sensitive data.</li>
+                    <li>Unencrypted exports - standard <code>.kantrack.json</code> exports are plain JSON. Use the encrypted export for sensitive data.</li>
+                    <li>Data at rest - KanTrack does not encrypt data in localStorage or IndexedDB. Anyone with access to your logged-in account can read it via browser DevTools.</li>
+                    <li>Password strength - the encrypted export is only as strong as the password you choose.</li>
                 </ul>
                 <p class="about-honest-note">We cannot protect your data if your device is compromised. That is an honest limitation we cannot engineer away.</p>
             </div>
@@ -571,6 +571,46 @@
         </div>
     </div>
 
+    <!-- Support Us Modal -->
+    <div id="supportModal" class="modal support-modal" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle" style="display:none;">
+        <div class="modal-content support-modal-content">
+            <span class="modal-close" data-action="support:close" aria-label="Close">&times;</span>
+            <h2 id="supportModalTitle">Support KanTrack ☕</h2>
+
+            <div class="about-modal-section">
+                <p class="about-intro">
+                    KanTrack is free and always will be! No ads, no accounts required, no tracking. We built it this way on purpose, because we believe your workspace is yours alone.
+                </p>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>Why your support matters</h3>
+                <p class="about-privacy-note">
+                    Keeping KanTrack alive has real costs, the domain, the infrastructure, and the time it takes to build things right. There are no investors or corporate backing behind this. It's just us, building something we believe in. If KanTrack helps you stay organized and clear-headed, a coffee goes a long way.
+                </p>
+            </div>
+
+            <div class="about-modal-divider"></div>
+
+            <div class="about-modal-section">
+                <h3>What we're building next</h3>
+                <p class="about-privacy-note">Your support helps fund the next chapter of KanTrack:</p>
+                <ul class="about-modal-features">
+                    <li><strong>Encrypted Cloud Vault</strong> - zero-knowledge backup. The server will never be able to read your data, only you can.</li>
+                    <li><strong>Multi-device Sync</strong> - your board, seamlessly current across all your devices, with conflict resolution that stays out of your way.</li>
+                </ul>
+                <p class="about-privacy-note">All of this is optional. Local Mode stays free and fully featured, forever. No paywalls on existing features, ever.</p>
+                <p class="about-privacy-note">Your support also helps fund our other open projects. See what we're working on <a href="https://bosslesstechindustries.com/projects" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link">here</a>.</p>
+            </div>
+
+            <div class="about-modal-divider"></div>
+
+            <div class="support-modal-cta">
+                <p>To support us <a href="https://paypal.me/btibossless" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link">CLICK HERE</a></p>
+            </div>
+        </div>
+    </div>
+
     <!-- Help Dialog -->
     <div id="shortcutsModal" class="modal shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle" style="display:none;">
         <div class="modal-content shortcuts-modal-content">
@@ -605,7 +645,7 @@
             <div class="help-section">
                 <h3>Exports &amp; Imports</h3>
 
-                <p class="help-section-label">Board — controls at the bottom of the board</p>
+                <p class="help-section-label">Board - controls at the bottom of the board</p>
                 <table class="help-exports-table">
                     <thead>
                         <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
@@ -613,18 +653,18 @@
                     <tbody>
                         <tr>
                             <td><code>.kantrack.json</code> full</td>
-                            <td>Everything — tasks, tags, notebook pages &amp; images, clocks</td>
-                            <td>Yes — merge or replace</td>
+                            <td>Everything - tasks, tags, notebook pages &amp; images, clocks</td>
+                            <td>Yes - merge or replace</td>
                         </tr>
                         <tr>
                             <td><code>.kantrack.json</code> lite</td>
                             <td>Same as full, without embedded images (smaller file)</td>
-                            <td>Yes — merge or replace</td>
+                            <td>Yes - merge or replace</td>
                         </tr>
                         <tr>
                             <td><code>.kantrack.enc</code></td>
                             <td>Full backup, passphrase-encrypted</td>
-                            <td>Yes — passphrase required</td>
+                            <td>Yes - passphrase required</td>
                         </tr>
                         <tr>
                             <td><code>.html</code></td>
@@ -639,7 +679,7 @@
                     </tbody>
                 </table>
 
-                <p class="help-section-label">Notebook — controls inside the notebook sidebar</p>
+                <p class="help-section-label">Notebook - controls inside the notebook sidebar</p>
                 <table class="help-exports-table">
                     <thead>
                         <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
@@ -648,7 +688,7 @@
                         <tr>
                             <td>Folder / All pages <code>.zip</code></td>
                             <td>Pages &amp; images, folder structure preserved</td>
-                            <td>Yes — via notebook import button</td>
+                            <td>Yes - via notebook import button</td>
                         </tr>
                         <tr>
                             <td>Page <code>.pdf</code></td>
@@ -658,7 +698,7 @@
                     </tbody>
                 </table>
 
-                <p class="help-exports-note">On import, <strong>Merge</strong> adds new items without touching existing ones. <strong>Replace</strong> overwrites everything — an automatic lightweight backup is downloaded first.</p>
+                <p class="help-exports-note">On import, <strong>Merge</strong> adds new items without touching existing ones. <strong>Replace</strong> overwrites everything - an automatic lightweight backup is downloaded first.</p>
             </div>
         </div>
     </div>
@@ -669,3 +709,4 @@
 
 </body>
 </html>
+

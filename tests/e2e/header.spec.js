@@ -6,7 +6,7 @@
  *   2.  ESC closes the Support modal.
  *   3.  Clicking the Support modal backdrop closes it.
  *   4.  Clicking the close button on the Support modal closes it.
- *   5.  Credit button links to the BTi website.
+ *   5.  Credit button contains "BTi".
  *   6.  Clicking the ⋮ menu button opens the dropdown.
  *   7.  Clicking outside the dropdown closes it.
  *   8.  "About KanTrack" item opens the About modal.
