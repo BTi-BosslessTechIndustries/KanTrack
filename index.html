@@ -8,6 +8,7 @@
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self';"
     />
     <title>KanTrack</title>
+    <link rel="icon" type="image/png" href="images/kantrack_icon.png">
     <!-- Link to External CSS -->
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/components.css">
@@ -25,17 +26,17 @@
 				</svg>
 			</button>
 			<div class="header-divider"></div>
+			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn" aria-label="Developed by BTi – Bossless Tech Industries">
+				<img src="images/bti-logo.png" alt="BTi – Bossless Tech Industries" class="header-credit-logo">
+			</a>
+			<button class="support-us-btn" data-action="support:open" aria-label="Support Us">
+				☕ Support Us
+			</button>
+		</div>
+		<div class="header-center">
 			<div class="header-logo">
 				<img src="images/kantrack_logo.png" alt="KanTrack">
 			</div>
-			<a href="https://buymeacoffee.com/bosslesstechindustries" target="_blank" rel="noopener noreferrer" class="support-us-btn" aria-label="Support Us on Buy Me a Coffee">
-				☕ Support Us
-			</a>
-		</div>
-		<div class="header-center">
-			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn">
-				Developed by BTi – Bossless Tech Industries
-			</a>
 		</div>
 		<div class="header-right">
 			<div class="header-undo-redo">
@@ -64,6 +65,7 @@
 					<button class="header-dropdown-item" data-action="about:open" role="menuitem">About KanTrack</button>
 					<a class="header-dropdown-item" href="https://github.com/BTi-BosslessTechIndustries/KanTrack" target="_blank" rel="noopener noreferrer" role="menuitem">View the Code</a>
 					<button class="header-dropdown-item" data-action="shortcuts:open" role="menuitem">Help</button>
+					<a class="header-dropdown-item" href="privacy.html" target="_blank" rel="noopener noreferrer" role="menuitem">Privacy Policy</a>
 				</div>
 			</div>
 			<div class="header-divider"></div>
@@ -523,6 +525,48 @@
             <div class="about-modal-section about-modal-section--footer">
                 <span class="about-built-by">Built by</span>
                 <a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="about-bti-link">BTi – Bossless Tech Industries</a>
+                <span class="about-footer-sep">·</span>
+                <a href="privacy.html" target="_blank" rel="noopener noreferrer" class="about-privacy-link">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Us Modal -->
+    <div id="supportModal" class="modal support-modal" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle" style="display:none;">
+        <div class="modal-content support-modal-content">
+            <span class="modal-close" data-action="support:close" aria-label="Close">&times;</span>
+            <h2 id="supportModalTitle">Support KanTrack ☕</h2>
+
+            <div class="about-modal-section">
+                <p class="about-intro">
+                    KanTrack is free and always will be! No ads, no accounts required, no tracking. We built it this way on purpose, because we believe your workspace is yours alone.
+                </p>
+            </div>
+
+            <div class="about-modal-section">
+                <h3>Why your support matters</h3>
+                <p class="about-privacy-note">
+                    Keeping KanTrack alive has real costs, the domain, the infrastructure, and the time it takes to build things right. There are no investors or corporate backing behind this. It's just us, building something we believe in. If KanTrack helps you stay organized and clear-headed, a coffee goes a long way.
+                </p>
+            </div>
+
+            <div class="about-modal-divider"></div>
+
+            <div class="about-modal-section">
+                <h3>What we're building next</h3>
+                <p class="about-privacy-note">Your support helps fund the next chapter of KanTrack:</p>
+                <ul class="about-modal-features">
+                    <li><strong>Encrypted Cloud Vault</strong> - zero-knowledge backup. The server will never be able to read your data, only you can.</li>
+                    <li><strong>Multi-device Sync</strong> - your board, seamlessly current across all your devices, with conflict resolution that stays out of your way.</li>
+                </ul>
+                <p class="about-privacy-note">All of this is optional. Local Mode stays free and fully featured, forever. No paywalls on existing features, ever.</p>
+                <p class="about-privacy-note">Your support also helps fund our other open projects. See what we're working on <a href="https://bosslesstechindustries.com/projects" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link">here</a>.</p>
+            </div>
+
+            <div class="about-modal-divider"></div>
+
+            <div class="support-modal-cta">
+                <a href="https://paypal.me/btibossless" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link">Support Us</a>
             </div>
         </div>
     </div>

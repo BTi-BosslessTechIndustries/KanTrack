@@ -90,6 +90,7 @@ npx playwright install chromium
 KanTrack/
 │
 ├── index.html                   # App entry point (Vite root)
+├── privacy.html                 # Privacy & Cookie Policy page (GDPR)
 │
 ├── scripts/                     # Application source code
 │   ├── kantrack.js              # Bootstrap: registers all actions, inits router + store
@@ -136,7 +137,7 @@ KanTrack/
 │   ├── product/                 # Product vision and marketing docs
 │   └── vision/                  # Manifesto and mission
 │
-├── images/                      # Static assets (logo)
+├── images/                      # Static assets (kantrack_logo.png, kantrack_icon.png, bti-logo.png)
 │
 ├── .github/
 │   ├── workflows/ci.yml         # CI: lint + typecheck + test + build + e2e

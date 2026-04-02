@@ -35,7 +35,7 @@ tests/
     ├── import-export.spec.js # Playwright E2E: export/import round-trips (Phase 4)
     ├── performance.spec.js   # Playwright E2E: virtual list DOM node budget (Phase 5)
     ├── search.spec.js        # Playwright E2E: live search, case-insensitivity, ESC clear, no-match
-    ├── header.spec.js        # Playwright E2E: header UI — dropdown, About modal, Shortcuts modal
+    ├── header.spec.js        # Playwright E2E: header UI — Support Us modal, credit button, dropdown, About modal, Shortcuts modal
     └── README.md
 ```
 

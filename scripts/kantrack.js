@@ -138,6 +138,33 @@ function closeAboutModal() {
 }
 
 /***********************
+ * SUPPORT MODAL
+ ***********************/
+let _supportTrap = null;
+let _supportReturnFocus = null;
+
+function openSupportModal() {
+  const modal = document.getElementById('supportModal');
+  if (!modal) return;
+  _supportReturnFocus = document.activeElement;
+  modal.style.display = 'flex';
+  _supportTrap = createFocusTrap(modal);
+  _supportTrap.activate();
+  const content = modal.querySelector('.modal-content');
+  if (content) content.scrollTop = 0;
+}
+
+function closeSupportModal() {
+  const modal = document.getElementById('supportModal');
+  if (!modal) return;
+  _supportTrap?.deactivate();
+  _supportTrap = null;
+  modal.style.display = 'none';
+  _supportReturnFocus?.focus();
+  _supportReturnFocus = null;
+}
+
+/***********************
  * HEADER MENU DROPDOWN
  ***********************/
 function toggleHeaderMenu() {
@@ -194,6 +221,10 @@ registerAction('shortcuts:open', () => openShortcutsDialog());
 // About modal
 registerAction('about:open', () => openAboutModal());
 registerAction('about:close', () => closeAboutModal());
+
+// Support modal
+registerAction('support:open', () => openSupportModal());
+registerAction('support:close', () => closeSupportModal());
 
 // Header menu dropdown
 registerAction('menu:toggle', () => toggleHeaderMenu());
@@ -577,6 +608,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'addClockModal',
       'shortcutsModal',
       'aboutModal',
+      'supportModal',
     ];
     return ids.some(id => {
       const el = document.getElementById(id);
@@ -617,6 +649,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const aboutModal = document.getElementById('aboutModal');
     if (isOpen(aboutModal)) {
       closeAboutModal();
+      return;
+    }
+    const supportModal = document.getElementById('supportModal');
+    if (isOpen(supportModal)) {
+      closeSupportModal();
       return;
     }
     if (isOpen(trashPanel)) toggleTrashPanel();
@@ -772,6 +809,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    const supportModal = document.getElementById('supportModal');
+    if (e.target === supportModal) {
+      closeSupportModal();
+      return;
+    }
+
     if (e.target === addClockModal) {
       closeAddClockModal();
       return;
@@ -843,6 +886,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         else if (modal.id === 'addClockModal') closeAddClockModal();
         else if (modal.id === 'pageModal') closePageModal();
         else if (modal.id === 'aboutModal') closeAboutModal();
+        else if (modal.id === 'supportModal') closeSupportModal();
         else if (modal.id === 'shortcutsModal') closeShortcutsDialog();
       }
     });

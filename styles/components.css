@@ -1651,3 +1651,61 @@
 .about-bti-link:hover {
   color: rgba(255, 255, 255, 0.92);
 }
+
+.about-footer-sep {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.about-privacy-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.about-privacy-link:hover {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ── Support modal links ── */
+.support-modal-cta-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.support-modal-cta-link:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.support-modal-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.support-modal-cta .support-modal-cta-link {
+  display: inline-block;
+  padding: 10px 32px;
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.support-modal-cta .support-modal-cta-link:hover {
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
