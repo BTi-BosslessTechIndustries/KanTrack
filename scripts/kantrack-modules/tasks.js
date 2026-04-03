@@ -19,7 +19,12 @@ import { showQuickTimeMenu, LONG_PRESS_THRESHOLD } from './timer.js';
 import { exportTaskAsPDF } from './export.js';
 import { enableTouchDrag, setDraggedItemRef } from './drag-drop.js';
 import { moveToTrash, recordAction } from './undo.js';
-import { renderTaskTagsHTML, getTaskTags } from './tags.js';
+import {
+  renderTaskTagsHTML,
+  getTaskTags,
+  cleanupUnusedTags,
+  renderTagFilterButtons,
+} from './tags.js';
 import { renderDueDateHTML, getDueDateStatus } from './due-dates.js';
 import { deepClone } from './utils.js';
 
@@ -195,18 +200,18 @@ export async function deleteNote(id, addToHistory = true) {
       description: `Delete task "${task.title.substring(0, 30)}..."`,
     });
 
-    // Move to trash for recovery
-    moveToTrash(deepClone(task));
-
-    await deleteTaskImages(id);
-
-    const taskColumn = task.column; // save before marking deleted
+    const taskColumn = task.column; // save before modifying task
     task.deleted = true;
 
     if (addToHistory) {
       const timestamp = new Date().toLocaleString();
       task.actions.push({ action: 'Deleted', timestamp, type: 'deleted' });
     }
+
+    // Move to trash AFTER adding the Deleted history entry so the trash copy includes it
+    moveToTrash(deepClone(task));
+
+    await deleteTaskImages(id);
 
     saveNotesToLocalStorage();
 
@@ -216,6 +221,9 @@ export async function deleteNote(id, addToHistory = true) {
       const domEl = document.querySelector(`[data-id='${id}']`);
       if (domEl) domEl.remove();
     }
+
+    // Refresh filter bar — frequency changes when a task is removed
+    renderTagFilterButtons();
 
     // Update column counts and trash badge
     window.dispatchEvent(new Event('kantrack:updateColumnCounts'));

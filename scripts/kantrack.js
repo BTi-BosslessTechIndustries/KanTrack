@@ -349,16 +349,36 @@ function restoreFromTrashUI(taskId) {
   if (task) {
     delete task.deleted;
 
-    state.notesData.push(task);
+    // Add a history entry so the task log shows the restoration
+    if (!task.actions) task.actions = [];
+    task.actions.push({
+      action: 'Restored from trash',
+      timestamp: new Date().toLocaleString(),
+      type: 'status',
+    });
+
+    // Replace the soft-deleted entry in state.notesData rather than pushing a
+    // second copy — the original entry (with deleted:true) is still in the array.
+    const existingIndex = state.notesData.findIndex(t => t.id === task.id);
+    if (existingIndex !== -1) {
+      state.notesData.splice(existingIndex, 1, task);
+    } else {
+      state.notesData.push(task);
+    }
     saveNotesToLocalStorage();
 
-    const noteElement = createNoteElement(task);
-    const col = document.getElementById(task.column);
-    if (col) col.appendChild(noteElement);
+    if (getColumnVirtualList(task.column)) {
+      updateColumnVirtualList(task.column);
+    } else {
+      const noteElement = createNoteElement(task);
+      const col = document.getElementById(task.column);
+      if (col) col.appendChild(noteElement);
+      sortAllColumnsByPriority();
+    }
 
-    sortAllColumnsByPriority();
     applyFilters();
     updateColumnCounts();
+    renderTagFilterButtons();
     renderTrashList();
     showSuccess('Task restored');
   }
@@ -369,6 +389,8 @@ function permanentDeleteUI(taskId) {
   const id = /^\d+$/.test(String(taskId)) ? parseInt(taskId, 10) : taskId;
   if (confirm('Permanently delete this task? This cannot be undone.')) {
     permanentlyDelete(id);
+    cleanupUnusedTags();
+    renderTagFilterButtons();
     renderTrashList();
     showSuccess('Task permanently deleted');
   }
@@ -380,6 +402,8 @@ function emptyAllTrash() {
 
   if (confirm(`Permanently delete all ${count} item(s) in trash? This cannot be undone.`)) {
     emptyTrash();
+    cleanupUnusedTags();
+    renderTagFilterButtons();
     renderTrashList();
     showSuccess('Trash emptied');
   }

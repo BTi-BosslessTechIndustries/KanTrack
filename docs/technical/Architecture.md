@@ -340,7 +340,10 @@ Every action is also written to IDB `oplog` store asynchronously (fire-and-forge
 
 ### Trash (Soft Delete)
 
-Deleted tasks move to `trashedTasks[]`. Persisted in IDB `trash` store. `TRASH_SOFT_CAP = 200` — oldest entries auto-purged when limit is exceeded. Users can restore or permanently delete from the trash panel.
+Deleted tasks are soft-deleted (`task.deleted = true`) in `state.notesData` and simultaneously cloned to `trashedTasks[]` (persisted in IDB `trash` store). Keeping the soft-deleted entry in `state.notesData` ensures tag cleanup and due-date queries can correctly exclude or account for them. `TRASH_SOFT_CAP = 200` — oldest entries auto-purged when limit is exceeded. Users can restore or permanently delete from the trash panel.
+
+- **Restore** — removes `task.deleted`, pushes a "Restored from trash" history entry, replaces the soft-deleted entry in `state.notesData` in-place (preventing duplicates).
+- **Permanent delete / empty trash** — removes entries from both `trashedTasks[]` and `state.notesData`, then calls `cleanupUnusedTags()`.
 
 ### Oplog Compaction
 
@@ -378,10 +381,11 @@ Input events are debounced 200 ms before `applyFilters()` runs, preventing per-k
 
 ```ts
 {
-  id: string; // derived: name.toLowerCase().replace(/[^a-z0-9]/g, '-')
-  name: string; // display name (max 20 chars)
-  colorIndex: number; // 0–9 index into TAG_COLORS[]
-  pinned: boolean; // if true, shown in the filter bar
+  id: string;          // derived: name.toLowerCase().replace(/[^a-z0-9]/g, '-')
+  name: string;        // display name (max 20 chars)
+  colorIndex: number;  // 0–9 index into TAG_COLORS[]
+  pinned: boolean;     // if true, shown in the filter bar
+  customColor?: string; // optional hex (e.g. "#8b5cf6") — overrides colorIndex
 }
 ```
 
@@ -389,15 +393,21 @@ Stored in IDB `tags` store. Up to **5 tags per task** (`MAX_TAGS_PER_TASK`).
 
 ### Color Palette
 
-10 predefined colours (red, orange, yellow, green, teal, blue, indigo, purple, pink, gray). Each has a foreground hex + a 20%-opacity background.
+10 predefined colours (red, orange, yellow, green, teal, blue, indigo, purple, pink, gray). Each has a foreground hex + a 20%-opacity background via `TAG_COLORS[]`. Tags can also use a custom hex colour set via `<input type="color">` in the tag creator; `resolveTagColor(tag)` selects between the two.
 
 ### Pinned Tags
 
 Pinned tags appear in the board's filter bar. Clicking a pinned tag adds it to `currentTagFilter`. Filter uses AND logic for multiple selections.
 
+Inside the task modal, pinned tags are also shown in a dedicated management panel above the dropdown, with **Assign** (add to task) and **Delete** (remove tag permanently) actions — removing the need to open the dropdown to manage pinned tags.
+
+### Tag Filter Matching
+
+`checkTaskVisibility()` in `search.js` compares tag IDs directly (`currentTagFilter.some(id => taskTagIds.includes(id))`). Name-based comparison was removed to prevent false matches between tags with similar names.
+
 ### Cleanup
 
-`cleanupUnusedTags()` removes unpinned tags not referenced by any task. Called at boot and after task deletion.
+`cleanupUnusedTags()` removes unpinned tags not referenced by any task. It scans **all** tasks in `state.notesData`, including soft-deleted (trashed) ones, so a tag referenced only by a trashed task is preserved until that task is permanently deleted. Called at boot and after task deletion or permanent trash operations.
 
 ---
 

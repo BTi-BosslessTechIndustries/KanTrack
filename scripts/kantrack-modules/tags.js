@@ -114,14 +114,27 @@ export function getTagById(id) {
 export function getTagColor(tagId) {
   const tag = getTagById(tagId);
   if (!tag) return TAG_COLORS[9]; // default gray
+  return resolveTagColor(tag);
+}
 
+function resolveTagColor(tag) {
+  if (tag.customColor) {
+    return { color: tag.customColor, bg: hexToRgba(tag.customColor, 0.2) };
+  }
   return TAG_COLORS[tag.colorIndex] || TAG_COLORS[9];
+}
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 /**
  * Create a new tag
  */
-export function createTag(name, colorIndex = 9, pinned = false) {
+export function createTag(name, colorIndex = 9, pinned = false, customColor = null) {
   const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
   // Check for duplicate
@@ -135,6 +148,8 @@ export function createTag(name, colorIndex = 9, pinned = false) {
     colorIndex: Math.min(Math.max(0, colorIndex), TAG_COLORS.length - 1),
     pinned,
   };
+
+  if (customColor) tag.customColor = customColor;
 
   tagDefinitions.push(tag);
   saveTagDefinitions();
@@ -217,7 +232,8 @@ export function deleteTag(id) {
  * Removes tags that are not used by any task (keeps pinned tags)
  */
 export function cleanupUnusedTags() {
-  // Get all tag IDs currently in use
+  // Get all tag IDs used by any task — including soft-deleted (trashed) ones,
+  // because those tasks might be restored and their tag definitions must survive.
   const usedTagIds = new Set();
   state.notesData.forEach(task => {
     if (task.tags && task.tags.length > 0) {
@@ -355,43 +371,40 @@ export function renderTagSelector(taskId, container) {
             : '<button class="tag-add-btn" id="tagAddBtn">+ Add Tag</button>'
         }
       </div>
+      ${(() => {
+        const pinned = tagDefinitions.filter(t => t.pinned);
+        if (pinned.length === 0) return '';
+        return `
+      <div class="tag-pinned-mgmt">
+        <span class="tag-pinned-mgmt-label">Pinned Tags</span>
+        <div class="tag-pinned-mgmt-list">
+          ${pinned
+            .map(tag => {
+              const color = resolveTagColor(tag);
+              const isOnTask = currentTags.includes(tag.id);
+              return `
+            <span class="tag-pinned-mgmt-row">
+              <span class="tag-chip" style="background: ${color.bg}; color: ${color.color}; border-color: ${color.color};">${escapeHtml(tag.name)}</span>
+              ${
+                isOnTask
+                  ? '<span class="tag-pinned-on-task">On task</span>'
+                  : `<button class="tag-pinned-assign" data-tag-id="${tag.id}" title="Add to task" ${atMaxTags ? 'disabled' : ''}>Assign</button>`
+              }
+              <button class="tag-pinned-delete" data-tag-id="${tag.id}" title="Delete tag permanently from all tasks">Delete</button>
+            </span>`;
+            })
+            .join('')}
+        </div>
+      </div>`;
+      })()}
       <div class="tag-selector-dropdown" id="tagDropdown" style="display: none;">
         <div class="tag-dropdown-list">
           ${
-            pinnedTags.length > 0
-              ? `
-            <div class="tag-dropdown-section">
-              <span class="tag-dropdown-section-label">Pinned Tags</span>
-            </div>
-            ${pinnedTags
-              .map(tag => {
-                const color = TAG_COLORS[tag.colorIndex];
-                return `
-                <div class="tag-dropdown-row">
-                  <button class="tag-dropdown-item" data-tag-id="${tag.id}" style="--tag-color: ${color.color}; --tag-bg: ${color.bg};">
-                    <span class="tag-color-dot" style="background: ${color.color};"></span>
-                    ${escapeHtml(tag.name)}
-                  </button>
-                  <button class="tag-dropdown-pin pinned" data-tag-id="${tag.id}" title="Unpin tag">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>
-                    </svg>
-                  </button>
-                </div>
-              `;
-              })
-              .join('')}
-          `
-              : ''
-          }
-          ${
             unpinnedTags.length > 0
-              ? `
-            ${pinnedTags.length > 0 ? '<div class="tag-dropdown-section"><span class="tag-dropdown-section-label">Other Tags</span></div>' : ''}
-            ${unpinnedTags
-              .map(tag => {
-                const color = TAG_COLORS[tag.colorIndex];
-                return `
+              ? unpinnedTags
+                  .map(tag => {
+                    const color = resolveTagColor(tag);
+                    return `
                 <div class="tag-dropdown-row">
                   <button class="tag-dropdown-item" data-tag-id="${tag.id}" style="--tag-color: ${color.color}; --tag-bg: ${color.bg};">
                     <span class="tag-color-dot" style="background: ${color.color};"></span>
@@ -404,9 +417,8 @@ export function renderTagSelector(taskId, container) {
                   </button>
                 </div>
               `;
-              })
-              .join('')}
-          `
+                  })
+                  .join('')
               : ''
           }
           ${availableTags.length === 0 ? '<div class="tag-dropdown-empty">No saved tags. Create one below!</div>' : ''}
@@ -418,6 +430,10 @@ export function renderTagSelector(taskId, container) {
               (c, i) =>
                 `<button class="tag-color-option${i === 5 ? ' selected' : ''}" data-color-index="${i}" style="background: ${c.color};" title="${c.name}"></button>`
             ).join('')}
+            <label class="tag-color-custom" title="Custom color">
+              <input type="color" id="tagCustomColor" value="#8b5cf6">
+              <span class="tag-color-option tag-color-custom-btn" id="tagCustomColorBtn"></span>
+            </label>
           </div>
           <label class="tag-pin-checkbox">
             <input type="checkbox" id="newTagPinned"> Pin
@@ -444,6 +460,7 @@ function setupTagSelectorEvents(taskId, container) {
   const newTagPinnedCheckbox = container.querySelector('#newTagPinned');
 
   let selectedColorIndex = 5;
+  let selectedCustomColor = null;
 
   // Toggle dropdown
   addBtn?.addEventListener('click', e => {
@@ -473,6 +490,26 @@ function setupTagSelectorEvents(taskId, container) {
     });
   });
 
+  // Pinned tags management: assign to task
+  container.querySelectorAll('.tag-pinned-assign').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      addTagToTask(taskId, btn.dataset.tagId);
+      renderTagSelector(taskId, container);
+      state.setModalHasChanges(true);
+    });
+  });
+
+  // Pinned tags management: delete permanently from all tasks
+  container.querySelectorAll('.tag-pinned-delete').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteTag(btn.dataset.tagId);
+      renderTagSelector(taskId, container);
+      renderTagFilterButtons();
+    });
+  });
+
   // Pin/unpin tag from current tags
   container.querySelectorAll('.tag-chip .tag-pin').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -493,8 +530,8 @@ function setupTagSelectorEvents(taskId, container) {
     });
   });
 
-  // Color picker
-  colorPicker?.querySelectorAll('.tag-color-option').forEach(opt => {
+  // Preset color swatches
+  colorPicker?.querySelectorAll('.tag-color-option:not(.tag-color-custom-btn)').forEach(opt => {
     opt.addEventListener('click', e => {
       e.stopPropagation();
       colorPicker
@@ -502,8 +539,20 @@ function setupTagSelectorEvents(taskId, container) {
         .forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       selectedColorIndex = parseInt(opt.dataset.colorIndex);
+      selectedCustomColor = null;
     });
   });
+
+  // Custom color picker
+  const customColorInput = container.querySelector('#tagCustomColor');
+  const customColorBtn = container.querySelector('#tagCustomColorBtn');
+  customColorInput?.addEventListener('input', e => {
+    selectedCustomColor = e.target.value;
+    colorPicker.querySelectorAll('.tag-color-option').forEach(o => o.classList.remove('selected'));
+    customColorBtn.style.background = selectedCustomColor;
+    customColorBtn.classList.add('selected');
+  });
+  customColorInput?.addEventListener('click', e => e.stopPropagation());
 
   // Create new tag
   createTagBtn?.addEventListener('click', e => {
@@ -511,7 +560,7 @@ function setupTagSelectorEvents(taskId, container) {
     const name = newTagInput.value.trim();
     if (name) {
       const shouldPin = newTagPinnedCheckbox?.checked || false;
-      const tag = createTag(name, selectedColorIndex, shouldPin);
+      const tag = createTag(name, selectedColorIndex, shouldPin, selectedCustomColor);
       if (tag) {
         addTagToTask(taskId, tag.id);
         renderTagSelector(taskId, container);
@@ -544,25 +593,44 @@ export function renderTagFilterButtons() {
   const container = document.getElementById('tagFilters');
   if (!container) return;
 
-  const pinnedTags = getPinnedTags();
+  // Count tag frequency across all active (non-deleted) tasks
+  const tagFrequency = new Map();
+  state.notesData.forEach(task => {
+    if (task.deleted) return;
+    (task.tags || []).forEach(tagId => {
+      tagFrequency.set(tagId, (tagFrequency.get(tagId) || 0) + 1);
+    });
+  });
 
-  if (pinnedTags.length === 0) {
-    container.innerHTML = '<span class="no-tag-filters">Pin tags to filter by them</span>';
+  if (tagFrequency.size === 0) {
+    container.innerHTML =
+      '<span class="no-tag-filters">Assign tags to tasks to filter by them</span>';
     return;
   }
 
-  container.innerHTML = pinnedTags
+  // Sort by frequency descending, take top 8, resolve to tag definitions
+  const topTags = [...tagFrequency.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([id]) => getTagById(id))
+    .filter(Boolean);
+
+  if (topTags.length === 0) {
+    container.innerHTML =
+      '<span class="no-tag-filters">Assign tags to tasks to filter by them</span>';
+    return;
+  }
+
+  container.innerHTML = topTags
     .map(tag => {
-      const color = TAG_COLORS[tag.colorIndex];
+      const color = resolveTagColor(tag);
       return `<button class="tag-filter-btn" data-tag="${tag.id}" title="Filter by ${escapeHtml(tag.name)}" style="--tag-color: ${color.color}; --tag-bg: ${color.bg};">${escapeHtml(tag.name)}</button>`;
     })
     .join('');
 
-  // Re-attach event listeners
   container.querySelectorAll('.tag-filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const tag = btn.dataset.tag;
-      // Import toggleTagFilter dynamically to avoid circular dependencies
       import('./search.js').then(searchModule => {
         searchModule.toggleTagFilter(tag);
       });

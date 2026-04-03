@@ -367,12 +367,10 @@
   justify-content: center;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
 }
 
 .modal-content {
-  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(25, 25, 25, 0.95) 100%);
-  backdrop-filter: blur(30px);
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.97) 0%, rgba(25, 25, 25, 0.97) 100%);
   margin: 0;
   padding: 36px;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -426,7 +424,9 @@
   font-weight: 300;
   cursor: pointer;
   line-height: 20px;
-  transition: all 0.3s ease;
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .modal-close:hover,
@@ -438,10 +438,9 @@
 .modal-section {
   margin: 20px 0;
   padding: 20px;
-  background: linear-gradient(135deg, rgba(40, 40, 40, 0.3) 0%, rgba(35, 35, 35, 0.3) 100%);
+  background: rgba(40, 40, 40, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
-  backdrop-filter: blur(10px);
 }
 
 .modal-section h4 {
@@ -647,7 +646,11 @@
   border-radius: 6px;
   padding: 8px 10px;
   cursor: grab;
-  transition: all 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -719,7 +722,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease;
   margin: 0;
   padding: 0;
   font-size: 0.75em;
@@ -764,7 +767,7 @@
   line-height: 1.7;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease;
 }
 
 .notes-editor:focus {
@@ -787,7 +790,10 @@
   border-radius: 10px;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: all 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 
 .notes-editor img:hover {
