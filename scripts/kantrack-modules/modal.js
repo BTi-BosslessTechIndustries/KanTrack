@@ -15,7 +15,12 @@ import { sortColumnByPriority } from './sorting.js';
 import { renderSubKanban } from './sub-kanban.js';
 import { openImageViewer } from './images.js';
 import { updateNoteCardDisplay, setOpenTaskModal } from './tasks.js';
-import { getTagById, cleanupUnusedTags, renderTagSelector } from './tags.js';
+import {
+  getTagById,
+  cleanupUnusedTags,
+  renderTagSelector,
+  renderTagFilterButtons,
+} from './tags.js';
 import { renderDueDatePicker } from './due-dates.js';
 import { recordAction } from './undo.js';
 
@@ -213,18 +218,20 @@ export async function renderHistory(task) {
       content.style.display = 'none';
       content.innerHTML = sanitizeHTML(action.notesHTML) || 'Empty note';
 
-      // Restore images from IndexedDB
+      // Restore images from IndexedDB in parallel
       if (action.images && action.images.length > 0) {
-        for (const imageId of action.images) {
-          const dataUrl = await getImage(task.id, imageId);
-          if (dataUrl) {
-            const existingImg = content.querySelector(`img[data-image-id="${imageId}"]`);
-            if (existingImg) {
-              existingImg.src = dataUrl;
-              existingImg.onclick = () => openImageViewer(dataUrl);
+        await Promise.all(
+          action.images.map(async imageId => {
+            const dataUrl = await getImage(task.id, imageId);
+            if (dataUrl) {
+              const existingImg = content.querySelector(`img[data-image-id="${imageId}"]`);
+              if (existingImg) {
+                existingImg.src = dataUrl;
+                existingImg.onclick = () => openImageViewer(dataUrl);
+              }
             }
-          }
-        }
+          })
+        );
       }
 
       // Click on info or expand to toggle
@@ -292,18 +299,20 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
   editor.contentEditable = true;
   editor.innerHTML = sanitizeHTML(noteEntry.notesHTML);
 
-  // Restore images
+  // Restore images in parallel
   if (noteEntry.images && noteEntry.images.length > 0) {
-    for (const imageId of noteEntry.images) {
-      const dataUrl = await getImage(taskId, imageId);
-      if (dataUrl) {
-        const existingImg = editor.querySelector(`img[data-image-id="${imageId}"]`);
-        if (existingImg) {
-          existingImg.src = dataUrl;
-          existingImg.onclick = () => openImageViewer(dataUrl);
+    await Promise.all(
+      noteEntry.images.map(async imageId => {
+        const dataUrl = await getImage(taskId, imageId);
+        if (dataUrl) {
+          const existingImg = editor.querySelector(`img[data-image-id="${imageId}"]`);
+          if (existingImg) {
+            existingImg.src = dataUrl;
+            existingImg.onclick = () => openImageViewer(dataUrl);
+          }
         }
-      }
-    }
+      })
+    );
   }
 
   // Setup paste handler
@@ -630,6 +639,9 @@ export async function saveAndCloseModal() {
 
     // Cleanup unused tag definitions
     cleanupUnusedTags();
+
+    // Refresh filter bar so new/removed tags are reflected immediately
+    renderTagFilterButtons();
   }
 
   // Save all pending timer actions in a single summary entry

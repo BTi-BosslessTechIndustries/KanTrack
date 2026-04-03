@@ -11,7 +11,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Kanban board** — four columns (To Do, In Progress, On Hold, Done) with drag-and-drop
 - **Task detail modal** — rich notes with history, images (paste-to-insert), and a full edit/delete log
 - **Priority system** — High / Medium / Low with colour tinting and column sorting
-- **Tags** — colour-coded labels you can assign to any task
+- **Tags** — colour-coded labels with preset palette or custom hex colour; pinned tags appear in a quick-assign panel
 - **Due dates** — visual overdue and "due today" indicators on cards
 - **Timer** — per-task time tracking with quick-add and quick-remove
 - **Undo / Redo** — full history with durable IDB-backed undo entries

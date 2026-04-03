@@ -31,21 +31,21 @@ export function setDueDate(taskId, dueDate) {
     task.actions.push({
       action: `Due date set to ${formatDueDate(dueDate)}`,
       timestamp,
-      type: 'dueDate'
+      type: 'dueDate',
     });
     actionDescription = `Set due date to ${formatDueDate(dueDate)}`;
   } else if (!dueDate && oldDate) {
     task.actions.push({
       action: 'Due date removed',
       timestamp,
-      type: 'dueDate'
+      type: 'dueDate',
     });
     actionDescription = 'Remove due date';
   } else if (dueDate && oldDate && dueDate !== oldDate) {
     task.actions.push({
       action: `Due date changed from ${formatDueDate(oldDate)} to ${formatDueDate(dueDate)}`,
       timestamp,
-      type: 'dueDate'
+      type: 'dueDate',
     });
     actionDescription = `Change due date to ${formatDueDate(dueDate)}`;
   }
@@ -56,7 +56,7 @@ export function setDueDate(taskId, dueDate) {
     taskId: taskId,
     previousState: previousState,
     newState: deepClone(task),
-    description: actionDescription
+    description: actionDescription,
   });
 
   saveNotesToLocalStorage();
@@ -189,7 +189,7 @@ export function renderDueDateHTML(taskId) {
     overdue: 'due-date-overdue',
     today: 'due-date-today',
     soon: 'due-date-soon',
-    normal: 'due-date-normal'
+    normal: 'due-date-normal',
   };
 
   return `
@@ -246,8 +246,8 @@ export function renderDueDatePicker(taskId, container) {
  * Get all overdue tasks
  */
 export function getOverdueTasks() {
-  return state.notesData.filter(task =>
-    task.dueDate && isOverdue(task.id) && task.column !== 'done'
+  return state.notesData.filter(
+    task => !task.deleted && task.dueDate && isOverdue(task.id) && task.column !== 'done'
   );
 }
 
@@ -255,8 +255,8 @@ export function getOverdueTasks() {
  * Get tasks due today
  */
 export function getTasksDueToday() {
-  return state.notesData.filter(task =>
-    task.dueDate && isDueToday(task.id) && task.column !== 'done'
+  return state.notesData.filter(
+    task => !task.deleted && task.dueDate && isDueToday(task.id) && task.column !== 'done'
   );
 }
 
@@ -264,8 +264,8 @@ export function getTasksDueToday() {
  * Get tasks due soon (within 3 days)
  */
 export function getTasksDueSoon() {
-  return state.notesData.filter(task =>
-    task.dueDate && isDueSoon(task.id) && task.column !== 'done'
+  return state.notesData.filter(
+    task => !task.deleted && task.dueDate && isDueSoon(task.id) && task.column !== 'done'
   );
 }
 

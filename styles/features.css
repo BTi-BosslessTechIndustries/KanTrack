@@ -604,7 +604,10 @@ body.notebook-sidebar-open.sidebar-resizing {
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.6);
   margin: 0;
-  transition: all 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
   white-space: nowrap;
 }
 
@@ -921,6 +924,81 @@ body.notebook-sidebar-open.sidebar-resizing {
   font-style: italic;
 }
 
+.tag-pinned-mgmt {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+.tag-pinned-mgmt-label {
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.35);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.tag-pinned-mgmt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tag-pinned-mgmt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-pinned-on-task {
+  font-size: 0.78em;
+  color: rgba(255, 255, 255, 0.35);
+  font-style: italic;
+}
+
+.tag-pinned-assign {
+  padding: 3px 10px;
+  font-size: 0.8em;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.tag-pinned-assign:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.tag-pinned-assign:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.tag-pinned-delete {
+  padding: 3px 10px;
+  font-size: 0.8em;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: rgba(239, 68, 68, 0.7);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  margin-left: auto;
+}
+
+.tag-pinned-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
 .tag-selector-dropdown {
   background: rgba(30, 30, 30, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1005,6 +1083,29 @@ body.notebook-sidebar-open.sidebar-resizing {
 .tag-color-option.selected {
   border-color: #ffffff;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.tag-color-custom {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+}
+
+.tag-color-custom input[type='color'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.tag-color-custom-btn {
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+  display: block;
+  pointer-events: none;
 }
 
 .tag-create-btn {
