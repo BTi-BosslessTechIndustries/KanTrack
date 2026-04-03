@@ -5,6 +5,7 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { showNotification } from './notifications.js';
+import { cleanupUnusedTags, renderTagFilterButtons } from './tags.js';
 import {
   getAllTrash,
   saveTrash as _saveTrash,
@@ -177,6 +178,7 @@ function applyUndo(action) {
         // Add the restored task
         state.notesData.push(action.previousState);
         saveNotesToLocalStorage();
+        renderTagFilterButtons();
         // Trigger UI refresh
         window.dispatchEvent(
           new CustomEvent('kantrack:taskRestored', {
@@ -192,6 +194,8 @@ function applyUndo(action) {
       if (createIndex !== -1) {
         state.notesData.splice(createIndex, 1);
         saveNotesToLocalStorage();
+        cleanupUnusedTags();
+        renderTagFilterButtons();
         window.dispatchEvent(
           new CustomEvent('kantrack:taskRemoved', {
             detail: { taskId: action.taskId },
@@ -239,6 +243,7 @@ function applyRedo(action) {
       if (taskToDelete) {
         taskToDelete.deleted = true;
         saveNotesToLocalStorage();
+        renderTagFilterButtons();
         window.dispatchEvent(
           new CustomEvent('kantrack:taskRemoved', {
             detail: { taskId: action.taskId },
@@ -257,6 +262,7 @@ function applyRedo(action) {
         }
         state.notesData.push(action.newState);
         saveNotesToLocalStorage();
+        renderTagFilterButtons();
         window.dispatchEvent(
           new CustomEvent('kantrack:taskRestored', {
             detail: { taskId: action.taskId },
@@ -492,6 +498,14 @@ export function permanentlyDelete(taskId) {
   if (index !== -1) {
     trashedTasks.splice(index, 1);
     saveTrash();
+
+    // Also remove the soft-deleted entry from state so cleanupUnusedTags works correctly
+    const notesIndex = state.notesData.findIndex(t => t.id === taskId);
+    if (notesIndex !== -1) {
+      state.notesData.splice(notesIndex, 1);
+      saveNotesToLocalStorage();
+    }
+
     return true;
   }
   return false;
@@ -501,8 +515,19 @@ export function permanentlyDelete(taskId) {
  * Empty the trash
  */
 export function emptyTrash() {
+  const trashedIds = trashedTasks.map(t => t.id);
   trashedTasks = [];
   saveTrash();
+
+  // Remove all soft-deleted entries from state
+  if (trashedIds.length > 0) {
+    const idSet = new Set(trashedIds);
+    const filtered = state.notesData.filter(t => !idSet.has(t.id));
+    if (filtered.length !== state.notesData.length) {
+      state.setNotesData(filtered);
+      saveNotesToLocalStorage();
+    }
+  }
 }
 
 /**

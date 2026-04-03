@@ -4,7 +4,6 @@
  ***********************/
 import * as state from './state.js';
 import { getTextPreview } from './utils.js';
-import { getTagById } from './tags.js';
 
 // Current filter state
 let currentSearchTerm = '';
@@ -195,25 +194,10 @@ export function checkTaskVisibility(task) {
     return false;
   }
 
-  // Check tag filter - match by tag name (case-insensitive)
+  // Check tag filter - match by tag ID
   if (currentTagFilter.length > 0) {
     const taskTagIds = task.tags || [];
-
-    // Get the names of all tags on this task
-    const taskTagNames = taskTagIds.map(tagId => {
-      const tagDef = getTagById(tagId);
-      return tagDef ? tagDef.name.toLowerCase() : tagId.toLowerCase();
-    });
-
-    // Get the names of filter tags
-    const filterTagNames = currentTagFilter.map(tagId => {
-      const tagDef = getTagById(tagId);
-      return tagDef ? tagDef.name.toLowerCase() : tagId.toLowerCase();
-    });
-
-    // Check if any task tag name matches any filter tag name
-    const hasMatchingTag = filterTagNames.some(filterName => taskTagNames.includes(filterName));
-
+    const hasMatchingTag = currentTagFilter.some(filterId => taskTagIds.includes(filterId));
     if (!hasMatchingTag) {
       return false;
     }

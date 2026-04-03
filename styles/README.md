@@ -16,7 +16,7 @@ Reusable UI components: cards (`.note`), buttons, modals, the top header, inputs
 
 ### `features.css`
 
-Feature-specific styles that are large or isolated enough to need their own section: the sub-kanban board, the history panel inside the task modal, the clocks widget, the search overlay, the storage monitor indicator, drag-and-drop visual feedback, and `.note:focus-visible` keyboard focus ring for card navigation.
+Feature-specific styles that are large or isolated enough to need their own section: the sub-kanban board, the history panel inside the task modal, the clocks widget, the search overlay, the storage monitor indicator, drag-and-drop visual feedback, the pinned-tag management panel inside the tag selector, and `.note:focus-visible` keyboard focus ring for card navigation.
 
 ### `responsive.css`
 
