@@ -1095,7 +1095,7 @@ export function setupNotebookEventListeners() {
         const touchDuration = Date.now() - touchStartTime;
         if (touchDuration < 300) {
           // Short tap - trigger click
-          const itemId = parseInt(touchedItem.dataset.id);
+          const itemId = touchedItem.dataset.id;
           const item = notebookItems.find(i => i.id === itemId);
           if (item) {
             if (item.type === 'page') {

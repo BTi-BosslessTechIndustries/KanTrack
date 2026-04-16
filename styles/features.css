@@ -219,6 +219,7 @@
   border-radius: 4px;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .tree-item-expand:hover {
@@ -1085,27 +1086,19 @@ body.notebook-sidebar-open.sidebar-resizing {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
-.tag-color-custom {
-  display: inline-block;
-  position: relative;
-  cursor: pointer;
-}
-
-.tag-color-custom input[type='color'] {
+.tag-color-input-hidden {
   position: absolute;
-  inset: 0;
+  width: 0;
+  height: 0;
   opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
+  pointer-events: none;
   border: none;
   padding: 0;
 }
 
 .tag-color-custom-btn {
   background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
-  display: block;
-  pointer-events: none;
+  cursor: pointer;
 }
 
 .tag-create-btn {
@@ -1195,6 +1188,9 @@ body.notebook-sidebar-open.sidebar-resizing {
 }
 
 .tag-pin-checkbox input[type='checkbox'] {
+  flex: none;
+  min-width: unset;
+  padding: 0;
   width: 16px;
   height: 16px;
   cursor: pointer;

@@ -30,6 +30,7 @@ import {
   enableTitleEdit,
   clearNotes,
   toggleHistory,
+  saveModal,
   saveAndCloseModal,
 } from './kantrack-modules/modal.js';
 import {
@@ -264,6 +265,7 @@ registerAction('clock:addChronometer', () => addChronometer());
 registerAction('task:add', () => addNote());
 registerAction('task:closeModal', () => closeTaskModal());
 registerAction('task:saveModal', () => saveAndCloseModal());
+registerAction('task:saveModalOnly', () => saveModal());
 registerAction('task:exportPDF', () => exportTaskAsPDF());
 registerAction('task:deleteModal', () => deleteTaskFromModal());
 registerAction('task:clearNotes', () => clearNotes());

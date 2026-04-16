@@ -556,20 +556,7 @@ export function toggleHistory() {
   }
 }
 
-export async function saveAndCloseModal() {
-  if (!state.currentTaskId) return;
-
-  const task = state.notesData.find(t => t.id === state.currentTaskId);
-  if (!task) return;
-
-  // Reconstruct the TRUE previous state from original values saved when modal opened
-  // (tags and timer are modified in memory during modal interaction)
-  const previousTaskState = deepClone(task);
-  previousTaskState.title = state.originalTitleValue || task.title;
-  previousTaskState.priority = state.originalPriorityValue;
-  previousTaskState.tags = state.originalTagsValue ? [...state.originalTagsValue] : [];
-  previousTaskState.timer = state.originalTimerValue || 0;
-
+async function _persistModalChanges(task) {
   const notesEditor = document.getElementById('modalNotesEditor');
   const titleEl = document.getElementById('modalTitle');
 
@@ -720,6 +707,88 @@ export async function saveAndCloseModal() {
       images: imageIds,
     });
   }
+
+  return hasContent;
+}
+
+export async function saveModal() {
+  if (!state.currentTaskId) return;
+
+  const task = state.notesData.find(t => t.id === state.currentTaskId);
+  if (!task) return;
+
+  const previousTaskState = deepClone(task);
+  previousTaskState.title = state.originalTitleValue || task.title;
+  previousTaskState.priority = state.originalPriorityValue;
+  previousTaskState.tags = state.originalTagsValue ? [...state.originalTagsValue] : [];
+  previousTaskState.timer = state.originalTimerValue || 0;
+
+  await _persistModalChanges(task);
+
+  // Record action for undo/redo (only if there were actual changes)
+  const newTaskState = deepClone(task);
+  if (JSON.stringify(previousTaskState) !== JSON.stringify(newTaskState)) {
+    let changeDescription = 'Update task';
+    if (previousTaskState.title !== newTaskState.title) {
+      changeDescription = `Rename "${previousTaskState.title.substring(0, 20)}..."`;
+    } else if (previousTaskState.priority !== newTaskState.priority) {
+      changeDescription = 'Change priority';
+    } else if (JSON.stringify(previousTaskState.tags) !== JSON.stringify(newTaskState.tags)) {
+      changeDescription = 'Update tags';
+    } else if (previousTaskState.timer !== newTaskState.timer) {
+      changeDescription = 'Update timer';
+    } else if (previousTaskState.noteEntries?.length !== newTaskState.noteEntries?.length) {
+      changeDescription = 'Add note';
+    }
+
+    recordAction({
+      type: 'update',
+      taskId: state.currentTaskId,
+      previousState: previousTaskState,
+      newState: newTaskState,
+      description: changeDescription,
+    });
+  }
+
+  saveNotesToLocalStorage();
+  updateNoteCardDisplay(state.currentTaskId);
+
+  // Reset tracking state so subsequent saves compare against the just-saved values
+  const notesEditor = document.getElementById('modalNotesEditor');
+  notesEditor.innerHTML = '';
+  state.setOriginalTitleValue(task.title);
+  state.setOriginalPriorityValue(task.priority || null);
+  state.setCurrentModalPriority(task.priority || null);
+  state.setOriginalTagsValue(task.tags ? [...task.tags] : []);
+  state.setOriginalTimerValue(task.timer || 0);
+  state.setModalHasChanges(false);
+  state.setModalPendingActions([]);
+
+  // Update the notes editor placeholder to show the last saved entry
+  if (task.noteEntries && task.noteEntries.length > 0) {
+    const lastEntry = task.noteEntries[task.noteEntries.length - 1];
+    notesEditor.setAttribute('data-placeholder', getTextPreview(lastEntry.notesHTML));
+  }
+
+  // Refresh history to show the newly saved note
+  await renderHistory(task);
+}
+
+export async function saveAndCloseModal() {
+  if (!state.currentTaskId) return;
+
+  const task = state.notesData.find(t => t.id === state.currentTaskId);
+  if (!task) return;
+
+  // Reconstruct the TRUE previous state from original values saved when modal opened
+  // (tags and timer are modified in memory during modal interaction)
+  const previousTaskState = deepClone(task);
+  previousTaskState.title = state.originalTitleValue || task.title;
+  previousTaskState.priority = state.originalPriorityValue;
+  previousTaskState.tags = state.originalTagsValue ? [...state.originalTagsValue] : [];
+  previousTaskState.timer = state.originalTimerValue || 0;
+
+  await _persistModalChanges(task);
 
   // Record action for undo/redo (only if there were actual changes)
   const newTaskState = deepClone(task);
