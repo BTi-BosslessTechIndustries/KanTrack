@@ -430,13 +430,11 @@ export function renderTagSelector(taskId, container) {
               (c, i) =>
                 `<button class="tag-color-option${i === 5 ? ' selected' : ''}" data-color-index="${i}" style="background: ${c.color};" title="${c.name}"></button>`
             ).join('')}
-            <label class="tag-color-custom" title="Custom color">
-              <input type="color" id="tagCustomColor" value="#8b5cf6">
-              <span class="tag-color-option tag-color-custom-btn" id="tagCustomColorBtn"></span>
-            </label>
+              <input type="color" id="tagCustomColor" value="#8b5cf6" class="tag-color-input-hidden">
+            <button type="button" class="tag-color-option tag-color-custom-btn" id="tagCustomColorBtn" title="Custom color"></button>
           </div>
           <label class="tag-pin-checkbox">
-            <input type="checkbox" id="newTagPinned"> Pin
+            <input type="checkbox" id="newTagPinned">Pin
           </label>
           <button id="createTagBtn" class="tag-create-btn">Create</button>
         </div>
@@ -546,6 +544,12 @@ function setupTagSelectorEvents(taskId, container) {
   // Custom color picker
   const customColorInput = container.querySelector('#tagCustomColor');
   const customColorBtn = container.querySelector('#tagCustomColorBtn');
+  // Open the native color picker when the wheel button is clicked
+  customColorBtn?.addEventListener('click', e => {
+    e.stopPropagation();
+    customColorInput?.click();
+  });
+
   customColorInput?.addEventListener('input', e => {
     selectedCustomColor = e.target.value;
     colorPicker.querySelectorAll('.tag-color-option').forEach(o => o.classList.remove('selected'));
