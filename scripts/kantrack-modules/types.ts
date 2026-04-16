@@ -52,6 +52,7 @@ export interface NotebookItem {
   content?: string;
   images?: Array<{ id: string; data: string }>;
   order?: number;
+  expanded?: boolean;
 }
 
 export interface Clock {

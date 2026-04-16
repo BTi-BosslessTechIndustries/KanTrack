@@ -19,6 +19,8 @@ The bootstrap file loaded by `index.html`. It:
 
 If you add a new button or interactive element to `index.html`, the corresponding action handler is registered here.
 
+Current task modal actions: `task:saveModalOnly` → `saveModal()` (save without closing), `task:saveModal` → `saveAndCloseModal()`.
+
 ---
 
 ## Module directory
