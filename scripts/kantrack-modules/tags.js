@@ -631,13 +631,4 @@ export function renderTagFilterButtons() {
       return `<button class="tag-filter-btn" data-tag="${tag.id}" title="Filter by ${escapeHtml(tag.name)}" style="--tag-color: ${color.color}; --tag-bg: ${color.bg};">${escapeHtml(tag.name)}</button>`;
     })
     .join('');
-
-  container.querySelectorAll('.tag-filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tag = btn.dataset.tag;
-      import('./search.js').then(searchModule => {
-        searchModule.toggleTagFilter(tag);
-      });
-    });
-  });
 }

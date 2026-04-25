@@ -47,14 +47,14 @@ export function initSearch() {
     });
   }
 
-  // Initialize tag filter buttons
-  const tagFilterButtons = document.querySelectorAll('.tag-filter-btn');
-  tagFilterButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tag = btn.dataset.tag;
-      toggleTagFilter(tag);
+  // Single delegated listener on the container handles dynamically re-rendered buttons
+  const tagFiltersContainer = document.getElementById('tagFilters');
+  if (tagFiltersContainer) {
+    tagFiltersContainer.addEventListener('click', e => {
+      const btn = e.target.closest('.tag-filter-btn');
+      if (btn) toggleTagFilter(btn.dataset.tag);
     });
-  });
+  }
 }
 
 /**

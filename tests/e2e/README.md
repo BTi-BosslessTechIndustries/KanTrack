@@ -14,7 +14,7 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 | `import-export.spec.js` | 7     | JSON export/import, encrypted export/import, format-version validation                                     |
 | `performance.spec.js`   | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                 |
 | `search.spec.js`        | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                      |
-| `header.spec.js`        | 14    | Support Us modal (open, ESC, backdrop, close btn), credit button, ⋮ dropdown, About modal, Shortcuts modal |
+| `header.spec.js`        | 15    | Support Us modal (open, ESC, backdrop, close btn), credit button, ⋮ dropdown, About modal, Shortcuts modal |
 
 ---
 
