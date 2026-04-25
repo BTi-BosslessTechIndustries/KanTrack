@@ -32,6 +32,97 @@ const VALID_COLUMNS = ['todo', 'inProgress', 'onHold', 'done'];
 /***********************
  * PDF EXPORT (Individual Task)
  ***********************/
+
+/**
+ * Convert any image data URL to PNG via a canvas element.
+ * On Mac, native apps (Preview, Keynote, CleanShot X) place image/tiff data on the clipboard.
+ * jsPDF cannot decode TIFF as 'PNG', so this converts once before handing off to jsPDF.
+ * PNG and JPEG pass through as-is to avoid the extra round-trip.
+ */
+async function _normalizeImageToPng(dataUrl) {
+  if (!dataUrl) return null;
+  const mime = dataUrl.split(';')[0].split(':')[1] || '';
+  if (mime === 'image/png' || mime === 'image/jpeg' || mime === 'image/jpg') return dataUrl;
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+/**
+ * Recursively walk a DOM node tree and render text/images into a jsPDF document.
+ *
+ * The previous flat childNodes loop only processed direct children. On Mac, Chrome's
+ * contenteditable wraps inserted content inside <div> block elements, so images were
+ * never found as direct children and were silently dropped from the PDF.
+ * Recursive traversal finds images at any nesting depth.
+ */
+async function _walkNodesForPDF(nodes, doc, taskId, margin, maxWidth, yPosRef) {
+  const pageHeight = doc.internal.pageSize.getHeight();
+  for (const node of nodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent.trim();
+      if (!text) continue;
+      doc.setFontSize(11);
+      doc.setFont(undefined, 'normal');
+      const lines = doc.splitTextToSize(text, maxWidth);
+      for (const line of lines) {
+        if (yPosRef.value > pageHeight - 20) {
+          doc.addPage();
+          yPosRef.value = 20;
+        }
+        doc.text(line, margin, yPosRef.value);
+        yPosRef.value += 7;
+      }
+    } else if (node.nodeName === 'IMG') {
+      try {
+        let imgSrc = null;
+        if (node.dataset.imageId) imgSrc = await getImage(taskId, node.dataset.imageId);
+        if (!imgSrc && node.dataset.src) imgSrc = node.dataset.src;
+        if (!imgSrc && node.src && node.src.startsWith('data:')) imgSrc = node.src;
+
+        if (imgSrc) {
+          const pngSrc = await _normalizeImageToPng(imgSrc);
+          if (pngSrc) {
+            const dimensions = await getImageDimensions(pngSrc);
+            const imgMaxWidth = 150;
+            const imgMaxHeight = 100;
+            const scale = Math.min(
+              imgMaxWidth / dimensions.width,
+              imgMaxHeight / dimensions.height,
+              1
+            );
+            const imgWidth = dimensions.width * scale;
+            const imgHeight = dimensions.height * scale;
+            if (yPosRef.value + imgHeight > pageHeight - 20) {
+              doc.addPage();
+              yPosRef.value = 20;
+            }
+            doc.addImage(pngSrc, 'PNG', margin, yPosRef.value, imgWidth, imgHeight);
+            yPosRef.value += imgHeight + 5;
+          }
+        }
+      } catch (err) {
+        console.error('Error adding image to PDF:', err);
+      }
+    } else if (node.childNodes && node.childNodes.length > 0) {
+      await _walkNodesForPDF(node.childNodes, doc, taskId, margin, maxWidth, yPosRef);
+    }
+  }
+}
+
 export async function exportTaskAsPDF(taskId = null) {
   const id = taskId || state.currentTaskId;
   if (!id) return;
@@ -104,69 +195,9 @@ export async function exportTaskAsPDF(taskId = null) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = action.notesHTML;
 
-        const childNodes = tempDiv.childNodes;
-        for (let i = 0; i < childNodes.length; i++) {
-          const node = childNodes[i];
-
-          if (node.nodeName === 'IMG') {
-            try {
-              let imgSrc = null;
-
-              // Try to get from IndexedDB first using imageId
-              if (node.dataset.imageId) {
-                imgSrc = await getImage(id, node.dataset.imageId);
-              }
-
-              // If not found, try data-src attribute
-              if (!imgSrc && node.dataset.src) {
-                imgSrc = node.dataset.src;
-              }
-
-              // Fallback to src if still not found
-              if (!imgSrc) {
-                imgSrc = node.src;
-              }
-
-              if (imgSrc && imgSrc.startsWith('data:')) {
-                // Calculate proper dimensions maintaining aspect ratio
-                const dimensions = await getImageDimensions(imgSrc);
-
-                const imgMaxWidth = 150;
-                const imgMaxHeight = 100;
-
-                // Scale down to fit within max dimensions while maintaining aspect ratio
-                const widthRatio = imgMaxWidth / dimensions.width;
-                const heightRatio = imgMaxHeight / dimensions.height;
-                const scale = Math.min(widthRatio, heightRatio, 1); // Don't scale up
-
-                const imgWidth = dimensions.width * scale;
-                const imgHeight = dimensions.height * scale;
-
-                if (yPos + imgHeight > doc.internal.pageSize.getHeight() - 20) {
-                  doc.addPage();
-                  yPos = 20;
-                }
-
-                doc.addImage(imgSrc, 'PNG', margin, yPos, imgWidth, imgHeight);
-                yPos += imgHeight + 5;
-              }
-            } catch (err) {
-              console.error('Error adding image to PDF:', err);
-            }
-          } else if (node.textContent && node.textContent.trim()) {
-            const text = node.textContent.trim();
-            const lines = doc.splitTextToSize(text, maxWidth);
-
-            lines.forEach(line => {
-              if (yPos > doc.internal.pageSize.getHeight() - 20) {
-                doc.addPage();
-                yPos = 20;
-              }
-              doc.text(line, margin, yPos);
-              yPos += 7;
-            });
-          }
-        }
+        const yPosRef = { value: yPos };
+        await _walkNodesForPDF(tempDiv.childNodes, doc, id, margin, maxWidth, yPosRef);
+        yPos = yPosRef.value;
 
         yPos += 5;
       } else {
