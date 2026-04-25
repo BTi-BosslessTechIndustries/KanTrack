@@ -17,7 +17,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Undo / Redo** — full history with durable IDB-backed undo entries
 - **Trash** — soft-delete with restore; recoverable until you empty it
 - **Notebook** — a separate sidebar for free-form notes and folders
-- **Export** — individual tasks or notebook pages as PDF; entire notebook as ZIP
+- **Export** — individual tasks or notebook pages as PDF (cross-platform, including Mac); entire notebook as ZIP; full board as JSON (with embedded images) or lightweight JSON; encrypted `.kantrack.enc`
 - **World clocks** — multiple timezone clocks and a chronometer
 - **Search & filter** — full-text search with tag and column filters
 - **Keyboard shortcuts** — N to focus new task, / for search, ? for the shortcuts reference, arrow keys to navigate cards
@@ -181,6 +181,64 @@ Every engineering decision is governed by ten red lines that can never be crosse
 ## Contributing
 
 Read [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md) before submitting anything. The short version: bug fixes, accessibility improvements, and documentation are welcome. Features that require accounts, tracking, or team management are not.
+
+---
+
+## Changelog
+
+### hotfix/Export_Images_issues_MAC
+
+**Bug: PDF export silently dropped images on macOS**
+
+When a task was moved to the Done column, a PDF export was offered. On macOS the resulting PDF contained no images, even though the same workflow produced correct PDFs on Windows using the same browsers.
+
+**Root cause — two compounding bugs in `scripts/kantrack-modules/export.js`:**
+
+**1. Shallow `childNodes` traversal (primary cause)**
+
+`exportTaskAsPDF` iterated `tempDiv.childNodes` — only the _direct_ children of the temporary DOM element built from `action.notesHTML`. On macOS, Chrome's `contenteditable` implementation wraps inserted content in `<div>` block elements. The saved HTML on macOS therefore looked like:
+
+```html
+<div><img data-image-id="img_123" src="data:image/gif;…" data-src="data:image/png;…" /></div>
+```
+
+Whereas on Windows, Chrome leaves content flat:
+
+```html
+<img data-image-id="img_123" src="data:image/gif;…" data-src="data:image/png;…" />
+```
+
+The loop checked `node.nodeName === 'IMG'` against each direct child. On Windows this matched immediately. On macOS it saw only the wrapper `<div>`, never reached the `<img>` inside it, and since the div's `.textContent` was empty it was skipped entirely — image silently lost.
+
+**2. Hardcoded `'PNG'` format in `doc.addImage` (secondary cause)**
+
+Even when an image node was found, the call was:
+
+```javascript
+doc.addImage(imgSrc, 'PNG', …);
+```
+
+On macOS, native applications (Preview, Keynote, Pages, CleanShot X) put `image/tiff` data on the clipboard. The pasted data URL becomes `data:image/tiff;base64,…`. Passing a TIFF data URL with the format forced to `'PNG'` causes jsPDF to fail silently — the error is caught by the surrounding `try/catch` and the image is dropped.
+
+**Fix — `scripts/kantrack-modules/export.js`**
+
+Two private helper functions were added before `exportTaskAsPDF`:
+
+- **`_normalizeImageToPng(dataUrl)`** — converts any image format to PNG by drawing onto a `<canvas>` element before handing the data to jsPDF. PNG and JPEG pass through unchanged to avoid the extra round-trip. Resolves `null` on any conversion failure so the caller can skip gracefully.
+
+- **`_walkNodesForPDF(nodes, doc, taskId, margin, maxWidth, yPosRef)`** — recursively walks a `NodeList`, handling `TEXT_NODE` leaves, `IMG` elements (with IDB lookup → `data-src` fallback → `src` fallback, all normalised through `_normalizeImageToPng`), and any other element by descending into its own `childNodes`. A mutable `yPosRef` object carries the running vertical position across recursion levels.
+
+The flat `childNodes` loop inside `exportTaskAsPDF` was replaced with:
+
+```javascript
+const yPosRef = { value: yPos };
+await _walkNodesForPDF(tempDiv.childNodes, doc, id, margin, maxWidth, yPosRef);
+yPos = yPosRef.value;
+```
+
+**Scope of impact**
+
+Only `exportTaskAsPDF` was affected. The JSON / HTML / encrypted export paths (`_buildWorkspacePayload`, `exportBoardAsHTML`) use the `entry.images[]` ID array written by `_persistModalChanges` via `querySelectorAll('img')` (recursive), and were never broken.
 
 ---
 
