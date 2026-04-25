@@ -13,7 +13,7 @@ The bootstrap file loaded by `index.html`. It:
 1. Imports all feature modules
 2. Registers every `data-action` handler with the router (`registerAction()`)
 3. Calls `initRouter()` to attach the single delegated click listener
-4. Calls `dispatch(TASK_SET_ALL, tasks)` to seed the store after loading from IDB
+4. Calls `dispatch({ type: TASK_SET_ALL, payload: tasks })` to seed the store after loading from IDB
 5. Sets up column count listeners, the auto-save indicator, and the storage monitor
 6. Registers global keyboard shortcuts: **N** (new task), **/** (search), **?** (shortcuts dialog), **ESC** (close any open modal), and arrow-key card navigation
 
