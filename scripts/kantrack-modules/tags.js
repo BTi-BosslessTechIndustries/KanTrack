@@ -216,6 +216,11 @@ export function deleteTag(id) {
   tagDefinitions.splice(index, 1);
   saveTagDefinitions();
 
+  // Collect affected task IDs before removal so we can refresh their cards
+  const affectedTaskIds = state.notesData
+    .filter(task => task.tags && task.tags.includes(id))
+    .map(task => task.id);
+
   // Remove tag from all tasks
   state.notesData.forEach(task => {
     if (task.tags) {
@@ -223,6 +228,23 @@ export function deleteTag(id) {
     }
   });
   saveNotesToLocalStorage();
+
+  // Refresh tag chips on board cards for every affected task
+  affectedTaskIds.forEach(taskId => {
+    const noteElement = document.querySelector(`[data-id="${taskId}"]`);
+    if (!noteElement) return;
+    const tagsDisplay = noteElement.querySelector('.task-tags');
+    const tagsHtml = renderTaskTagsHTML(taskId);
+    if (tagsHtml) {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = tagsHtml;
+      if (tagsDisplay) {
+        tagsDisplay.replaceWith(wrapper.firstChild);
+      }
+    } else if (tagsDisplay) {
+      tagsDisplay.remove();
+    }
+  });
 
   return true;
 }

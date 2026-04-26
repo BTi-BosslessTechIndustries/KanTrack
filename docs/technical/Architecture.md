@@ -401,6 +401,8 @@ Pinned tags appear in the board's filter bar. Clicking a pinned tag adds it to `
 
 Inside the task modal, pinned tags are also shown in a dedicated management panel above the dropdown, with **Assign** (add to task) and **Delete** (remove tag permanently) actions — removing the need to open the dropdown to manage pinned tags.
 
+`deleteTag(id)` removes the definition, strips the tag ID from every task in `state.notesData`, persists, then walks the DOM for all affected task cards and replaces their `.task-tags` element using `renderTaskTagsHTML` — keeping board cards in sync without a full re-render.
+
 ### Tag Filter Matching
 
 `checkTaskVisibility()` in `search.js` compares tag IDs directly (`currentTagFilter.some(id => taskTagIds.includes(id))`). Name-based comparison was removed to prevent false matches between tags with similar names.
