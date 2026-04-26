@@ -30,7 +30,7 @@ There is no KanTrack server that could be compromised to leak user data, because
 | Inline script injection                    | Content Security Policy blocks `unsafe-eval` and inline scripts          | §4    |
 | External resource exfiltration             | CSP `connect-src 'self'` — no outbound fetch to third parties            | §4    |
 | Tampering with import files                | `import-validator.js` checks schema, version, required fields            | §3.3  |
-| Encrypted backup brute-force               | PBKDF2 with 100 000 iterations raises the cost per guess                 | §6    |
+| Encrypted backup brute-force               | PBKDF2 with 600 000 iterations raises the cost per guess                 | §6    |
 | Casual local eavesdropping (shared device) | Encrypted export option provides at-rest encryption for portable backups | §6    |
 
 ### 2.2 Out-of-Scope Threats (what KanTrack does NOT defend against)
@@ -169,20 +169,28 @@ Any logged-in OS user can open DevTools and read `localStorage` or IDB directly.
 Key derivation : PBKDF2
   - Hash    : SHA-256
   - Salt    : 16 bytes (random, generated with crypto.getRandomValues)
-  - Rounds  : 100 000 iterations
+  - Rounds  : 600 000 iterations (OWASP 2024 recommendation)
 
 Encryption : AES-256-GCM
   - Key length : 256 bits
   - IV         : 12 bytes (random, generated per encryption)
   - Auth tag   : 128 bits (16 bytes, appended by WebCrypto automatically)
 
-Binary envelope:
+Binary envelope (v2, current format):
+  ┌──────────────────────┬──────────┬─────────────────────┬──────────────────┬──────────────────────┐
+  │  "KTENC" magic (5 B) │  ver (1) │  salt (16 bytes)    │   IV (12 bytes)  │  ciphertext + tag    │
+  └──────────────────────┴──────────┴─────────────────────┴──────────────────┴──────────────────────┘
+
+Legacy envelope (v0, produced before version byte was introduced):
   ┌─────────────────────┬──────────────────┬──────────────────────┐
   │  salt (16 bytes)    │   IV (12 bytes)  │  ciphertext + tag    │
   └─────────────────────┴──────────────────┴──────────────────────┘
+
+  decryptWorkspace() auto-detects the format by checking for the "KTENC" magic prefix.
+  Legacy files (v0) are decrypted using 100 000 iterations for backward compatibility.
 ```
 
-Implemented via the browser's native `window.crypto.subtle` (WebCrypto API). No third-party cryptography libraries are used.
+Implemented via the browser's native `window.crypto.subtle` (WebCrypto API). No third-party cryptography libraries are used. The version byte enables future algorithm upgrades without breaking existing encrypted files.
 
 ### 6.2 What encrypted exports protect
 
@@ -190,7 +198,7 @@ An encrypted `.kantrack.enc` file is unreadable without the correct passphrase. 
 
 ### 6.3 What encrypted exports do NOT protect
 
-- **Passphrase strength is the user's responsibility.** A short or guessable passphrase produces a weak key regardless of the algorithm used. PBKDF2 with 100k rounds raises the cost of brute-force attacks but does not eliminate them for weak passwords.
+- **Passphrase strength is the user's responsibility.** A short or guessable passphrase produces a weak key regardless of the algorithm used. PBKDF2 with 600k rounds raises the cost of brute-force attacks but does not eliminate them for weak passwords.
 - **The encryption does not protect data while it remains in `localStorage` or IDB** (the live app state is always plaintext).
 - **The encrypted file format is authenticated but not deniable** — an attacker who recovers the file and the passphrase gets the full plaintext.
 - **Key material is never cached.** The derived key exists only for the duration of the encrypt/decrypt call and is not stored anywhere.
@@ -289,7 +297,7 @@ For durable, portable backups:
 | XSS protection for imported HTML          | **Allowlist sanitiser**                           |
 | XSS protection for task text in templates | **`escapeHtml()` escaping**                       |
 | Inline script execution                   | **Blocked by CSP**                                |
-| Encryption algorithm                      | **AES-256-GCM + PBKDF2 (100k rounds, SHA-256)**   |
+| Encryption algorithm                      | **AES-256-GCM + PBKDF2 (600k rounds, SHA-256)**   |
 | Key storage                               | **None — derived per-operation, discarded after** |
 | Plaintext storage by default              | **Yes** (`localStorage` + IDB)                    |
 | Protection against OS-level access        | **None**                                          |

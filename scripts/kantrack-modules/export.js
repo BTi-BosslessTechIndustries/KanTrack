@@ -21,6 +21,7 @@ import {
   saveTags,
   saveNotebookItems,
   saveClocks,
+  flushPendingIDBWrites,
 } from './repository.js';
 import { validateImportFile, extractImportSummary } from './import-validator.js';
 import { encryptWorkspace, decryptWorkspace, computeHash } from './crypto.js';
@@ -553,13 +554,15 @@ async function _runImportFlow(parsed) {
   _showImportPreviewDialog(summary, warnings, {
     onMerge: async () => {
       await _applyImport(parsed, 'merge');
+      flushPendingIDBWrites();
       location.reload();
     },
     onReplace: async () => {
       await _autoBackup();
-      // Brief delay lets the backup download initiate before the page navigates away
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Give the browser time to register the backup download before navigating away
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await _applyImport(parsed, 'replace');
+      flushPendingIDBWrites();
       location.reload();
     },
     onCancel: () => {},
@@ -727,7 +730,8 @@ function _showPassphraseDialog({ title, message, confirmLabel, onConfirm, onCanc
     <p style="margin:0 0 12px;font-size:0.9em;color:#aaa">${escapeHtml(message)}</p>
     <input id="kt-passphrase" type="password" placeholder="Passphrase"
       style="width:100%;box-sizing:border-box;padding:8px;background:#1e1e1e;color:#e0e0e0;border:1px solid #555;border-radius:4px;font-size:1em">
-    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+    <p id="kt-pass-error" style="margin:6px 0 0;font-size:0.85em;color:#f44336;min-height:1em"></p>
+    <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
       <button id="kt-pass-cancel" style="padding:8px 14px;background:transparent;color:#aaa;border:1px solid #555;border-radius:4px;cursor:pointer">Cancel</button>
       <button id="kt-pass-confirm" style="padding:8px 14px;background:#4caf50;color:#fff;border:none;border-radius:4px;cursor:pointer">${escapeHtml(confirmLabel)}</button>
     </div>
@@ -742,11 +746,20 @@ function _showPassphraseDialog({ title, message, confirmLabel, onConfirm, onCanc
     dialog.remove();
   };
 
-  dialog.querySelector('#kt-pass-confirm').addEventListener('click', () => {
+  const errorEl = dialog.querySelector('#kt-pass-error');
+
+  const _confirm = () => {
     const passphrase = input.value;
+    if (!passphrase) {
+      errorEl.textContent = 'Passphrase is required.';
+      input.focus();
+      return;
+    }
     close();
     onConfirm(passphrase);
-  });
+  };
+
+  dialog.querySelector('#kt-pass-confirm').addEventListener('click', _confirm);
 
   dialog.querySelector('#kt-pass-cancel').addEventListener('click', () => {
     close();
@@ -755,11 +768,7 @@ function _showPassphraseDialog({ title, message, confirmLabel, onConfirm, onCanc
 
   // Allow Enter key to confirm
   input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const passphrase = input.value;
-      close();
-      onConfirm(passphrase);
-    }
+    if (e.key === 'Enter') _confirm();
   });
 
   input.focus();
@@ -780,10 +789,16 @@ async function importBoardFromHTML(file) {
         return;
       }
 
-      const importData = JSON.parse(dataScript.textContent);
+      let importData;
+      try {
+        importData = JSON.parse(dataScript.textContent);
+      } catch (_) {
+        alert('Invalid import file: embedded data is not valid JSON.');
+        return;
+      }
 
-      if (!importData.tasks) {
-        alert('Invalid import file: No tasks found');
+      if (!Array.isArray(importData?.tasks)) {
+        alert('Invalid import file: No tasks array found');
         return;
       }
 
@@ -795,14 +810,29 @@ async function importBoardFromHTML(file) {
         Done: 'done',
       };
 
-      if (
-        confirm(
-          `This will replace your current board with ${importData.tasks.length} tasks.\n\nContinue?`
-        )
-      ) {
+      // Filter malformed task entries before proceeding
+      const validRawTasks = importData.tasks.filter(t => {
+        if (!t || typeof t !== 'object') return false;
+        if (!t.id || typeof t.title !== 'string' || !t.title.trim()) return false;
+        const col = VALID_COLUMNS.includes(t.column) ? t.column : columnNameMap[t.column];
+        return !!col;
+      });
+      const skipped = importData.tasks.length - validRawTasks.length;
+
+      if (validRawTasks.length === 0) {
+        alert('Invalid import file: No valid tasks found.');
+        return;
+      }
+
+      const confirmMsg =
+        skipped > 0
+          ? `This will replace your current board with ${validRawTasks.length} tasks (${skipped} malformed entries skipped).\n\nContinue?`
+          : `This will replace your current board with ${validRawTasks.length} tasks.\n\nContinue?`;
+
+      if (confirm(confirmMsg)) {
         const processedTasks = [];
 
-        for (const task of importData.tasks) {
+        for (const task of validRawTasks) {
           if (task.deleted) continue;
 
           // New format: noteEntriesWithImages → noteEntries
@@ -854,6 +884,7 @@ async function importBoardFromHTML(file) {
         }
 
         saveTasks(processedTasks);
+        flushPendingIDBWrites();
         alert('Board imported successfully! The page will now reload.');
         location.reload();
       }
@@ -997,6 +1028,7 @@ async function importBoardFromTXT(file) {
         )
       ) {
         saveTasks(convertedTasks);
+        flushPendingIDBWrites();
         alert('Board imported successfully from TXT! The page will now reload.');
         location.reload();
       }

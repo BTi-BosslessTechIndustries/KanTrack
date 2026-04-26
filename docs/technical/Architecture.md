@@ -14,7 +14,7 @@ KanTrack is a single-page, local-first Kanban board application. It runs entirel
 - Vanilla JavaScript + TypeScript, ES modules, no runtime framework
 - Build: Vite 5 (Rollup under the hood)
 - Persistence: `localStorage` (synchronous, primary) + IndexedDB (asynchronous, fallback)
-- Test suite: Vitest (529 unit) + Playwright (43 E2E)
+- Test suite: Vitest (531 unit) + Playwright (43 E2E)
 - Entry point: `index.html` → `scripts/kantrack.js`
 
 ---
@@ -326,28 +326,30 @@ Every action is also written to IDB `oplog` store asynchronously (fire-and-forge
 
 ### Action Types
 
-| Type       | Undo behaviour                    |
-| ---------- | --------------------------------- |
-| `create`   | Remove the created task           |
-| `delete`   | Restore the deleted task          |
-| `update`   | Apply `previousState` to the task |
-| `move`     | Revert `task.column`              |
-| `priority` | Revert `task.priority`            |
-| `timer`    | Revert timer value                |
-| `tags`     | Revert `task.tags`                |
-| `dueDate`  | Revert `task.dueDate`             |
-| `notes`    | Revert `task.noteEntries`         |
+| Type        | Undo behaviour                                                        |
+| ----------- | --------------------------------------------------------------------- |
+| `create`    | Remove the created task                                               |
+| `delete`    | Restore the deleted task (moves back out of trash)                    |
+| `update`    | Apply `previousState` to the task                                     |
+| `move`      | Revert `task.column`                                                  |
+| `priority`  | Revert `task.priority`                                                |
+| `timer`     | Revert timer value                                                    |
+| `tags`      | Revert `task.tags`                                                    |
+| `dueDate`   | Revert `task.dueDate`                                                 |
+| `notes`     | Revert `task.noteEntries`                                             |
+| `tagDelete` | Restore deleted tag definition + re-assign it on all affected tasks   |
+| `subtask`   | Restore full `task.subKanban` snapshot (add / move / rename / delete) |
 
 ### Trash (Soft Delete)
 
-Deleted tasks are soft-deleted (`task.deleted = true`) in `state.notesData` and simultaneously cloned to `trashedTasks[]` (persisted in IDB `trash` store). Keeping the soft-deleted entry in `state.notesData` ensures tag cleanup and due-date queries can correctly exclude or account for them. `TRASH_SOFT_CAP = 200` — oldest entries auto-purged when limit is exceeded. Users can restore or permanently delete from the trash panel.
+Deleted tasks are soft-deleted (`task.deleted = true`) in `state.notesData` and simultaneously cloned to `trashedTasks[]` (persisted in IDB `trash` store via a 300ms debounced write). Keeping the soft-deleted entry in `state.notesData` is required for `applyRedo('delete')` to function correctly after a page reload. `TRASH_SOFT_CAP = 200` — oldest entries auto-purged when limit is exceeded. Users can restore or permanently delete from the trash panel.
 
 - **Restore** — removes `task.deleted`, pushes a "Restored from trash" history entry, replaces the soft-deleted entry in `state.notesData` in-place (preventing duplicates).
-- **Permanent delete / empty trash** — removes entries from both `trashedTasks[]` and `state.notesData`, then calls `cleanupUnusedTags()`.
+- **Permanent delete / empty trash** — removes entries from both `trashedTasks[]` and `state.notesData`, purges matching entries from the undo/redo stacks, then calls `cleanupUnusedTags()`.
 
 ### Oplog Compaction
 
-`compaction-worker.js` runs hourly (via `scheduleCompaction()`). It filters the oplog to remove stale undone entries beyond the MAX_HISTORY window, keeping the store bounded.
+`compaction-worker.js` runs hourly (via `scheduleCompaction()`). It filters the oplog to remove stale undone entries older than 7 days, keeping the store bounded. Entries with `lamport ≤ lastSyncedLamport` (reserved for Phase 10 sync) are never compacted. Batch deletion runs in a single IDB transaction.
 
 ---
 
@@ -401,9 +403,11 @@ Pinned tags appear in the board's filter bar. Clicking a pinned tag adds it to `
 
 Inside the task modal, pinned tags are also shown in a dedicated management panel above the dropdown, with **Assign** (add to task) and **Delete** (remove tag permanently) actions — removing the need to open the dropdown to manage pinned tags.
 
+`deleteTag(id)` removes the definition, strips the tag ID from every task in `state.notesData`, persists, then walks the DOM for all affected task cards and replaces their `.task-tags` element using `renderTaskTagsHTML` — keeping board cards in sync without a full re-render.
+
 ### Tag Filter Matching
 
-`checkTaskVisibility()` in `search.js` compares tag IDs directly (`currentTagFilter.some(id => taskTagIds.includes(id))`). Name-based comparison was removed to prevent false matches between tags with similar names.
+`checkTaskVisibility()` in `search.js` compares tag IDs directly using AND semantics (`currentTagFilter.every(id => taskTagIds.includes(id))`). A task must carry **all** selected filter tags to be visible — selecting more chips narrows results. Name-based comparison was removed to prevent false matches between tags with similar names.
 
 ### Cleanup
 
@@ -424,6 +428,8 @@ Tasks carry an optional `dueDate: string` (ISO `YYYY-MM-DD`).
 `getDueDateStatus` returns `'overdue' | 'today' | 'soon' | 'normal'`. This drives the CSS class applied to the due date badge on each task card.
 
 All mutations via `setDueDate(taskId, isoDate | null)` — records an undo action and saves.
+
+**Timezone note:** ISO date strings are parsed with a local-time constructor (`new Date(y, m-1, d)`) rather than `new Date(isoString)`. The native `Date` constructor parses `YYYY-MM-DD` strings as UTC midnight, which shifts the date for users in negative-offset timezones and causes tasks to appear overdue prematurely. The local-time parser eliminates this discrepancy.
 
 ---
 
@@ -459,17 +465,27 @@ All mutations via `setDueDate(taskId, isoDate | null)` — records an undo actio
 
 ```
 Algorithm : AES-256-GCM
-Key derive: PBKDF2-SHA256, 100 000 iterations
-IV        : 12 bytes (random, prepended to ciphertext)
-Salt      : 16 bytes (random, prepended before IV)
+Key derive: PBKDF2-SHA256, 600 000 iterations (OWASP 2024)
+IV        : 12 bytes (random, per-encryption)
+Salt      : 16 bytes (random, per-encryption)
 
-Binary layout: [ 16 B salt ][ 12 B IV ][ ciphertext ]
+Binary layout (v2, current):
+  [ "KTENC" magic (5 B) ][ version (1 B) ][ salt (16 B) ][ IV (12 B) ][ ciphertext ]
 
-encryptWorkspace(json, passphrase) → ArrayBuffer
+Legacy layout (v0, produced before version byte was added):
+  [ salt (16 B) ][ IV (12 B) ][ ciphertext ]
+
+encryptWorkspace(json, passphrase) → ArrayBuffer   (always writes v2)
 decryptWorkspace(buffer, passphrase) → string (JSON)
+  — auto-detects v0 (no magic prefix) vs v1/v2 (KTENC magic)
+  — decrypts v0/v1 files with 100 000 iterations for backward compatibility
 ```
 
-No keys are stored. The key is re-derived from the passphrase on every encrypt/decrypt call.
+No keys are stored. The key is re-derived from the passphrase on every encrypt/decrypt call. The version byte makes future algorithm upgrades detectable and migratable without breaking existing files.
+
+### HTML Import Validation
+
+Imported `.html` board files go through per-task sanitization before being applied: malformed entries (missing `id`, blank title, invalid column) are filtered out and the user is shown a count of skipped entries. The passphrase dialog enforces a non-empty passphrase on Enter-key submission as well as button click.
 
 ---
 
@@ -548,7 +564,7 @@ Web Workers are bundled as separate chunks. `jsPDF` and `html2canvas` are exclud
 ### Unit Tests
 
 ```bash
-npm run test:run   # Vitest — 529 tests, ~1.5 s
+npm run test:run   # Vitest — 531 tests, ~1.5 s
 npm run test       # Vitest watch mode
 npm run test:ui    # Vitest browser UI
 ```
@@ -627,7 +643,8 @@ User selects .kantrack.enc file
   → validateImportFile(file)               [import-validator.js]
   → User enters passphrase in prompt
   → decryptWorkspace(buffer, passphrase)   [crypto.js]
-      → PBKDF2 key derivation (100k iter)
+      → detect format: KTENC magic (v1/v2) or legacy (v0)
+      → PBKDF2 key derivation (600k iter for v2; 100k for v0/v1)
       → AES-GCM decrypt
       → JSON.parse
   → sanitize all HTML fields               [sanitize.js]

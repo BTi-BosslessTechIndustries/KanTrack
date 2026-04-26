@@ -36,6 +36,7 @@ import {
   getUIPref,
   setUIPref,
   setAutoSaveCallback,
+  flushPendingIDBWrites,
 } from '../scripts/kantrack-modules/repository.js';
 
 // ---------------------------------------------------------------------------
@@ -118,11 +119,11 @@ describe('getAllTasks', () => {
     expect(tasks[0].id).toBe('good');
   });
 
-  it('filters out deleted tasks', async () => {
+  it('keeps soft-deleted tasks (undo system needs them for redo)', async () => {
     await idbBulkPut('tasks', [validTask('keep'), { ...validTask('del'), deleted: true }]);
     const tasks = await getAllTasks();
-    expect(tasks).toHaveLength(1);
-    expect(tasks[0].id).toBe('keep');
+    expect(tasks).toHaveLength(2);
+    expect(tasks.find(t => t.id === 'del')).toBeDefined();
   });
 
   it('filters out tasks without a title', async () => {
@@ -377,6 +378,7 @@ describe('trash', () => {
 
   it('saveTrash writes to IDB async', async () => {
     saveTrash([trashedTask]);
+    flushPendingIDBWrites();
     await flushPromises();
     const idbTrash = await idbGetAll('trash');
     expect(idbTrash[0].id).toBe('t1');

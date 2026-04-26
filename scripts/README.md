@@ -15,7 +15,8 @@ The bootstrap file loaded by `index.html`. It:
 3. Calls `initRouter()` to attach the single delegated click listener
 4. Calls `dispatch({ type: TASK_SET_ALL, payload: tasks })` to seed the store after loading from IDB
 5. Sets up column count listeners, the auto-save indicator, and the storage monitor
-6. Registers global keyboard shortcuts: **N** (new task), **/** (search), **?** (shortcuts dialog), **ESC** (close any open modal), and arrow-key card navigation
+6. Registers a `beforeunload` handler that calls `flushPendingIDBWrites()` to flush any in-flight debounced IDB writes before the page unloads
+7. Registers global keyboard shortcuts: **N** (new task), **/** (search), **?** (shortcuts dialog), **ESC** (close any open modal), and arrow-key card navigation
 
 If you add a new button or interactive element to `index.html`, the corresponding action handler is registered here.
 
@@ -42,7 +43,7 @@ Workers are created with `new Worker(new URL(..., import.meta.url), { type: 'mod
 
 ## Architecture rules
 
-1. **`repository.ts` is the only file that touches IDB/localStorage for business data.** All other modules call `saveNotesToLocalStorage()` (storage.js) which delegates to `repository.ts`.
+1. **`repository.ts` is the only file that touches IDB/localStorage for business data.** All other modules call `saveNotesToLocalStorage()` (storage.js) which delegates to `repository.ts`. The `flushPendingIDBWrites()` export cancels debounce timers and fires their pending IDB writes immediately; it is called on `beforeunload` and before any `location.reload()`.
 
 2. **All click handling goes through `router.ts`.** No inline `onclick` attributes. No `window.*` exports. Use `data-action` + `data-action-param` on HTML elements and `registerAction()` in `kantrack.js`.
 

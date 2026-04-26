@@ -14,7 +14,7 @@ export const PRIORITIES = [
   { value: null, label: 'None', color: 'rgba(255, 255, 255, 0.5)' },
   { value: 'low', label: 'Low', color: '#4caf50' },
   { value: 'medium', label: 'Medium', color: '#ff9800' },
-  { value: 'high', label: 'High', color: '#f44336' }
+  { value: 'high', label: 'High', color: '#f44336' },
 ];
 
 export function getPriorityLabel(priority) {
@@ -35,16 +35,16 @@ export function showQuickPriorityMenu(taskId, buttonElement) {
     label: priority.label,
     value: priority.value,
     color: priority.color,
-    active: task.priority === priority.value
+    active: task.priority === priority.value,
   }));
 
   showContextMenu({
     anchorElement: buttonElement,
     menuClass: 'quick-priority-menu',
     items,
-    onSelect: (value) => {
+    onSelect: value => {
       quickSetPriority(taskId, value);
-    }
+    },
   });
 }
 
@@ -64,7 +64,7 @@ export function quickSetPriority(taskId, priority) {
   task.actions.push({
     action: `Priority changed from ${getPriorityLabel(oldPriority)} to ${getPriorityLabel(priority)}`,
     timestamp,
-    type: 'priority'
+    type: 'priority',
   });
 
   // Record action for undo/redo
@@ -73,7 +73,7 @@ export function quickSetPriority(taskId, priority) {
     taskId: taskId,
     previousState: previousState,
     newState: deepClone(task),
-    description: `Change priority to ${getPriorityLabel(priority)}`
+    description: `Change priority to ${getPriorityLabel(priority)}`,
   });
 
   saveNotesToLocalStorage();
@@ -112,6 +112,7 @@ export function updateNoteCardPriority(taskId) {
 
 export function setModalPriority(priority) {
   if (!state.currentTaskId) return;
+  if (state.currentModalPriority === priority) return;
 
   state.setCurrentModalPriority(priority);
   state.setModalHasChanges(true);
