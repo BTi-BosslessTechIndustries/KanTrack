@@ -34,6 +34,12 @@ export function setOpenTaskModal(fn) {
   openTaskModalFn = fn;
 }
 
+// Forward declaration for deactivateTaskModalTrap (will be set from kantrack.js)
+let _deactivateModalTrap = null;
+export function setDeactivateModalTrap(fn) {
+  _deactivateModalTrap = fn;
+}
+
 // ── Virtual List ──────────────────────────────────────────────
 const COLUMN_IDS = ['todo', 'inProgress', 'onHold', 'done'];
 const _virtualListMap = new Map(); // Map<columnId, VirtualList>
@@ -142,6 +148,9 @@ export function addNote() {
       if (todoCol) {
         todoCol.appendChild(noteElement);
         sortColumnByPriority('todo');
+        if (!checkTaskVisibility(newNote)) {
+          noteElement.style.display = 'none';
+        }
       }
     }
 
@@ -162,22 +171,18 @@ export function deleteTaskFromModal() {
 
     const shouldExport = confirm('Do you want to export this task as PDF before deleting?');
 
-    // Close modal first
+    // Close modal first — deactivate focus trap before hiding
     state.setModalHasChanges(false); // Prevent unsaved changes warning
+    _deactivateModalTrap?.();
     const modal = document.getElementById('taskModal');
     if (modal) modal.style.display = 'none';
     state.setCurrentTaskId(null);
 
     // Handle export and deletion
     if (shouldExport) {
-      // Add deletion to history
-      const timestamp = new Date().toLocaleString();
-      task.actions.push({ action: 'Deleted', timestamp, type: 'deleted' });
-      saveNotesToLocalStorage();
-
-      // Export PDF then delete
+      // Export PDF then delete (deleteNote adds the 'Deleted' history entry itself)
       exportTaskAsPDF(taskIdToDelete).then(() => {
-        deleteNote(taskIdToDelete, false);
+        deleteNote(taskIdToDelete, true);
       });
     } else {
       // Just delete

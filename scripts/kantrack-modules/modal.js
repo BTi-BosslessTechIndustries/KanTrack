@@ -14,7 +14,7 @@ import {
 import { sortColumnByPriority } from './sorting.js';
 import { renderSubKanban } from './sub-kanban.js';
 import { openImageViewer } from './images.js';
-import { updateNoteCardDisplay, setOpenTaskModal } from './tasks.js';
+import { updateNoteCardDisplay, setOpenTaskModal, setDeactivateModalTrap } from './tasks.js';
 import {
   getTagById,
   cleanupUnusedTags,
@@ -101,8 +101,9 @@ export async function openTaskModal(taskId) {
   _taskModalTrap.activate();
 }
 
-// Register openTaskModal with tasks.js
+// Register openTaskModal and trap deactivator with tasks.js
 setOpenTaskModal(openTaskModal);
+setDeactivateModalTrap(deactivateTaskModalTrap);
 
 export function enableTitleEdit() {
   if (!state.currentTaskId) return;
@@ -153,6 +154,10 @@ export function enableTitleEdit() {
 
 export async function renderHistory(task) {
   const historyList = document.getElementById('modalHistory');
+
+  // Don't wipe history if the user has an active note edit in progress
+  if (historyList.querySelector('.note-entry-edit-container')) return;
+
   historyList.innerHTML = '';
 
   if (!task.actions || task.actions.length === 0) {
@@ -382,8 +387,8 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
   const saveBtn = document.createElement('button');
   saveBtn.textContent = 'Save Changes';
   saveBtn.onclick = async () => {
+    // saveNoteEntryEdit calls renderHistory which rebuilds the list — no need to remove manually
     await saveNoteEntryEdit(taskId, noteEntryIndex, actionIndex, editor);
-    editContainer.remove();
   };
 
   actionsDiv.appendChild(cancelBtn);
@@ -406,6 +411,8 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
 async function saveNoteEntryEdit(taskId, noteEntryIndex, actionIndex, editor) {
   const task = state.notesData.find(t => t.id === taskId);
   if (!task || noteEntryIndex < 0 || !task.noteEntries[noteEntryIndex]) return;
+
+  const previousState = deepClone(task);
 
   const noteEntry = task.noteEntries[noteEntryIndex];
   const action = task.actions[actionIndex];
@@ -437,6 +444,14 @@ async function saveNoteEntryEdit(taskId, noteEntryIndex, actionIndex, editor) {
   action.images = imageIds;
   action.timestamp = noteEntry.timestamp;
 
+  recordAction({
+    type: 'notes',
+    taskId,
+    previousState,
+    newState: deepClone(task),
+    description: `Edit note in "${task.title.substring(0, 30)}"`,
+  });
+
   saveNotesToLocalStorage();
   updateNoteCardDisplay(taskId);
 
@@ -453,6 +468,8 @@ async function deleteNoteEntry(taskId, noteEntryIndex, actionIndex) {
     return;
   }
 
+  const previousState = deepClone(task);
+
   // Delete images from IndexedDB
   if (noteEntryIndex >= 0 && task.noteEntries[noteEntryIndex]) {
     const noteEntry = task.noteEntries[noteEntryIndex];
@@ -467,6 +484,14 @@ async function deleteNoteEntry(taskId, noteEntryIndex, actionIndex) {
   if (actionIndex >= 0 && task.actions[actionIndex]) {
     task.actions.splice(actionIndex, 1);
   }
+
+  recordAction({
+    type: 'notes',
+    taskId,
+    previousState,
+    newState: deepClone(task),
+    description: `Delete note in "${task.title.substring(0, 30)}"`,
+  });
 
   saveNotesToLocalStorage();
   updateNoteCardDisplay(taskId);
@@ -535,6 +560,11 @@ export function closeTaskModal() {
   state.setCurrentModalPriority(null);
   state.setOriginalTagsValue([]);
   state.setOriginalTitleValue('');
+}
+
+export function deactivateTaskModalTrap() {
+  _taskModalTrap?.deactivate();
+  _taskModalTrap = null;
 }
 
 export function clearNotes() {

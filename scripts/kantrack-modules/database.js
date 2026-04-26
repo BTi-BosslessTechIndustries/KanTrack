@@ -490,6 +490,25 @@ export function idbDeleteOplog(opId) {
 }
 
 /**
+ * Delete multiple oplog entries by opId in a single transaction.
+ */
+export function idbDeleteOplogBatch(opIds) {
+  if (!opIds || opIds.length === 0) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['oplog'], 'readwrite');
+    const store = transaction.objectStore('oplog');
+
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+
+    for (const opId of opIds) {
+      store.delete(opId);
+    }
+  });
+}
+
+/**
  * Delete all oplog entries where undone === true in a single transaction.
  */
 export function idbDeleteAllUndoneOplog() {

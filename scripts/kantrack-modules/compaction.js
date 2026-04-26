@@ -11,7 +11,7 @@
  * Compaction runs during idle time so it never blocks the UI.
  * The filter computation is offloaded to a Web Worker when available.
  ***********************/
-import { idbGetAllOplog, idbDeleteOplog, setMetaValue } from './database.js';
+import { idbGetAllOplog, idbDeleteOplogBatch, setMetaValue, getMetaValue } from './database.js';
 import { debugWarn } from './utils.js';
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -21,13 +21,22 @@ const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
  * Falls back to inline filter when Worker is unavailable.
  * @param {object[]} entries
  * @param {number} cutoff
+ * @param {number} lastSyncedLamport
  * @returns {Promise<string[]>} opIds to delete
  */
-function _filterViaWorker(entries, cutoff) {
+function _filterViaWorker(entries, cutoff, lastSyncedLamport) {
+  const inlineFilter = () =>
+    entries
+      .filter(
+        e =>
+          e.undone === true &&
+          e.timestamp < cutoff &&
+          (lastSyncedLamport === null || e.lamport > lastSyncedLamport)
+      )
+      .map(e => e.opId);
+
   if (typeof Worker === 'undefined') {
-    return Promise.resolve(
-      entries.filter(e => e.undone === true && e.timestamp < cutoff).map(e => e.opId)
-    );
+    return Promise.resolve(inlineFilter());
   }
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL('../workers/compaction-worker.js', import.meta.url), {
@@ -40,10 +49,10 @@ function _filterViaWorker(entries, cutoff) {
     };
     worker.onerror = err => {
       worker.terminate();
-      // Fall back to inline filter on worker error
-      resolve(entries.filter(e => e.undone === true && e.timestamp < cutoff).map(e => e.opId));
+      debugWarn('[compaction] Worker error, falling back to inline filter:', err);
+      resolve(inlineFilter());
     };
-    worker.postMessage({ type: 'compact', entries, cutoffMs: cutoff });
+    worker.postMessage({ type: 'compact', entries, cutoffMs: cutoff, lastSyncedLamport });
   });
 }
 
@@ -64,14 +73,15 @@ export function scheduleCompaction() {
  */
 async function runCompaction() {
   try {
-    const entries = await idbGetAllOplog();
+    const [entries, lastSyncedLamport] = await Promise.all([
+      idbGetAllOplog(),
+      getMetaValue('lastSyncedLamport'),
+    ]);
     const cutoff = Date.now() - SEVEN_DAYS_MS;
 
-    const toDelete = await _filterViaWorker(entries, cutoff);
+    const toDelete = await _filterViaWorker(entries, cutoff, lastSyncedLamport);
 
-    for (const opId of toDelete) {
-      await idbDeleteOplog(opId);
-    }
+    await idbDeleteOplogBatch(toDelete);
 
     await setMetaValue('lastCompactedAt', Date.now());
 

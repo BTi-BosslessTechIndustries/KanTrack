@@ -88,6 +88,7 @@ export interface OplogEntry {
   patch: Record<string, PatchField>;
   description: string;
   undone: boolean;
+  undoneAt?: number; // ms timestamp of when the action was undone — used to rebuild redo order
   prevHash: null; // reserved for Phase 10 (sync)
   hash: null; // reserved for Phase 10 (sync)
   _action: unknown; // original recordAction() argument — for stack reconstruction on init

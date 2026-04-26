@@ -31,12 +31,12 @@ KanTrack is a local-first, privacy-focused Kanban application. All data stays on
 
 ### What Data Is Stored and Where
 
-| Data                                           | Storage                                                                              |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Tasks (titles, notes, tags, priority, history) | `localStorage` + IndexedDB (`KanbanDB`)                                              |
-| Notebook pages (HTML content, images)          | IndexedDB (`KanbanDB`)                                                               |
-| UI preferences (sidebar width, etc.)           | `localStorage`                                                                       |
-| Encryption keys                                | **Never stored** — derived per-session from your password using PBKDF2 + AES-256-GCM |
+| Data                                           | Storage                                                                                                       |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Tasks (titles, notes, tags, priority, history) | `localStorage` + IndexedDB (`KanbanDB`)                                                                       |
+| Notebook pages (HTML content, images)          | IndexedDB (`KanbanDB`)                                                                                        |
+| UI preferences (sidebar width, etc.)           | `localStorage`                                                                                                |
+| Encryption keys                                | **Never stored** — derived per-operation from your password using PBKDF2 (600k rounds, SHA-256) + AES-256-GCM |
 
 All storage is local to your browser. Nothing is sent to any server.
 
@@ -68,7 +68,7 @@ Browser extensions with `<all_urls>` permissions can read page content and stora
 Standard `.kantrack.json` exports are plain JSON. Anyone with access to the file can read your tasks and notes. Use the encrypted export option for sensitive data.
 
 **Encrypted export password strength:**
-The encrypted export uses PBKDF2 (100,000 iterations, SHA-256) + AES-256-GCM. The encryption is only as strong as your password. A weak or guessable password significantly reduces security.
+The encrypted export uses PBKDF2 (600,000 iterations, SHA-256) + AES-256-GCM. The encryption is only as strong as your password. A weak or guessable password significantly reduces security.
 
 **HTTP (non-HTTPS) serving:**
 The CSP is enforced by the browser regardless, but for anything beyond `localhost`, serve over HTTPS to prevent in-transit interception.

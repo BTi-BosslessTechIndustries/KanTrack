@@ -256,16 +256,16 @@ export function createNotebookItem(type, parentId) {
   }
 
   pushToNotebookItems(newItem);
-  saveNotebookToLocalStorage();
 
-  // Expand parent folder if creating inside one
+  // Expand parent folder if creating inside one (before saving — one write)
   if (parentId !== null) {
     const parent = notebookItems.find(i => i.id === parentId);
     if (parent && parent.type === 'folder') {
       parent.expanded = true;
-      saveNotebookToLocalStorage();
     }
   }
+
+  saveNotebookToLocalStorage();
 
   renderNotebookTree();
 
@@ -426,7 +426,8 @@ export function expandToItem(itemId) {
   // Walk up the tree and expand all parent folders
   while (item.parentId !== null) {
     const parent = notebookItems.find(i => i.id === item.parentId);
-    if (parent && parent.type === 'folder') {
+    if (!parent) break; // orphaned item — stop rather than throw
+    if (parent.type === 'folder') {
       parent.expanded = true;
     }
     item = parent;
@@ -559,6 +560,8 @@ export async function saveAndClosePage() {
   renderNotebookTree();
 
   setPageHasChanges(false);
+  _pageModalTrap?.deactivate();
+  _pageModalTrap = null;
   const modal = document.getElementById('pageModal');
   modal.style.display = 'none';
   setCurrentPageId(null);
@@ -652,6 +655,8 @@ export async function deletePageFromModal() {
   if (confirm(`Delete "${page.name}"?`)) {
     await deleteNotebookItem(currentPageId, true);
     setPageHasChanges(false);
+    _pageModalTrap?.deactivate();
+    _pageModalTrap = null;
     const modal = document.getElementById('pageModal');
     modal.style.display = 'none';
     setCurrentPageId(null);
@@ -1018,9 +1023,12 @@ export function setupNotebookEventListeners() {
     }
   });
 
-  // Keyboard shortcut: Ctrl+B to toggle sidebar
+  // Keyboard shortcut: Ctrl+B to toggle sidebar (guard against firing inside text inputs)
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable)
+        return;
       e.preventDefault();
       toggleNotebookSidebar();
     }
@@ -1063,7 +1071,7 @@ export function setupNotebookEventListeners() {
 
         // Long press for context menu
         longPressTimer = setTimeout(() => {
-          const itemId = parseInt(itemEl.dataset.id);
+          const itemId = itemEl.dataset.id;
           showContextMenu({ clientX: touchStartX, clientY: touchStartY }, itemId);
           touchedItem = null;
         }, 600);

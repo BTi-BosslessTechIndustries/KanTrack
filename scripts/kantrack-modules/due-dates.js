@@ -72,6 +72,15 @@ export function getDueDate(taskId) {
 }
 
 /**
+ * Parse an ISO date string (YYYY-MM-DD) in local time to avoid UTC-midnight
+ * shift that makes tasks due "today" appear overdue for users west of UTC.
+ */
+function _parseDateLocal(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/**
  * Check if a task is overdue
  */
 export function isOverdue(taskId) {
@@ -79,7 +88,7 @@ export function isOverdue(taskId) {
   if (!task || !task.dueDate) return false;
   if (task.column === 'done') return false;
 
-  const due = new Date(task.dueDate);
+  const due = _parseDateLocal(task.dueDate);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -94,7 +103,7 @@ export function isDueToday(taskId) {
   if (!task || !task.dueDate) return false;
   if (task.column === 'done') return false;
 
-  const due = new Date(task.dueDate);
+  const due = _parseDateLocal(task.dueDate);
   const today = new Date();
 
   return due.toDateString() === today.toDateString();
@@ -108,7 +117,7 @@ export function isDueSoon(taskId) {
   if (!task || !task.dueDate) return false;
   if (task.column === 'done') return false;
 
-  const due = new Date(task.dueDate);
+  const due = _parseDateLocal(task.dueDate);
   const today = new Date();
   const threeDays = new Date(today);
   threeDays.setDate(today.getDate() + 3);
@@ -132,7 +141,7 @@ export function getDueDateStatus(taskId) {
 export function formatDueDate(dateString) {
   if (!dateString) return '';
 
-  const date = new Date(dateString);
+  const date = _parseDateLocal(dateString);
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
@@ -160,8 +169,7 @@ export function formatDueDate(dateString) {
 export function formatRelativeDueDate(dateString) {
   if (!dateString) return '';
 
-  const date = new Date(dateString);
-  date.setHours(0, 0, 0, 0);
+  const date = _parseDateLocal(dateString);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -278,8 +286,8 @@ export function sortByDueDate(tasks, ascending = true) {
     if (!a.dueDate) return ascending ? 1 : -1;
     if (!b.dueDate) return ascending ? -1 : 1;
 
-    const dateA = new Date(a.dueDate);
-    const dateB = new Date(b.dueDate);
+    const dateA = _parseDateLocal(a.dueDate);
+    const dateB = _parseDateLocal(b.dueDate);
 
     return ascending ? dateA - dateB : dateB - dateA;
   });

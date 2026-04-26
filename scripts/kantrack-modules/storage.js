@@ -10,6 +10,7 @@ import {
   getAllNotebookItems,
   saveNotebookItems as _saveNotebookItems,
   setAutoSaveCallback,
+  flushPendingIDBWrites,
   loadPermanentNotes,
   savePermanentNotes,
   safeGetItem,
@@ -17,7 +18,14 @@ import {
 } from './repository.js';
 
 // Re-export helpers that have no state interaction
-export { setAutoSaveCallback, loadPermanentNotes, savePermanentNotes, safeGetItem, safeSetItem };
+export {
+  setAutoSaveCallback,
+  flushPendingIDBWrites,
+  loadPermanentNotes,
+  savePermanentNotes,
+  safeGetItem,
+  safeSetItem,
+};
 
 // ---------------------------------------------------------------------------
 // Tasks — wrap with state interaction

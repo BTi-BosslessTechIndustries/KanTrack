@@ -6,6 +6,8 @@ import { timezones } from './timezones.js';
 import { getAllClocks, saveClocks as _saveClocks } from './repository.js';
 import { debugWarn, createFocusTrap } from './utils.js';
 
+let _updateClocksInterval = null;
+
 export function initializeDefaultClocks() {
   const defaultClocks = [
     {
@@ -38,7 +40,8 @@ export async function loadClocks() {
   }
 
   renderClocks();
-  setInterval(updateClocks, 1000);
+  if (_updateClocksInterval !== null) clearInterval(_updateClocksInterval);
+  _updateClocksInterval = setInterval(updateClocks, 1000);
 }
 
 export function saveClocks() {

@@ -23,6 +23,10 @@ export function setupDragAndDrop() {
         const newColumnId = this.id;
         const noteId = draggedItem.dataset.id; // string UUID
 
+        setDraggedItem(null);
+
+        if (oldColumnId === newColumnId) return;
+
         updateNoteColumn(noteId, oldColumnId, newColumnId);
 
         if (getColumnVirtualList(newColumnId)) {
@@ -34,9 +38,6 @@ export function setupDragAndDrop() {
           this.appendChild(draggedItem);
           sortColumnByPriority(newColumnId);
         }
-
-        setDraggedItem(null);
-        saveNotesToLocalStorage();
 
         // Update column counts
         applyFilters();
@@ -109,20 +110,20 @@ export function enableTouchDrag(noteEl, openTaskModalFn) {
         const newColumnId = dropCol.id;
         const noteId = draggedItem.dataset.id; // string UUID
 
-        updateNoteColumn(noteId, oldColumnId, newColumnId);
+        if (oldColumnId !== newColumnId) {
+          updateNoteColumn(noteId, oldColumnId, newColumnId);
 
-        if (getColumnVirtualList(newColumnId)) {
-          updateColumnVirtualList(oldColumnId);
-          updateColumnVirtualList(newColumnId);
-        } else {
-          dropCol.appendChild(draggedItem);
-          sortColumnByPriority(newColumnId);
+          if (getColumnVirtualList(newColumnId)) {
+            updateColumnVirtualList(oldColumnId);
+            updateColumnVirtualList(newColumnId);
+          } else {
+            dropCol.appendChild(draggedItem);
+            sortColumnByPriority(newColumnId);
+          }
+
+          // Update column counts
+          applyFilters();
         }
-
-        saveNotesToLocalStorage();
-
-        // Update column counts
-        applyFilters();
       }
     } else {
       // It was a tap - open the modal

@@ -277,6 +277,21 @@ describe('updateTag', () => {
     createTag('Success', 0);
     expect(updateTag('success', { colorIndex: 1 })).toBe(true);
   });
+
+  it('clears customColor when updating colorIndex to a preset', () => {
+    createTag('Custom', 0, false, '#ff0000');
+    expect(getTagById('custom').customColor).toBe('#ff0000');
+    updateTag('custom', { colorIndex: 3 });
+    const tag = getTagById('custom');
+    expect(tag.colorIndex).toBe(3);
+    expect(tag.customColor).toBeUndefined();
+  });
+
+  it('retains customColor when explicitly updating it', () => {
+    createTag('Custom2', 0, false, '#ff0000');
+    updateTag('custom2', { customColor: '#00ff00' });
+    expect(getTagById('custom2').customColor).toBe('#00ff00');
+  });
 });
 
 // ─── deleteTag ────────────────────────────────────────────────────────────────
