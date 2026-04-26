@@ -27,6 +27,15 @@ export const TAG_COLORS = [
 // In-memory tag definitions
 let tagDefinitions = [];
 
+// Callback registered from kantrack.js to avoid circular dep with undo.js
+let _recordAction = null;
+export function registerRecordAction(fn) {
+  _recordAction = fn;
+}
+
+// Tracks the active outside-click handler so re-renders don't stack listeners
+let _closeDropdownListener = null;
+
 /**
  * Initialize tags system
  */
@@ -48,20 +57,25 @@ async function loadTagDefinitions() {
       tagDefinitions = loaded;
       const beforeCount = tagDefinitions.length;
 
-      // Get tags currently in use by tasks (reads from state, tasks must be loaded first)
-      const usedTagIds = getUsedTagIds();
+      // Only prune if tasks are loaded — an empty notesData could mean tasks
+      // haven't been hydrated yet, and pruning would silently delete all non-pinned tags.
+      if (state.notesData.length > 0) {
+        const usedTagIds = getUsedTagIds();
 
-      // Remove old default tags (unless they're in use)
-      tagDefinitions = tagDefinitions.filter(
-        tag => !OLD_DEFAULT_TAG_IDS.includes(tag.id) || usedTagIds.has(tag.id)
-      );
+        // Remove old default tags (unless they're in use)
+        tagDefinitions = tagDefinitions.filter(
+          tag => !OLD_DEFAULT_TAG_IDS.includes(tag.id) || usedTagIds.has(tag.id)
+        );
 
-      // Keep tags that are pinned OR in use by tasks
-      tagDefinitions = tagDefinitions.filter(tag => tag.pinned === true || usedTagIds.has(tag.id));
+        // Keep tags that are pinned OR in use by tasks
+        tagDefinitions = tagDefinitions.filter(
+          tag => tag.pinned === true || usedTagIds.has(tag.id)
+        );
 
-      // Save if any tags were removed
-      if (tagDefinitions.length !== beforeCount) {
-        saveTagDefinitions();
+        // Save if any tags were removed
+        if (tagDefinitions.length !== beforeCount) {
+          saveTagDefinitions();
+        }
       }
     } else {
       // Start with empty tags — users create their own
@@ -200,10 +214,36 @@ export function updateTag(id, updates) {
   const index = tagDefinitions.findIndex(t => t.id === id);
   if (index === -1) return false;
 
-  tagDefinitions[index] = { ...tagDefinitions[index], ...updates };
+  const merged = { ...tagDefinitions[index], ...updates };
+  // Switching to a preset color must clear any existing custom color
+  if ('colorIndex' in updates && !updates.customColor) {
+    delete merged.customColor;
+  }
+  tagDefinitions[index] = merged;
   saveTagDefinitions();
 
   return true;
+}
+
+/**
+ * Restore a previously deleted tag definition (used by undo system).
+ */
+export function restoreTagDefinition(tag) {
+  if (!tagDefinitions.find(t => t.id === tag.id)) {
+    tagDefinitions.push(tag);
+    saveTagDefinitions();
+  }
+}
+
+/**
+ * Remove a tag definition by ID without touching tasks (used by redo system).
+ */
+export function removeTagDefinitionById(id) {
+  const index = tagDefinitions.findIndex(t => t.id === id);
+  if (index !== -1) {
+    tagDefinitions.splice(index, 1);
+    saveTagDefinitions();
+  }
 }
 
 /**
@@ -213,8 +253,28 @@ export function deleteTag(id) {
   const index = tagDefinitions.findIndex(t => t.id === id);
   if (index === -1) return false;
 
+  const tagDefinition = { ...tagDefinitions[index] };
+
+  // Collect affected tasks with their current tags before any mutation
+  const affectedTasks = state.notesData
+    .filter(task => task.tags && task.tags.includes(id))
+    .map(task => ({ taskId: task.id, previousTags: [...task.tags] }));
+
+  // Record undo action before making changes
+  if (_recordAction) {
+    _recordAction({
+      type: 'tagDelete',
+      description: `Delete tag "${tagDefinition.name}"`,
+      tagDefinition,
+      affectedTasks,
+    });
+  }
+
   tagDefinitions.splice(index, 1);
   saveTagDefinitions();
+
+  // Collect IDs for the DOM refresh below
+  const affectedTaskIds = affectedTasks.map(t => t.taskId);
 
   // Remove tag from all tasks
   state.notesData.forEach(task => {
@@ -223,6 +283,24 @@ export function deleteTag(id) {
     }
   });
   saveNotesToLocalStorage();
+
+  // Refresh tag chips on board cards for every affected task (no-op in test env)
+  if (typeof document.querySelector !== 'function') return true;
+  affectedTaskIds.forEach(taskId => {
+    const noteElement = document.querySelector(`[data-id="${taskId}"]`);
+    if (!noteElement) return;
+    const tagsDisplay = noteElement.querySelector('.task-tags');
+    const tagsHtml = renderTaskTagsHTML(taskId);
+    if (tagsHtml) {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = tagsHtml;
+      if (tagsDisplay) {
+        tagsDisplay.replaceWith(wrapper.firstChild);
+      }
+    } else if (tagsDisplay) {
+      tagsDisplay.remove();
+    }
+  });
 
   return true;
 }
@@ -331,6 +409,12 @@ export function renderTaskTagsHTML(taskId) {
  */
 export function renderTagSelector(taskId, container) {
   if (!container) return;
+
+  // Remove any stale outside-click handler from a previous render
+  if (_closeDropdownListener) {
+    document.removeEventListener('click', _closeDropdownListener);
+    _closeDropdownListener = null;
+  }
 
   const task = state.notesData.find(t => t.id === taskId);
   const currentTags = task?.tags || [];
@@ -581,13 +665,15 @@ function setupTagSelectorEvents(taskId, container) {
     }
   });
 
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function closeDropdown(e) {
+  // Close dropdown when clicking outside — stored so re-renders can remove it
+  _closeDropdownListener = function (e) {
     if (!container.contains(e.target)) {
       dropdown.style.display = 'none';
-      document.removeEventListener('click', closeDropdown);
+      document.removeEventListener('click', _closeDropdownListener);
+      _closeDropdownListener = null;
     }
-  });
+  };
+  document.addEventListener('click', _closeDropdownListener);
 }
 
 /**

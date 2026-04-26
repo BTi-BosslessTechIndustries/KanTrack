@@ -3,8 +3,9 @@
  ***********************/
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
-import { getColumnName } from './utils.js';
+import { getColumnName, deepClone } from './utils.js';
 import { updateNoteCardDisplay } from './tasks.js';
+import { recordAction } from './undo.js';
 
 export function toggleSubKanban() {
   const content = document.getElementById('subKanbanContent');
@@ -62,7 +63,7 @@ export function createSubKanbanItem(item, parentTaskId) {
   const titleEl = document.createElement('span');
   titleEl.classList.add('sub-kanban-item-title');
   titleEl.textContent = item.title;
-  titleEl.ondblclick = (e) => {
+  titleEl.ondblclick = e => {
     e.stopPropagation();
     enableSubItemTitleEdit(parentTaskId, item.id, titleEl);
   };
@@ -77,7 +78,7 @@ export function createSubKanbanItem(item, parentTaskId) {
   deleteBtn.classList.add('delete-sub-item');
   deleteBtn.title = 'Delete';
   deleteBtn.textContent = '❌';
-  deleteBtn.onclick = (e) => {
+  deleteBtn.onclick = e => {
     e.stopPropagation();
     deleteSubKanbanItem(parentTaskId, item.id);
   };
@@ -86,7 +87,7 @@ export function createSubKanbanItem(item, parentTaskId) {
   itemEl.appendChild(actionsEl);
 
   // Drag events
-  itemEl.ondragstart = (e) => {
+  itemEl.ondragstart = e => {
     state.setSubKanbanDraggedItem({ element: itemEl, itemId: item.id, parentId: parentTaskId });
     itemEl.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
@@ -107,27 +108,31 @@ export function setupSubKanbanDragDrop() {
   const columns = document.querySelectorAll('.sub-kanban-column-items');
 
   columns.forEach(column => {
-    column.ondragover = (e) => {
+    column.ondragover = e => {
       e.preventDefault();
       if (state.subKanbanDraggedItem) {
         column.parentElement.classList.add('drop-hover');
       }
     };
 
-    column.ondragleave = (e) => {
+    column.ondragleave = e => {
       if (!column.contains(e.relatedTarget)) {
         column.parentElement.classList.remove('drop-hover');
       }
     };
 
-    column.ondrop = (e) => {
+    column.ondrop = e => {
       e.preventDefault();
       column.parentElement.classList.remove('drop-hover');
 
       if (!state.subKanbanDraggedItem) return;
 
       const newColumn = column.parentElement.dataset.column;
-      moveSubKanbanItem(state.subKanbanDraggedItem.parentId, state.subKanbanDraggedItem.itemId, newColumn);
+      moveSubKanbanItem(
+        state.subKanbanDraggedItem.parentId,
+        state.subKanbanDraggedItem.itemId,
+        newColumn
+      );
     };
   });
 }
@@ -153,11 +158,13 @@ export function addSubKanbanItem() {
   }
 
   const newItem = {
-    id: Date.now(),
+    id: crypto.randomUUID(),
     title: title,
     column: 'todo',
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
+
+  const previousState = deepClone(task);
 
   task.subKanban.items.push(newItem);
   task.subKanban.enabled = true;
@@ -167,7 +174,15 @@ export function addSubKanbanItem() {
   task.actions.push({
     action: `Added sub-task: "${title}"`,
     timestamp,
-    type: 'subtask'
+    type: 'subtask',
+  });
+
+  recordAction({
+    type: 'subtask',
+    taskId: state.currentTaskId,
+    previousState,
+    newState: deepClone(task),
+    description: `Add sub-task "${title}"`,
   });
 
   input.value = '';
@@ -186,14 +201,21 @@ export function moveSubKanbanItem(parentId, itemId, newColumn) {
   const oldColumn = item.column;
   if (oldColumn === newColumn) return;
 
+  const previousState = deepClone(task);
+
   item.column = newColumn;
 
   // Add to history
   const timestamp = new Date().toLocaleString();
-  task.actions.push({
-    action: `Sub-task "${item.title}" moved from ${getColumnName(oldColumn)} to ${getColumnName(newColumn)}`,
-    timestamp,
-    type: 'subtask'
+  const actionText = `Sub-task "${item.title}" moved from ${getColumnName(oldColumn)} to ${getColumnName(newColumn)}`;
+  task.actions.push({ action: actionText, timestamp, type: 'subtask' });
+
+  recordAction({
+    type: 'subtask',
+    taskId: parentId,
+    previousState,
+    newState: deepClone(task),
+    description: actionText,
   });
 
   saveNotesToLocalStorage();
@@ -210,15 +232,22 @@ export function deleteSubKanbanItem(parentId, itemId) {
 
   if (!confirm(`Delete sub-task "${item.title}"?`)) return;
 
+  const previousState = deepClone(task);
+
   // Remove from array
   task.subKanban.items = task.subKanban.items.filter(i => i.id !== itemId);
 
   // Add to history
   const timestamp = new Date().toLocaleString();
-  task.actions.push({
-    action: `Deleted sub-task: "${item.title}"`,
-    timestamp,
-    type: 'subtask'
+  const actionText = `Deleted sub-task: "${item.title}"`;
+  task.actions.push({ action: actionText, timestamp, type: 'subtask' });
+
+  recordAction({
+    type: 'subtask',
+    taskId: parentId,
+    previousState,
+    newState: deepClone(task),
+    description: actionText,
   });
 
   saveNotesToLocalStorage();
@@ -257,15 +286,22 @@ export function enableSubItemTitleEdit(parentId, itemId, titleEl) {
     }
 
     if (newTitle && newTitle !== originalTitle) {
+      const previousState = deepClone(task);
+
       item.title = newTitle;
       titleEl.textContent = newTitle; // Update display with truncated version
 
       // Add to history
       const timestamp = new Date().toLocaleString();
-      task.actions.push({
-        action: `Renamed sub-task from "${originalTitle}" to "${newTitle}"`,
-        timestamp,
-        type: 'subtask'
+      const actionText = `Renamed sub-task from "${originalTitle}" to "${newTitle}"`;
+      task.actions.push({ action: actionText, timestamp, type: 'subtask' });
+
+      recordAction({
+        type: 'subtask',
+        taskId: parentId,
+        previousState,
+        newState: deepClone(task),
+        description: actionText,
       });
 
       saveNotesToLocalStorage();
@@ -275,7 +311,7 @@ export function enableSubItemTitleEdit(parentId, itemId, titleEl) {
   };
 
   titleEl.onblur = finishEdit;
-  titleEl.onkeydown = (e) => {
+  titleEl.onkeydown = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
       titleEl.blur();

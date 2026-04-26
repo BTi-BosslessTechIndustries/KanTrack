@@ -24,7 +24,10 @@ export function addTime(minutes) {
 
   // Store action for later
   const timestamp = new Date().toLocaleString();
-  const action = minutes > 0 ? `Added ${minutes} minute(s) to timer` : `Removed ${Math.abs(minutes)} minute(s) from timer`;
+  const action =
+    minutes > 0
+      ? `Added ${minutes} minute(s) to timer`
+      : `Removed ${Math.abs(minutes)} minute(s) from timer`;
   state.pushToModalPendingActions({ action, timestamp });
 
   const timerTotal = document.getElementById('modalTimerTotal');
@@ -41,20 +44,21 @@ export function showQuickTimeMenu(taskId, buttonElement, isSubtract = false) {
 
   const items = times.map(minutes => ({
     label: isSubtract ? `-${minutes}m` : `+${minutes}m`,
-    value: isSubtract ? -minutes : minutes
+    value: isSubtract ? -minutes : minutes,
   }));
 
   showContextMenu({
     anchorElement: buttonElement,
     menuClass: isSubtract ? 'quick-time-menu subtract' : 'quick-time-menu',
     items,
-    onSelect: (value) => {
+    onSelect: value => {
       quickAddTime(taskId, value);
-    }
+    },
   });
 }
 
 export function quickAddTime(taskId, minutes) {
+  if (!minutes) return;
   const task = state.notesData.find(t => t.id === taskId);
   if (!task) return;
 
@@ -64,9 +68,10 @@ export function quickAddTime(taskId, minutes) {
   task.timer = Math.max(0, (task.timer || 0) + minutes);
 
   const timestamp = new Date().toLocaleString();
-  const actionText = minutes > 0
-    ? `Added ${minutes} minute(s) to timer`
-    : `Removed ${Math.abs(minutes)} minute(s) from timer`;
+  const actionText =
+    minutes > 0
+      ? `Added ${minutes} minute(s) to timer`
+      : `Removed ${Math.abs(minutes)} minute(s) from timer`;
   task.actions.push({ action: actionText, timestamp, type: 'timer' });
 
   // Record action for undo/redo
@@ -75,7 +80,7 @@ export function quickAddTime(taskId, minutes) {
     taskId: taskId,
     previousState: previousState,
     newState: deepClone(task),
-    description: actionText
+    description: actionText,
   });
 
   saveNotesToLocalStorage();

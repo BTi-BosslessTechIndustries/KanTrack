@@ -97,12 +97,12 @@ describe('loadNotesFromLocalStorage', () => {
     expect(notes[0].id).toBe('good');
   });
 
-  it('filters out tasks marked as deleted', async () => {
+  it('keeps soft-deleted tasks (undo system needs them for redo)', async () => {
     await idbBulkPut('tasks', [validTask('keep'), { ...validTask('del'), deleted: true }]);
 
     const notes = await loadNotesFromLocalStorage();
-    expect(notes).toHaveLength(1);
-    expect(notes[0].id).toBe('keep');
+    expect(notes).toHaveLength(2);
+    expect(notes.find(t => t.id === 'del')).toBeDefined();
   });
 
   it('filters out tasks without a title', async () => {

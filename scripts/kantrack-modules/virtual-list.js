@@ -131,9 +131,12 @@ export class VirtualList {
     this.#topSpacer.style.height = `${start * h}px`;
     this.#bottomSpacer.style.height = `${Math.max(0, items.length - end) * h}px`;
 
+    // Build an O(1) index map to avoid O(n) findIndex calls per rendered node
+    const indexMap = new Map(items.map((t, i) => [t.id, i]));
+
     // Remove cards that slid out of the render window
     for (const [id, el] of this.#nodes) {
-      const idx = items.findIndex(t => t.id === id);
+      const idx = indexMap.get(id) ?? -1;
       if (idx < start || idx >= end) {
         el.remove();
         this.#nodes.delete(id);

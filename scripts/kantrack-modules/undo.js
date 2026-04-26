@@ -5,7 +5,12 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { showNotification } from './notifications.js';
-import { cleanupUnusedTags, renderTagFilterButtons } from './tags.js';
+import {
+  cleanupUnusedTags,
+  renderTagFilterButtons,
+  restoreTagDefinition,
+  removeTagDefinitionById,
+} from './tags.js';
 import {
   getAllTrash,
   saveTrash as _saveTrash,
@@ -30,6 +35,9 @@ let _lamportClock = 0;
 let trashedTasks = [];
 const TRASH_SOFT_CAP = 200;
 
+// Track the active keyboard listener so re-initialisation doesn't stack duplicates
+let _keydownListener = null;
+
 /**
  * Initialize undo system
  */
@@ -45,8 +53,12 @@ export async function initUndo() {
   await loadTrash();
   await _loadStacksFromOplog();
 
-  // Setup keyboard shortcuts
-  document.addEventListener('keydown', handleKeyboardShortcuts);
+  // Remove any previous keyboard listener before adding a fresh one
+  if (_keydownListener) {
+    document.removeEventListener('keydown', _keydownListener);
+  }
+  _keydownListener = handleKeyboardShortcuts;
+  document.addEventListener('keydown', _keydownListener);
 }
 
 /**
@@ -123,9 +135,9 @@ export function undo() {
   try {
     applyUndo(action);
     showNotification(`Undone: ${action.description}`, 'info', 2000);
-    // Mark as undone in oplog (fire-and-forget)
+    // Mark as undone in oplog with timestamp so redo order survives reload
     if (action.opId) {
-      updateOplogEntry(action.opId, { undone: true });
+      updateOplogEntry(action.opId, { undone: true, undoneAt: Date.now() });
     }
     return true;
   } catch (e) {
@@ -204,6 +216,24 @@ function applyUndo(action) {
       }
       break;
 
+    case 'tagDelete': {
+      // Restore the tag definition and the tags arrays of every affected task
+      restoreTagDefinition(action.tagDefinition);
+      action.affectedTasks.forEach(({ taskId, previousTags }) => {
+        const t = state.notesData.find(n => n.id === taskId);
+        if (t) t.tags = [...previousTags];
+      });
+      saveNotesToLocalStorage();
+      renderTagFilterButtons();
+      window.dispatchEvent(
+        new CustomEvent('kantrack:tagsRestored', {
+          detail: { affectedTaskIds: action.affectedTasks.map(t => t.taskId) },
+        })
+      );
+      break;
+    }
+
+    case 'subtask':
     case 'move':
     case 'update':
     case 'priority':
@@ -237,10 +267,11 @@ function applyUndo(action) {
  */
 function applyRedo(action) {
   switch (action.type) {
-    case 'delete':
-      // Delete the task again - mark as deleted
+    case 'delete': {
+      // Delete the task again — mark as deleted and move back to trash
       const taskToDelete = state.notesData.find(t => t.id === action.taskId);
       if (taskToDelete) {
+        moveToTrash(JSON.parse(JSON.stringify(taskToDelete)));
         taskToDelete.deleted = true;
         saveNotesToLocalStorage();
         renderTagFilterButtons();
@@ -251,6 +282,7 @@ function applyRedo(action) {
         );
       }
       break;
+    }
 
     case 'create':
       // Recreate the task
@@ -271,6 +303,26 @@ function applyRedo(action) {
       }
       break;
 
+    case 'tagDelete': {
+      // Re-apply the deletion: remove definition and strip tag from tasks
+      removeTagDefinitionById(action.tagDefinition.id);
+      action.affectedTasks.forEach(({ taskId }) => {
+        const t = state.notesData.find(n => n.id === taskId);
+        if (t && t.tags) {
+          t.tags = t.tags.filter(tagId => tagId !== action.tagDefinition.id);
+        }
+      });
+      saveNotesToLocalStorage();
+      renderTagFilterButtons();
+      window.dispatchEvent(
+        new CustomEvent('kantrack:tagsRestored', {
+          detail: { affectedTaskIds: action.affectedTasks.map(t => t.taskId) },
+        })
+      );
+      break;
+    }
+
+    case 'subtask':
     case 'move':
     case 'update':
     case 'priority':
@@ -412,7 +464,14 @@ async function _loadStacksFromOplog() {
   try {
     const entries = await getAllOplogEntries(); // sorted by lamport asc
     const applied = entries.filter(e => !e.undone);
-    const undone = entries.filter(e => e.undone);
+    // Any undone entry with Lamport < max(applied Lamport) is a phantom left
+    // by a crash before clearUndoneOplogEntries() completed — discard it.
+    const maxAppliedLamport = applied.length > 0 ? Math.max(...applied.map(e => e.lamport)) : -1;
+    // Sort undone entries by undoneAt so the most recently undone ends up last
+    // (stack.pop() must return the most recently undone action first)
+    const undone = entries
+      .filter(e => e.undone && e.lamport > maxAppliedLamport)
+      .sort((a, b) => (a.undoneAt ?? a.lamport) - (b.undoneAt ?? b.lamport));
 
     undoStack.push(
       ...applied.slice(-MAX_HISTORY).map(e => ({
@@ -506,6 +565,9 @@ export function permanentlyDelete(taskId) {
       saveNotesToLocalStorage();
     }
 
+    // Purge undo/redo history referencing this task so "permanent" is truly permanent
+    _purgeStacksForIds(new Set([taskId]));
+
     return true;
   }
   return false;
@@ -527,6 +589,19 @@ export function emptyTrash() {
       state.setNotesData(filtered);
       saveNotesToLocalStorage();
     }
+
+    // Purge undo/redo history referencing any permanently deleted task
+    _purgeStacksForIds(idSet);
+  }
+}
+
+function _purgeStacksForIds(idSet) {
+  const keep = action => !idSet.has(action.taskId);
+  const before = undoStack.length + redoStack.length;
+  undoStack.splice(0, undoStack.length, ...undoStack.filter(keep));
+  redoStack.splice(0, redoStack.length, ...redoStack.filter(keep));
+  if (undoStack.length + redoStack.length !== before) {
+    clearUndoneOplogEntries();
   }
 }
 

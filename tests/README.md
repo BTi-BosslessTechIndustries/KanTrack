@@ -49,7 +49,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**529 tests across 19 files** — all should pass on every run.
+**531 tests across 19 files** — all should pass on every run.
 
 ### What is mocked
 

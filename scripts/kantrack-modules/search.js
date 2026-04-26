@@ -163,9 +163,7 @@ export function applyFilters() {
 
   allNoteElements.forEach(noteElement => {
     const taskId = noteElement.dataset.id;
-    let task = state.notesData.find(t => t.id === taskId);
-    if (!task) task = state.notesData.find(t => String(t.id) === String(taskId));
-    if (!task) task = state.notesData.find(t => t.id === parseInt(taskId));
+    const task = state.notesData.find(t => t.id === taskId);
 
     if (!task || task.deleted) {
       noteElement.style.display = 'none';
@@ -194,11 +192,11 @@ export function checkTaskVisibility(task) {
     return false;
   }
 
-  // Check tag filter - match by tag ID
+  // Check tag filter — task must have ALL selected tags (AND semantics)
   if (currentTagFilter.length > 0) {
     const taskTagIds = task.tags || [];
-    const hasMatchingTag = currentTagFilter.some(filterId => taskTagIds.includes(filterId));
-    if (!hasMatchingTag) {
+    const hasAllTags = currentTagFilter.every(filterId => taskTagIds.includes(filterId));
+    if (!hasAllTags) {
       return false;
     }
   }
@@ -279,8 +277,7 @@ function updateColumnCounts() {
       // DOM-based counting (fallback before VL init)
       const allNoteElements = Array.from(column.querySelectorAll('.note'));
       visibleTasks = allNoteElements.filter(el => {
-        const style = window.getComputedStyle(el);
-        return style.display !== 'none' && style.visibility !== 'hidden';
+        return window.getComputedStyle(el).display !== 'none';
       }).length;
       totalTasks = allNoteElements.filter(el => {
         const taskId = el.dataset.id;

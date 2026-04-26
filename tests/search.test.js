@@ -187,11 +187,15 @@ describe('toggleTagFilter', () => {
     expect(checkTaskVisibility(makeTask({ tags: [] }))).toBe(true);
   });
 
-  it('supports multiple tags active simultaneously (OR logic)', () => {
+  it('supports multiple tags active simultaneously (AND logic — task must have all)', () => {
     toggleTagFilter('tag-a');
     toggleTagFilter('tag-b');
-    expect(checkTaskVisibility(makeTask({ tags: ['tag-a'] }))).toBe(true);
-    expect(checkTaskVisibility(makeTask({ tags: ['tag-b'] }))).toBe(true);
+    // task with only one of the selected tags is hidden
+    expect(checkTaskVisibility(makeTask({ tags: ['tag-a'] }))).toBe(false);
+    expect(checkTaskVisibility(makeTask({ tags: ['tag-b'] }))).toBe(false);
+    // task with both selected tags is visible
+    expect(checkTaskVisibility(makeTask({ tags: ['tag-a', 'tag-b'] }))).toBe(true);
+    // task with neither is hidden
     expect(checkTaskVisibility(makeTask({ tags: ['tag-c'] }))).toBe(false);
   });
 });

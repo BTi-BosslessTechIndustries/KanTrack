@@ -33,12 +33,54 @@ import type { Task, Tag, NotebookItem, Clock, UndoEntry, OplogEntry } from './ty
 // Auto-save indicator callback (registered by kantrack.js)
 let onAutoSaveCallback: (() => void) | null = null;
 
-// Debounce timers for IDB writes (300ms — batches rapid sequential saves)
+// Debounce timers + pending snapshots for IDB writes (300ms — batches rapid sequential saves)
 let _saveTasksTimer: ReturnType<typeof setTimeout> | null = null;
+let _saveTasksSnapshot: Task[] | null = null;
 let _saveNotebookTimer: ReturnType<typeof setTimeout> | null = null;
+let _saveNotebookSnapshot: NotebookItem[] | null = null;
+let _saveTrashTimer: ReturnType<typeof setTimeout> | null = null;
+let _saveTrashSnapshot: Task[] | null = null;
 
 export function setAutoSaveCallback(fn: () => void): void {
   onAutoSaveCallback = fn;
+}
+
+/**
+ * Flush any pending debounced IDB writes immediately.
+ * Call on beforeunload so a tab-close within the 300ms window doesn't leave
+ * localStorage and IDB diverged.
+ */
+export function flushPendingIDBWrites(): void {
+  if (_saveTasksTimer !== null) {
+    clearTimeout(_saveTasksTimer);
+    _saveTasksTimer = null;
+    const s = _saveTasksSnapshot;
+    _saveTasksSnapshot = null;
+    if (s)
+      (idbClearAndBulkPut('tasks', s) as Promise<void>).catch((e: unknown) =>
+        debugWarn('IDB task flush error (non-fatal):', e)
+      );
+  }
+  if (_saveNotebookTimer !== null) {
+    clearTimeout(_saveNotebookTimer);
+    _saveNotebookTimer = null;
+    const s = _saveNotebookSnapshot;
+    _saveNotebookSnapshot = null;
+    if (s)
+      (idbClearAndBulkPut('notebook_items', s) as Promise<void>).catch((e: unknown) =>
+        debugWarn('IDB notebook flush error (non-fatal):', e)
+      );
+  }
+  if (_saveTrashTimer !== null) {
+    clearTimeout(_saveTrashTimer);
+    _saveTrashTimer = null;
+    const s = _saveTrashSnapshot;
+    _saveTrashSnapshot = null;
+    if (s)
+      (idbClearAndBulkPut('trash', s) as Promise<void>).catch((e: unknown) =>
+        debugWarn('IDB trash flush error (non-fatal):', e)
+      );
+  }
 }
 
 // ==================== TASKS ====================
@@ -105,7 +147,7 @@ function _cleanupTasks(tasks: Task[]): Task[] {
     seenIds.add(task.id);
     if (!task.title || task.title.trim() === '') return false;
     if (!task.column || !validColumns.includes(task.column)) return false;
-    if (task.deleted) return false;
+    // Keep soft-deleted tasks — the undo system needs them to apply redo('delete')
     return true;
   });
 
@@ -113,6 +155,10 @@ function _cleanupTasks(tasks: Task[]): Task[] {
     debugWarn(`Cleaned up ${beforeCount - cleaned.length} invalid/duplicate tasks`);
     try {
       localStorage.setItem('kanbanNotes', JSON.stringify(cleaned));
+      // Also sync IDB so it doesn't serve stale data if localStorage is cleared
+      (idbClearAndBulkPut('tasks', cleaned) as Promise<void>).catch((e: unknown) =>
+        debugWarn('IDB cleanup sync error (non-fatal):', e)
+      );
     } catch (_) {
       /* non-critical */
     }
@@ -129,13 +175,16 @@ export function saveTasks(tasks: Task[]): boolean {
   try {
     localStorage.setItem('kanbanNotes', JSON.stringify(tasks));
 
-    const snapshot = [...tasks];
+    _saveTasksSnapshot = [...tasks];
     if (_saveTasksTimer !== null) clearTimeout(_saveTasksTimer);
     _saveTasksTimer = setTimeout(() => {
       _saveTasksTimer = null;
-      (idbClearAndBulkPut('tasks', snapshot) as Promise<void>).catch((e: unknown) =>
-        debugWarn('IDB task save error (non-fatal):', e)
-      );
+      const s = _saveTasksSnapshot;
+      _saveTasksSnapshot = null;
+      if (s)
+        (idbClearAndBulkPut('tasks', s) as Promise<void>).catch((e: unknown) =>
+          debugWarn('IDB task save error (non-fatal):', e)
+        );
     }, 300);
 
     if (onAutoSaveCallback) onAutoSaveCallback();
@@ -190,13 +239,16 @@ export function saveNotebookItems(items: NotebookItem[]): boolean {
   try {
     localStorage.setItem('notebookItems', JSON.stringify(items));
 
-    const snapshot = [...items];
+    _saveNotebookSnapshot = [...items];
     if (_saveNotebookTimer !== null) clearTimeout(_saveNotebookTimer);
     _saveNotebookTimer = setTimeout(() => {
       _saveNotebookTimer = null;
-      (idbClearAndBulkPut('notebook_items', snapshot) as Promise<void>).catch((e: unknown) =>
-        debugWarn('IDB notebook save error (non-fatal):', e)
-      );
+      const s = _saveNotebookSnapshot;
+      _saveNotebookSnapshot = null;
+      if (s)
+        (idbClearAndBulkPut('notebook_items', s) as Promise<void>).catch((e: unknown) =>
+          debugWarn('IDB notebook save error (non-fatal):', e)
+        );
     }, 300);
 
     return true;
@@ -351,10 +403,17 @@ export function saveTrash(items: Task[]): void {
   try {
     localStorage.setItem('kantrackTrash', JSON.stringify(items));
 
-    const snapshot = [...items];
-    (idbClearAndBulkPut('trash', snapshot) as Promise<void>).catch((e: unknown) =>
-      debugWarn('IDB trash save error (non-fatal):', e)
-    );
+    _saveTrashSnapshot = [...items];
+    if (_saveTrashTimer !== null) clearTimeout(_saveTrashTimer);
+    _saveTrashTimer = setTimeout(() => {
+      _saveTrashTimer = null;
+      const s = _saveTrashSnapshot;
+      _saveTrashSnapshot = null;
+      if (s)
+        (idbClearAndBulkPut('trash', s) as Promise<void>).catch((e: unknown) =>
+          debugWarn('IDB trash save error (non-fatal):', e)
+        );
+    }, 300);
   } catch (e) {
     debugWarn('Error saving trash:', e);
   }

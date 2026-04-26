@@ -14,6 +14,7 @@ import {
   loadPermanentNotes,
   savePermanentNotes,
   setAutoSaveCallback,
+  flushPendingIDBWrites,
 } from './kantrack-modules/storage.js';
 import {
   loadClocks,
@@ -43,7 +44,11 @@ import {
   getColumnVirtualList,
 } from './kantrack-modules/tasks.js';
 import { setupDragAndDrop } from './kantrack-modules/drag-drop.js';
-import { addSubKanbanItem, toggleSubKanban } from './kantrack-modules/sub-kanban.js';
+import {
+  addSubKanbanItem,
+  toggleSubKanban,
+  renderSubKanban,
+} from './kantrack-modules/sub-kanban.js';
 import { addTime } from './kantrack-modules/timer.js';
 import { setModalPriority } from './kantrack-modules/priority.js';
 import {
@@ -92,12 +97,14 @@ import {
   renderTaskTagsHTML,
   cleanupUnusedTags,
   renderTagFilterButtons,
+  registerRecordAction,
 } from './kantrack-modules/tags.js';
 import { renderDueDatePicker, renderDueDateHTML } from './kantrack-modules/due-dates.js';
 import {
   initUndo,
   undo,
   redo,
+  recordAction,
   getTrashedTasks,
   restoreFromTrash,
   permanentlyDelete,
@@ -488,6 +495,7 @@ function updateColumnCounts() {
  * NAVIGATION GUARD
  ***********************/
 window.addEventListener('beforeunload', function (e) {
+  flushPendingIDBWrites();
   e.preventDefault();
   e.returnValue = '';
 });
@@ -518,6 +526,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await initTags();
   renderTagFilterButtons();
   await initUndo();
+  registerRecordAction(recordAction);
   scheduleCompaction();
   initSearch();
 
@@ -786,6 +795,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const task = state.notesData.find(t => t.id === e.detail.taskId);
     if (!task) return;
 
+    // If the updated task is currently open in the modal, refresh its sub-kanban panel
+    if (state.currentTaskId === e.detail.taskId) {
+      renderSubKanban(task);
+    }
+
     if (getColumnVirtualList(task.column)) {
       if (e.detail.oldColumn && e.detail.oldColumn !== task.column) {
         updateColumnVirtualList(e.detail.oldColumn);
@@ -803,6 +817,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       updateNoteCardDisplay(e.detail.taskId);
       sortColumnByPriority(task.column);
+    }
+    applyFilters();
+    updateColumnCounts();
+  });
+
+  window.addEventListener('kantrack:tagsRestored', e => {
+    const affectedIds = e.detail?.affectedTaskIds ?? [];
+    if (affectedIds.length === 0) return;
+    if (getColumnVirtualList('todo')) {
+      const columnsToUpdate = new Set();
+      affectedIds.forEach(taskId => {
+        const task = state.notesData.find(t => t.id === taskId);
+        if (task && !task.deleted) columnsToUpdate.add(task.column);
+      });
+      columnsToUpdate.forEach(col => updateColumnVirtualList(col));
+    } else {
+      affectedIds.forEach(taskId => updateNoteCardDisplay(taskId));
     }
     applyFilters();
     updateColumnCounts();

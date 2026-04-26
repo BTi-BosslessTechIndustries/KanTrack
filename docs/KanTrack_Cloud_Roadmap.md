@@ -132,7 +132,7 @@ Create `scripts/kantrack-modules/vault-crypto.js` using WebCrypto only — no ex
 
 ```javascript
 // Key derivation
-deriveKEK(passphrase, salt); // PBKDF2, 100k iterations, AES-GCM 256-bit
+deriveKEK(passphrase, salt); // PBKDF2, 600k iterations (OWASP 2024), AES-GCM 256-bit
 
 // Data encryption key
 generateDEK(); // crypto.getRandomValues

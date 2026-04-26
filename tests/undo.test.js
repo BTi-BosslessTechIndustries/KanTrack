@@ -25,6 +25,7 @@ import {
   canUndo,
   getUndoRedoStatus,
 } from '../scripts/kantrack-modules/undo.js';
+import { flushPendingIDBWrites } from '../scripts/kantrack-modules/repository.js';
 import * as state from '../scripts/kantrack-modules/state.js';
 
 // ---------------------------------------------------------------------------
@@ -104,6 +105,7 @@ describe('trash operations', () => {
 describe('trash IDB persistence', () => {
   it('writes trashed items to the IDB trash store', async () => {
     moveToTrash({ id: 'idb-trash-1', title: 'Persisted', column: 'inProgress' });
+    flushPendingIDBWrites();
     await flushPromises();
 
     const stored = await idbGetAll('trash');
