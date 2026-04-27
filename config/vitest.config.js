@@ -19,8 +19,10 @@ export default defineConfig({
     setupFiles: ['./tests/setup.js'],
     // Isolate modules between test files so module-level state doesn't bleed
     isolate: true,
-    // Only pick up unit tests in /tests — exclude Playwright e2e specs
-    include: ['tests/**/*.{test,spec}.{js,ts}'],
-    exclude: ['tests/e2e/**', 'node_modules/**'],
+    // Only pick up unit tests — all unit tests use *.test.js, Playwright e2e
+    // specs use *.spec.js. Matching only *.test.{js,ts} avoids the e2e directory
+    // entirely without relying on the exclude pattern (which had matching issues).
+    include: ['tests/**/*.test.{js,ts}'],
+    exclude: ['node_modules/**'],
   },
 });

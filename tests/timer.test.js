@@ -45,6 +45,9 @@ function makeTask(overrides = {}) {
 }
 
 beforeEach(() => {
+  // addTime() calls document.getElementById — set up document so it resolves
+  // under Vitest module isolation (setup.js global is not reliably propagated).
+  global.document = { getElementById: vi.fn(() => null) };
   mockState.currentTaskId = null;
   mockState.notesData = [];
   vi.clearAllMocks();

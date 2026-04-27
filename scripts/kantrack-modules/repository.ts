@@ -265,8 +265,8 @@ export function saveNotebookItems(items: NotebookItem[]): boolean {
 }
 
 /**
- * Fetch the HTML content of a single notebook page from IDB.
- * Falls back to localStorage if IDB has no entry for this id.
+ * Fetch the HTML content of a single notebook page.
+ * Priority: IDB → notebookItems localStorage (legacy) → notebookContent_<id> (backup).
  * Used by openPageModal() for lazy content loading.
  */
 export async function getNotebookItemContent(id: string): Promise<string> {
@@ -282,13 +282,45 @@ export async function getNotebookItemContent(id: string): Promise<string> {
     if (saved) {
       const items = JSON.parse(saved) as NotebookItem[];
       const found = items.find(i => i.id === id);
-      return found?.content ?? '';
+      if (found?.content != null) return found.content;
     }
+  } catch (_) {
+    /* fall through to per-page backup */
+  }
+
+  try {
+    const backup = localStorage.getItem(`notebookContent_${id}`);
+    if (backup != null) return backup;
   } catch (_) {
     /* non-critical */
   }
 
   return '';
+}
+
+/**
+ * Write a per-page localStorage backup of notebook page HTML content.
+ * Called on every page save so content survives an IDB wipe.
+ * Key: `notebookContent_<id>` — raw HTML, not JSON-wrapped.
+ */
+export function saveNotebookContentBackup(id: string, content: string): void {
+  try {
+    localStorage.setItem(`notebookContent_${id}`, content);
+  } catch (e) {
+    debugWarn(`Error saving notebook content backup for ${id}:`, e);
+  }
+}
+
+/**
+ * Remove the per-page localStorage backup for a notebook page.
+ * Called when the page is deleted.
+ */
+export function deleteNotebookContentBackup(id: string): void {
+  try {
+    localStorage.removeItem(`notebookContent_${id}`);
+  } catch (e) {
+    debugWarn(`Error deleting notebook content backup for ${id}:`, e);
+  }
 }
 
 // ==================== TAGS ====================

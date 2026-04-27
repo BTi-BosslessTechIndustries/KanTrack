@@ -67,7 +67,7 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 531 tests across 19 files)
+npm run test:run     # unit tests (Vitest, 542 tests across 19 files)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
@@ -113,7 +113,7 @@ KanTrack/
 │   └── responsive.css           # Media queries (≤ 768 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (531 tests, 19 files)
+│   ├── *.test.js                # Vitest unit tests (542 tests, 19 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
 │   └── e2e/                     # Playwright end-to-end tests (46 tests, 7 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests

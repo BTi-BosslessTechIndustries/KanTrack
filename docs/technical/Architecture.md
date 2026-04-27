@@ -509,6 +509,14 @@ Imported `.html` board files go through per-task sanitization before being appli
 
 Notebook item metadata (name, type, parentId, order) is kept in memory. `content` is loaded from IDB only when a page is opened in the editor (`getNotebookItemContent(pageId)`). This keeps the in-memory footprint small for notebooks with many pages.
 
+`getNotebookItemContent()` uses a three-tier fallback chain to survive an IDB wipe:
+
+1. **IDB** `notebook_items` store — primary, holds the most recent version
+2. **`localStorage.notebookItems`** — legacy fallback for the embedded-content format
+3. **`localStorage.notebookContent_<id>`** — per-page backup key written by `saveAndClosePage()` on every save; recovered automatically if IDB is cleared
+
+`saveNotebookContentBackup(id, content)` is called on every page save, writing raw HTML (not JSON-wrapped) to `notebookContent_<id>`. `deleteNotebookContentBackup(id)` is called during page deletion to keep localStorage clean. Per-page keys avoid re-serialising the entire notebook on every save.
+
 ### Image Storage
 
 Images are stored in IDB under the composite key `notebook_${pageId}_${imageId}`. They are embedded in workspace exports (full mode only) and restored on import.
