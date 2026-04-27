@@ -49,7 +49,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**531 tests across 19 files** — all should pass on every run.
+**542 tests across 19 files** — all should pass on every run.
 
 ### What is mocked
 
@@ -57,7 +57,7 @@ npm run test:ui     # Vitest UI in browser
 
 - **`fake-indexeddb`** — a complete in-memory IDB implementation (no browser required)
 - **`localStorage`** — a Map-backed mock (global)
-- **`document`** — minimal stub (no real DOM methods) so modules can import without crashing
+- **`document`** — stub with `getElementById`, `querySelector`, `querySelectorAll`, `createElement`, `addEventListener`, `removeEventListener`, and `body.appendChild` so modules can import without crashing. **Note:** under Vitest's module isolation (`isolate: true`), this stub is not reliably accessible as a bare `document` identifier inside production-module code. Test files that call production code which uses `document` must re-set `global.document` inside their own `beforeEach` (see `timer.test.js`, `tags.test.js`, `sorting.test.js`, `search.test.js` for the pattern).
 - **`window`** — stub with no-op `dispatchEvent` / `addEventListener`
 - **`navigator.storage`** — stub that returns fixed quota values
 
@@ -90,7 +90,7 @@ See [`e2e/README.md`](e2e/README.md) for details on what the E2E tests cover and
 1. Create `tests/<module-name>.test.js`
 2. Import from the module under test (use `.js` extension — the vitest resolve alias maps `.js` → `.ts` automatically for TypeScript modules)
 3. Use Vitest globals (`describe`, `it`, `expect`, `beforeEach`, `vi`) — they're injected automatically via `globals: true` in the config
-4. The test file is automatically picked up by `include: ['tests/**/*.{test,spec}.*']`
+4. The test file is automatically picked up by `include: ['tests/**/*.test.{js,ts}']`
 
 Example skeleton:
 

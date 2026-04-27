@@ -3,13 +3,10 @@
  *
  * The filter-setter functions (setSearchTerm, setColumnFilter, setTagFilter,
  * clearFilters) call document.querySelectorAll and document.getElementById
- * for DOM side-effects (button highlights, column counts). The global document
- * stub in tests/setup.js covers getElementById but not querySelectorAll, so
- * we extend it here with a no-op stub that satisfies the calls without a DOM.
+ * for DOM side-effects (button highlights, column counts). global.document is
+ * set in beforeEach so bare `document` lookups inside search.js resolve correctly
+ * under Vitest's module isolation (setup.js globals are not reliably propagated).
  */
-
-// Extend the document stub before any module-level code runs
-global.document.querySelectorAll = () => ({ forEach: () => {} });
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
@@ -38,7 +35,17 @@ const makeTask = (overrides = {}) => ({
   ...overrides,
 });
 
-beforeEach(() => clearFilters());
+beforeEach(() => {
+  global.document = {
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    getElementById: () => null,
+    querySelector: () => null,
+    querySelectorAll: () => ({ forEach: () => {} }),
+    createElement: () => ({ textContent: '', innerHTML: '', appendChild: () => {} }),
+  };
+  clearFilters();
+});
 
 // ── Basic visibility ──────────────────────────────────────────
 

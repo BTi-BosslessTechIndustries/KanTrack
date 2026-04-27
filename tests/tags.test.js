@@ -47,6 +47,21 @@ import {
 
 // Reset tagDefinitions and notesData to an empty slate before every test.
 beforeEach(async () => {
+  // toggleTagPinned → renderTagFilterButtons and deleteTag both reach document —
+  // set up document so bare lookups resolve under Vitest module isolation.
+  global.document = {
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    getElementById: () => null,
+    querySelector: () => null,
+    querySelectorAll: () => ({ forEach: () => {} }),
+    createElement: () => ({
+      innerHTML: '',
+      textContent: '',
+      firstChild: null,
+      appendChild: () => {},
+    }),
+  };
   getAllTags.mockResolvedValue([]);
   await initTags();
   state.notesData.length = 0;
