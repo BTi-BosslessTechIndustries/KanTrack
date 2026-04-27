@@ -52,11 +52,17 @@ global.window = {
 
 // ---------------------------------------------------------------------------
 // document stub (initUndo registers keyboard listener; storage-monitor reads DOM)
+// NOTE: This stub is NOT reliably accessible as a bare `document` identifier
+// inside production-module code under Vitest's module isolation. Test files
+// that call production code which uses `document` must re-set global.document
+// in their own beforeEach (see timer.test.js, tags.test.js, sorting.test.js).
 // ---------------------------------------------------------------------------
 global.document = {
   addEventListener: () => {},
   removeEventListener: () => {},
   getElementById: () => null, // overridden per-test in storage-monitor tests
+  querySelector: () => null,
+  querySelectorAll: () => ({ forEach: () => {} }),
   body: { appendChild: () => {} },
   createElement: () => ({
     // minimal stub for notifications.js (if not mocked)

@@ -65,6 +65,11 @@ describe('getPrioritySortValue — todo column (None=0, High=1, Medium=2, Low=3)
 // ── registerVLUpdater / sortColumnByPriority delegation ──────
 
 describe('sortColumnByPriority — VL updater delegation', () => {
+  beforeEach(() => {
+    // DOM-fallback path calls document.getElementById — set it up so the bare
+    // identifier resolves under Vitest module isolation.
+    global.document = { getElementById: () => null };
+  });
   afterEach(() => {
     registerVLUpdater(null); // restore to DOM-fallback mode after each test
   });

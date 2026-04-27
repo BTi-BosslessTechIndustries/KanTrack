@@ -17,7 +17,13 @@ import {
   pushToNotebookItems,
 } from './state.js';
 import { saveNotebookToLocalStorage } from './storage.js';
-import { getUIPref, setUIPref, getNotebookItemContent } from './repository.js';
+import {
+  getUIPref,
+  setUIPref,
+  getNotebookItemContent,
+  saveNotebookContentBackup,
+  deleteNotebookContentBackup,
+} from './repository.js';
 import { storeNotebookImage, getNotebookImage, deletePageImages } from './database.js';
 import { openImageViewer } from './images.js';
 import { initMentionHandler, setOpenPageModal } from './mentions.js';
@@ -359,10 +365,11 @@ export async function deleteNotebookItem(itemId, skipConfirm = false) {
     }
   }
 
-  // Delete images for pages
+  // Delete images and content backup for pages
   const pagesToDelete = [item, ...descendants].filter(i => i.type === 'page');
   for (const page of pagesToDelete) {
     await deletePageImages(page.id);
+    deleteNotebookContentBackup(page.id);
   }
 
   // Remove from array
@@ -556,6 +563,7 @@ export async function saveAndClosePage() {
   page.images = imageIds;
   page.updatedAt = new Date().toISOString();
 
+  saveNotebookContentBackup(currentPageId, page.content);
   saveNotebookToLocalStorage();
   renderNotebookTree();
 

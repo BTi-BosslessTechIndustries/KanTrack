@@ -18,6 +18,9 @@ import {
   saveTasks,
   getAllNotebookItems,
   saveNotebookItems,
+  getNotebookItemContent,
+  saveNotebookContentBackup,
+  deleteNotebookContentBackup,
   getAllTags,
   saveTags,
   getAllClocks,
@@ -577,5 +580,90 @@ describe('deleteOplogEntriesOlderThan', () => {
 
   it('resolves cleanly on an empty oplog', async () => {
     await expect(deleteOplogEntriesOlderThan(Date.now())).resolves.toBeUndefined();
+  });
+});
+
+// ===========================================================================
+// getNotebookItemContent — IDB → notebookItems localStorage → notebookContent_<id>
+// ===========================================================================
+describe('getNotebookItemContent', () => {
+  it('returns empty string when all sources are empty', async () => {
+    const content = await getNotebookItemContent('page-missing');
+    expect(content).toBe('');
+  });
+
+  it('returns content from IDB when available', async () => {
+    await idbBulkPut('notebook_items', [validNotebookItem('idb-page')]);
+    const content = await getNotebookItemContent('idb-page');
+    expect(content).toBe('<p>Hello</p>');
+  });
+
+  it('falls back to notebookItems localStorage when IDB is empty', async () => {
+    localStorage.setItem(
+      'notebookItems',
+      JSON.stringify([{ ...validNotebookItem('ls-page'), content: '<p>from-ls</p>' }])
+    );
+    const content = await getNotebookItemContent('ls-page');
+    expect(content).toBe('<p>from-ls</p>');
+  });
+
+  it('falls back to notebookContent_<id> when both IDB and notebookItems are empty', async () => {
+    localStorage.setItem('notebookContent_backup-page', '<p>backup content</p>');
+    const content = await getNotebookItemContent('backup-page');
+    expect(content).toBe('<p>backup content</p>');
+  });
+
+  it('prefers IDB content over the notebookContent_<id> backup', async () => {
+    await idbBulkPut('notebook_items', [
+      { ...validNotebookItem('prefer-idb'), content: '<p>idb-wins</p>' },
+    ]);
+    localStorage.setItem('notebookContent_prefer-idb', '<p>backup-loses</p>');
+    const content = await getNotebookItemContent('prefer-idb');
+    expect(content).toBe('<p>idb-wins</p>');
+  });
+
+  it('prefers notebookItems localStorage over the notebookContent_<id> backup', async () => {
+    localStorage.setItem(
+      'notebookItems',
+      JSON.stringify([{ ...validNotebookItem('ls-wins'), content: '<p>ls-content</p>' }])
+    );
+    localStorage.setItem('notebookContent_ls-wins', '<p>backup-loses</p>');
+    const content = await getNotebookItemContent('ls-wins');
+    expect(content).toBe('<p>ls-content</p>');
+  });
+});
+
+// ===========================================================================
+// saveNotebookContentBackup / deleteNotebookContentBackup
+// ===========================================================================
+describe('saveNotebookContentBackup', () => {
+  it('writes raw HTML to the notebookContent_<id> key', () => {
+    saveNotebookContentBackup('page-1', '<p>my content</p>');
+    expect(localStorage.getItem('notebookContent_page-1')).toBe('<p>my content</p>');
+  });
+
+  it('overwrites existing backup on a second call', () => {
+    saveNotebookContentBackup('page-1', '<p>first</p>');
+    saveNotebookContentBackup('page-1', '<p>updated</p>');
+    expect(localStorage.getItem('notebookContent_page-1')).toBe('<p>updated</p>');
+  });
+
+  it('stores raw HTML — not JSON-wrapped', () => {
+    const html = '<p>raw &amp; unencoded</p>';
+    saveNotebookContentBackup('page-raw', html);
+    expect(localStorage.getItem('notebookContent_page-raw')).toBe(html);
+  });
+});
+
+describe('deleteNotebookContentBackup', () => {
+  it('removes the notebookContent_<id> key', () => {
+    localStorage.setItem('notebookContent_del-page', '<p>to be deleted</p>');
+    deleteNotebookContentBackup('del-page');
+    expect(localStorage.getItem('notebookContent_del-page')).toBeNull();
+  });
+
+  it('is a no-op when the key does not exist', () => {
+    expect(() => deleteNotebookContentBackup('ghost-page')).not.toThrow();
+    expect(localStorage.getItem('notebookContent_ghost-page')).toBeNull();
   });
 });
