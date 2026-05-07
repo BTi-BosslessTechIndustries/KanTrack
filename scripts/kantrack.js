@@ -15,6 +15,8 @@ import {
   savePermanentNotes,
   setAutoSaveCallback,
   flushPendingIDBWrites,
+  safeGetItem,
+  safeSetItem,
 } from './kantrack-modules/storage.js';
 import {
   loadClocks,
@@ -115,6 +117,18 @@ import { debounce, createFocusTrap } from './kantrack-modules/utils.js';
 import { scheduleCompaction } from './kantrack-modules/compaction.js';
 import { registerAction, initRouter } from './kantrack-modules/router.js';
 import { dispatch, TASK_SET_ALL } from './kantrack-modules/store.js';
+
+/***********************
+ * CARD SIZE
+ ***********************/
+function applyCardSize(size) {
+  document.body.classList.remove('card-size-small', 'card-size-large');
+  if (size === 'small') document.body.classList.add('card-size-small');
+  if (size === 'large') document.body.classList.add('card-size-large');
+  document.querySelectorAll('[data-action="cardSize:set"]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.actionParam === size);
+  });
+}
 
 /***********************
  * ABOUT MODAL
@@ -221,6 +235,12 @@ function closeShortcutsDialog() {
  * Maps data-action strings to handler functions.
  * Replaces all window.* exports and inline onclick handlers.
  ***********************/
+
+// Card size
+registerAction('cardSize:set', param => {
+  applyCardSize(param);
+  safeSetItem('cardSize', param);
+});
 
 // Shortcuts dialog
 registerAction('shortcuts:close', () => closeShortcutsDialog());
@@ -506,6 +526,9 @@ window.addEventListener('beforeunload', function (e) {
 document.addEventListener('DOMContentLoaded', async () => {
   // Initialize the router (single delegated click listener)
   initRouter();
+
+  // Apply saved card size before first render
+  applyCardSize(safeGetItem('cardSize', 'medium'));
 
   await initIndexedDB();
   await runDataMigrations();
