@@ -155,4 +155,58 @@ test.describe('KanTrack header UI', () => {
     await modal.click({ position: { x: 5, y: 5 } });
     await expect(modal).toBeHidden();
   });
+
+  // ── Card size picker ──────────────────────────────────────────────────────
+
+  test('card size picker is visible in the dropdown', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.card-size-picker')).toBeVisible();
+    await expect(page.locator('.card-size-btn[data-action-param="small"]')).toBeVisible();
+    await expect(page.locator('.card-size-btn[data-action-param="medium"]')).toBeVisible();
+    await expect(page.locator('.card-size-btn[data-action-param="large"]')).toBeVisible();
+  });
+
+  test('medium button is active by default', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.card-size-btn[data-action-param="medium"]')).toHaveClass(/active/);
+    await expect(page.locator('.card-size-btn[data-action-param="small"]')).not.toHaveClass(
+      /active/
+    );
+    await expect(page.locator('.card-size-btn[data-action-param="large"]')).not.toHaveClass(
+      /active/
+    );
+  });
+
+  test('clicking Small adds card-size-small class to body', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.card-size-btn[data-action-param="small"]').click();
+    await expect(page.locator('body')).toHaveClass(/card-size-small/);
+    await expect(page.locator('.card-size-btn[data-action-param="small"]')).toHaveClass(/active/);
+    await expect(page.locator('.card-size-btn[data-action-param="medium"]')).not.toHaveClass(
+      /active/
+    );
+  });
+
+  test('clicking Large adds card-size-large class to body', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.card-size-btn[data-action-param="large"]').click();
+    await expect(page.locator('body')).toHaveClass(/card-size-large/);
+    await expect(page.locator('.card-size-btn[data-action-param="large"]')).toHaveClass(/active/);
+  });
+
+  test('card size preference persists across page reloads', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.card-size-btn[data-action-param="small"]').click();
+    await expect(page.locator('body')).toHaveClass(/card-size-small/);
+
+    await page.reload();
+    await expect(page.locator('.top-header')).toBeVisible();
+    await expect(page.locator('body')).toHaveClass(/card-size-small/);
+  });
+
+  test('dropdown stays open after selecting a card size', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.card-size-btn[data-action-param="small"]').click();
+    await expect(page.locator('#headerDropdown')).toBeVisible();
+  });
 });

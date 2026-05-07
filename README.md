@@ -10,6 +10,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 
 - **Kanban board** — four columns (To Do, In Progress, On Hold, Done) with drag-and-drop
 - **Task detail modal** — rich notes with history, images (paste-to-insert), and a full edit/delete log; **Save** keeps the modal open for multi-step edits, **Save & Close** saves and dismisses
+- **Card size** — three global card sizes (Small / Medium / Large) selectable from the ⋮ menu; preference persists across sessions
 - **Priority system** — High / Medium / Low with colour tinting and column sorting
 - **Tags** — colour-coded labels with preset palette or custom hex colour; pinned tags appear in a quick-assign panel
 - **Due dates** — visual overdue and "due today" indicators on cards
@@ -67,12 +68,12 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 542 tests across 19 files)
+npm run test:run     # unit tests (Vitest, 542 tests across 19 files, ~1s)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
 
-npm run e2e          # Playwright E2E — 46 tests (builds automatically before running)
+npm run e2e          # Playwright E2E — 52 tests (builds automatically before running)
 npm run e2e:ui       # Playwright UI mode (interactive test runner)
 ```
 
@@ -115,7 +116,7 @@ KanTrack/
 ├── tests/                       # All automated tests
 │   ├── *.test.js                # Vitest unit tests (542 tests, 19 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (46 tests, 7 files)
+│   └── e2e/                     # Playwright end-to-end tests (52 tests, 7 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management (Phase 7)
