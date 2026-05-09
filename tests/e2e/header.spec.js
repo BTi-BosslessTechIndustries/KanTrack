@@ -209,4 +209,117 @@ test.describe('KanTrack header UI', () => {
     await page.locator('.card-size-btn[data-action-param="small"]').click();
     await expect(page.locator('#headerDropdown')).toBeVisible();
   });
+
+  // ── Card size font-size proportionality ───────────────────────────────────
+
+  test.describe('card text scales proportionally with card size', () => {
+    async function getCardFontSizes(page) {
+      return page.evaluate(() => {
+        const ids = {
+          noteContent: 'tc-note-content',
+          noteText: 'tc-note-text',
+          priority: 'tc-priority',
+          taskTag: 'tc-task-tag',
+          dueDate: 'tc-due-date',
+          subtask: 'tc-subtask',
+        };
+        return Object.fromEntries(
+          Object.entries(ids).map(([key, id]) => [
+            key,
+            parseFloat(getComputedStyle(document.getElementById(id)).fontSize),
+          ])
+        );
+      });
+    }
+
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+      await expect(page.locator('.top-header')).toBeVisible();
+      await page.evaluate(() => {
+        const card = document.createElement('div');
+        card.id = 'test-card';
+        card.className = 'note';
+        card.innerHTML = `
+          <div class="note-content" id="tc-note-content">Title</div>
+          <div class="note-text" id="tc-note-text">Preview text</div>
+          <div class="priority-display" id="tc-priority">Priority: None</div>
+          <div class="worked-time" id="tc-worked-time">Worked Time: 0h</div>
+          <div class="timestamp" id="tc-timestamp">Created: now</div>
+          <span class="task-tag" id="tc-task-tag">bug</span>
+          <div class="task-due-date" id="tc-due-date">2026-05-10</div>
+          <div class="sub-task-indicator" id="tc-subtask">0/2 sub-tasks</div>
+        `;
+        document.body.appendChild(card);
+      });
+    });
+
+    test.afterEach(async ({ page }) => {
+      await page.evaluate(() => {
+        document.getElementById('test-card')?.remove();
+        document.body.classList.remove('card-size-small', 'card-size-large');
+        localStorage.removeItem('cardSize');
+      });
+    });
+
+    test('all card text elements shrink when switching to small', async ({ page }) => {
+      const medium = await getCardFontSizes(page);
+
+      await page.locator('#headerMenuBtn').click();
+      await page.locator('.card-size-btn[data-action-param="small"]').click();
+
+      const small = await getCardFontSizes(page);
+
+      expect(small.noteContent).toBeLessThan(medium.noteContent);
+      expect(small.noteText).toBeLessThan(medium.noteText);
+      expect(small.priority).toBeLessThan(medium.priority);
+      expect(small.taskTag).toBeLessThan(medium.taskTag);
+      expect(small.dueDate).toBeLessThan(medium.dueDate);
+      expect(small.subtask).toBeLessThan(medium.subtask);
+    });
+
+    test('all card text elements grow when switching to large', async ({ page }) => {
+      const medium = await getCardFontSizes(page);
+
+      await page.locator('#headerMenuBtn').click();
+      await page.locator('.card-size-btn[data-action-param="large"]').click();
+
+      const large = await getCardFontSizes(page);
+
+      expect(large.noteContent).toBeGreaterThan(medium.noteContent);
+      expect(large.noteText).toBeGreaterThan(medium.noteText);
+      expect(large.priority).toBeGreaterThan(medium.priority);
+      expect(large.taskTag).toBeGreaterThan(medium.taskTag);
+      expect(large.dueDate).toBeGreaterThan(medium.dueDate);
+      expect(large.subtask).toBeGreaterThan(medium.subtask);
+    });
+
+    test('note-text scales at same rate as note-content in small', async ({ page }) => {
+      const medium = await getCardFontSizes(page);
+
+      await page.locator('#headerMenuBtn').click();
+      await page.locator('.card-size-btn[data-action-param="small"]').click();
+
+      const small = await getCardFontSizes(page);
+
+      const contentRatio = small.noteContent / medium.noteContent;
+      const textRatio = small.noteText / medium.noteText;
+
+      // Ratios should be within 5% of each other
+      expect(Math.abs(textRatio - contentRatio)).toBeLessThan(0.05); // 5% tolerance for sub-pixel rounding
+    });
+
+    test('note-text scales at same rate as note-content in large', async ({ page }) => {
+      const medium = await getCardFontSizes(page);
+
+      await page.locator('#headerMenuBtn').click();
+      await page.locator('.card-size-btn[data-action-param="large"]').click();
+
+      const large = await getCardFontSizes(page);
+
+      const contentRatio = large.noteContent / medium.noteContent;
+      const textRatio = large.noteText / medium.noteText;
+
+      expect(Math.abs(textRatio - contentRatio)).toBeLessThan(0.05); // 5% tolerance for sub-pixel rounding
+    });
+  });
 });
