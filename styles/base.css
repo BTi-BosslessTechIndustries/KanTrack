@@ -680,6 +680,19 @@ body.card-size-small .note-content {
 }
 body.card-size-small .note-text {
   margin-top: 1px;
+  font-size: 0.66em;
+}
+body.card-size-small .priority-display {
+  font-size: 0.62em;
+}
+body.card-size-small .task-tag {
+  font-size: 0.54em;
+}
+body.card-size-small .task-due-date {
+  font-size: 0.58em;
+}
+body.card-size-small .sub-task-indicator {
+  font-size: 0.62em;
 }
 body.card-size-small .timestamp {
   margin-top: 2px;
@@ -704,6 +717,19 @@ body.card-size-large .note-content {
 }
 body.card-size-large .note-text {
   margin-top: 8px;
+  font-size: 1.14em;
+}
+body.card-size-large .priority-display {
+  font-size: 0.87em;
+}
+body.card-size-large .task-tag {
+  font-size: 0.76em;
+}
+body.card-size-large .task-due-date {
+  font-size: 0.82em;
+}
+body.card-size-large .sub-task-indicator {
+  font-size: 0.87em;
 }
 body.card-size-large .timestamp {
   margin-top: 14px;
