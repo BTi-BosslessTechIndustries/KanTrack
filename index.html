@@ -228,23 +228,19 @@
 
     <div class="controls-top">
         <div class="controls-unified-row">
-            <div class="controls-row-main">
-                <input type="text" id="newNote" placeholder="New task title..." maxlength="200">
-                <button data-action="task:add">Add</button>
+            <input type="text" id="newNote" placeholder="New task title..." maxlength="200">
+            <button class="add-task-btn" data-action="task:add">Add</button>
+            <div class="search-wrapper">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="taskSearchInput" placeholder="Search...">
+                <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="Clear search" aria-label="Clear search">&times;</button>
             </div>
-            <div class="controls-row-search">
-                <div class="search-wrapper">
-                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input type="text" id="taskSearchInput" placeholder="Search...">
-                    <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="Clear search" aria-label="Clear search">&times;</button>
-                </div>
-                <div class="tag-filters" id="tagFilters">
-                    <!-- Tag filter buttons will be dynamically generated -->
-                </div>
-            </div>
+        </div>
+        <div class="tag-filters" id="tagFilters">
+            <!-- Tag filter buttons will be dynamically generated -->
         </div>
     </div>
 
