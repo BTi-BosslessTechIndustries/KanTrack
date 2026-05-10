@@ -561,13 +561,8 @@ button:hover {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  flex-wrap: wrap;
-}
-
-.controls-row-main {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .controls-row-secondary {
@@ -578,9 +573,12 @@ button:hover {
   flex-wrap: wrap;
 }
 
-.controls-row-main button,
 .controls-row-secondary button {
   margin-left: 0;
+}
+
+.add-task-btn {
+  flex-shrink: 0;
 }
 
 input {
@@ -593,8 +591,9 @@ input {
 }
 
 #newNote {
-  width: 320px;
-  max-width: 100%;
+  flex: 0 1 320px;
+  min-width: 100px;
+  width: auto;
   padding: 10px 16px;
   background: linear-gradient(135deg, rgba(40, 40, 40, 0.4) 0%, rgba(35, 35, 35, 0.4) 100%);
   border: 1px solid rgba(255, 255, 255, 0.12);

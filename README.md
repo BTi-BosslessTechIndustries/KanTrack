@@ -20,7 +20,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Notebook** — a separate sidebar for free-form notes and folders
 - **Export** — individual tasks or notebook pages as PDF (cross-platform, including Mac); entire notebook as ZIP; full board as JSON (with embedded images) or lightweight JSON; encrypted `.kantrack.enc`
 - **World clocks** — multiple timezone clocks and a chronometer
-- **Search & filter** — full-text search with tag and column filters
+- **Search & filter** — full-text search with tag and column filters; the task input, Add button, and search bar form a single proportional-scaling row that never wraps on window resize; tag filters occupy a dedicated row below
 - **Keyboard shortcuts** — N to focus new task, / for search, ? for the shortcuts reference, arrow keys to navigate cards
 - **Fully offline** — no CDN dependencies at runtime; everything is bundled
 - **No analytics, no telemetry, no cookies** — not ever
@@ -111,7 +111,7 @@ KanTrack/
 │   ├── base.css                 # Variables, reset, typography, .sr-only utility
 │   ├── components.css           # Reusable UI components
 │   ├── features.css             # Feature-specific styles
-│   └── responsive.css           # Media queries (≤ 768 px)
+│   └── responsive.css           # Media queries (breakpoints at 480 / 640 / 768 / 1024 px)
 │
 ├── tests/                       # All automated tests
 │   ├── *.test.js                # Vitest unit tests (542 tests, 19 files)
@@ -123,7 +123,8 @@ KanTrack/
 │       ├── import-export.spec.js# Export/import round-trips (Phase 4)
 │       ├── performance.spec.js  # Virtual list DOM budget (Phase 5)
 │       ├── search.spec.js       # Live search filtering and ESC clear
-│       └── header.spec.js       # Header UI — dropdown, About modal, Shortcuts modal
+│       ├── header.spec.js       # Header UI — dropdown, About modal, Shortcuts modal
+│       └── responsive.spec.js   # Controls bar and card layout at multiple viewport widths
 │
 ├── config/                      # Build and tool configuration
 │   ├── vite.config.js           # Vite build config
