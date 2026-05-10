@@ -528,16 +528,11 @@ body.notebook-sidebar-open.sidebar-resizing {
 }
 
 /* ===== Search & Filters ===== */
-.controls-row-search {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
 .search-wrapper {
   position: relative;
-  width: 200px;
+  flex: 0 1 200px;
+  min-width: 80px;
+  width: auto;
 }
 
 .search-wrapper .search-icon {
@@ -595,6 +590,8 @@ body.notebook-sidebar-open.sidebar-resizing {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
 }
 
 .tag-filter-btn {

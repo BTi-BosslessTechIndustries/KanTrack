@@ -8,16 +8,6 @@
   .column {
     min-height: 340px;
   }
-  .controls-row-search {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .search-wrapper {
-    max-width: none;
-  }
-  .tag-filters {
-    justify-content: center;
-  }
   .header-logo img {
     height: 36px;
   }
