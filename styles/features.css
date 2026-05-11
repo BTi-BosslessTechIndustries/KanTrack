@@ -839,6 +839,7 @@ body.notebook-sidebar-open.sidebar-resizing {
   flex-wrap: wrap;
   gap: 4px;
   margin-top: 8px;
+  min-width: 0;
 }
 
 .task-tag {
@@ -848,6 +849,10 @@ body.notebook-sidebar-open.sidebar-resizing {
   font-size: 0.7em;
   font-weight: 500;
   border: 1px solid;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tags-section {
