@@ -73,7 +73,7 @@ npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
 
-npm run e2e          # Playwright E2E — 52 tests (builds automatically before running)
+npm run e2e          # Playwright E2E — 84 tests (builds automatically before running)
 npm run e2e:ui       # Playwright UI mode (interactive test runner)
 ```
 
