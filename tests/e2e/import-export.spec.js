@@ -184,15 +184,16 @@ test.describe('Phase 4 — Export / Import', () => {
       buffer: Buffer.from(badPayload),
     });
 
-    // Error notification must appear in the DOM (no dialog shown).
-    // toBeAttached() is used instead of toBeVisible() because the notification
-    // starts off-screen at transform: translateX(120%) before its slide-in
-    // animation fires, which causes Playwright's viewport-based visibility
-    // check to fail even though the element exists and showError was called.
-    const notification = page.locator('.notification-error');
-    await expect(notification).toBeAttached({ timeout: 8000 });
-    await expect(notification).toContainText('Import failed');
+    // Invalid formatVersion is caught by the validator before any dialog is
+    // created — confirm no preview dialog was opened.
     await expect(page.locator('dialog[open]')).toHaveCount(0);
+
+    // The notification starts at translateX(120%) but Playwright still detects
+    // it as visible (part of the element remains within the viewport), so
+    // toBeVisible() is correct and more meaningful than toBeAttached().
+    const notification = page.locator('.notification-error');
+    await expect(notification).toBeVisible({ timeout: 8000 });
+    await expect(notification).toContainText('Import failed');
   });
 
   // ── 4.3 Encrypted export + import ───────────────────────────────────────────
