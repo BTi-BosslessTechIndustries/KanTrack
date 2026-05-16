@@ -8,9 +8,6 @@
   .column {
     min-height: 340px;
   }
-  .header-logo img {
-    height: 36px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -118,38 +115,37 @@
 }
 
 /* ===== Header Responsive ===== */
+@media (max-width: 900px) {
+  .header-credit-logo {
+    height: 44px;
+  }
+  .header-left {
+    gap: 8px;
+  }
+}
+
 @media (max-width: 768px) {
   .top-header {
     padding: 0 12px;
     height: 54px;
   }
-  .header-left,
-  .header-right {
-    gap: 8px;
+  .header-left {
+    gap: 6px;
   }
-  .top-header .back-button,
-  .top-header .notebook-toggle-btn {
-    width: 36px;
+  .header-credit-logo {
     height: 36px;
-  }
-  .header-logo img {
-    height: 32px;
-  }
-  .header-action-btn {
-    width: 34px;
-    height: 34px;
-  }
-  .header-action-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-  .top-header .back-button svg,
-  .top-header .notebook-toggle-btn svg {
-    width: 20px;
-    height: 20px;
   }
   body {
     padding-top: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .support-us-btn {
+    display: none;
+  }
+  .header-left {
+    gap: 3px;
   }
 }
 
