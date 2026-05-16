@@ -82,6 +82,7 @@ body {
 .top-header .notebook-toggle-btn {
   width: clamp(30px, 3.7vw, 40px);
   height: clamp(30px, 3.7vw, 40px);
+  padding: 0;
   margin: 0;
   border: none;
   cursor: pointer;
@@ -246,6 +247,7 @@ body {
 .header-action-btn {
   width: clamp(28px, 3.5vw, 36px);
   height: clamp(28px, 3.5vw, 36px);
+  padding: 0;
   margin: 0;
   border: none;
   cursor: pointer;

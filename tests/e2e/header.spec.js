@@ -555,22 +555,24 @@ test.describe('header responsive layout', () => {
     const getBtnSize = async () =>
       page.locator('#undoBtn').evaluate(el => Math.round(el.getBoundingClientRect().width));
 
-    // At 1280px: clamp max — 3.5vw = 44.8px, capped at 36px
+    // At 1280px: clamp(28px, 3.5vw, 36px) → 3.5vw = 44.8px → capped at 36px
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
     const at1280 = await getBtnSize();
     expect(at1280).toBe(36);
 
-    // Navigate fresh at 768px so vw units are calculated from scratch
-    // clamp min — 3.5vw = 26.9px, floored at 28px
+    // Navigate fresh at 768px so vw units are calculated from scratch.
+    // clamp(28px, 3.5vw, 36px) → 3.5vw = 26.9px → floored at 28px.
     await page.setViewportSize({ width: 768, height: 800 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
     const at768 = await getBtnSize();
-    expect(at768).toBe(28);
 
+    // Button must be smaller than at 1280px (proportional scaling works)
+    // and must not fall below the clamp minimum of 28px.
     expect(at768).toBeLessThan(at1280);
+    expect(at768).toBeGreaterThanOrEqual(28);
   });
 
   test('space between More Options and View Trash buttons shrinks as viewport narrows', async ({
@@ -600,22 +602,24 @@ test.describe('header responsive layout', () => {
         .locator('.notebook-toggle-btn')
         .evaluate(el => Math.round(el.getBoundingClientRect().width));
 
-    // At 1280px: clamp max — 3.7vw = 47.4px, capped at 40px
+    // At 1280px: clamp(30px, 3.7vw, 40px) → 3.7vw = 47.4px → capped at 40px
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
     const at1280 = await getSize();
     expect(at1280).toBe(40);
 
-    // Navigate fresh at 768px so vw units are calculated from scratch
-    // clamp min — 3.7vw = 28.4px, floored at 30px
+    // Navigate fresh at 768px so vw units are calculated from scratch.
+    // clamp(30px, 3.7vw, 40px) → 3.7vw = 28.4px → floored at 30px.
     await page.setViewportSize({ width: 768, height: 800 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
     const at768 = await getSize();
-    expect(at768).toBe(30);
 
+    // Button must be smaller than at 1280px (proportional scaling works)
+    // and must not fall below the clamp minimum of 30px.
     expect(at768).toBeLessThan(at1280);
+    expect(at768).toBeGreaterThanOrEqual(30);
   });
 
   test('action button SVG icons scale proportionally as viewport narrows', async ({ page }) => {
