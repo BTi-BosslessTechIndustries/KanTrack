@@ -259,3 +259,25 @@ export function debugWarn(...args) {
     console.warn('[KanTrack Warning]', ...args);
   }
 }
+
+/**
+ * Convert a plain-text string into a DocumentFragment for inserting into a
+ * contenteditable element. Newlines (\r\n, \r, \n) become <br> elements;
+ * all other whitespace is preserved verbatim as text nodes.
+ *
+ * @param {string} text - Plain text from clipboard getData('text/plain')
+ * @returns {DocumentFragment}
+ */
+export function plainTextToFragment(text) {
+  const fragment = document.createDocumentFragment();
+  const lines = text.split(/\r\n|\r|\n/);
+  lines.forEach((line, i) => {
+    if (line.length > 0) {
+      fragment.appendChild(document.createTextNode(line));
+    }
+    if (i < lines.length - 1) {
+      fragment.appendChild(document.createElement('br'));
+    }
+  });
+  return fragment;
+}
