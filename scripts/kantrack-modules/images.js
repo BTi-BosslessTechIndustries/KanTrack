@@ -3,6 +3,7 @@
  ***********************/
 import * as state from './state.js';
 import { initMentionHandler } from './mentions.js';
+import { plainTextToFragment } from './utils.js';
 
 export function setupClipboardPaste() {
   const notesEditor = document.getElementById('modalNotesEditor');
@@ -11,10 +12,34 @@ export function setupClipboardPaste() {
   // Initialize mention handler for Kanban notes
   initMentionHandler(notesEditor);
 
-  // Mark changes when notes are edited and show/hide Clear All button
+  // Mark changes when notes are edited and show/hide toolbar
   notesEditor.addEventListener('input', () => {
     state.setModalHasChanges(true);
     updateClearNotesButton();
+  });
+
+  // Clicking the preview switches to edit mode
+  const preview = document.getElementById('notesPreview');
+  if (preview) {
+    preview.addEventListener('click', () => {
+      preview.style.display = 'none';
+      notesEditor.style.display = '';
+      notesEditor.focus();
+    });
+  }
+
+  // Format buttons — use mousedown + preventDefault to keep editor selection intact
+  document.getElementById('boldBtn')?.addEventListener('mousedown', e => {
+    e.preventDefault();
+    document.execCommand('bold');
+  });
+  document.getElementById('italicBtn')?.addEventListener('mousedown', e => {
+    e.preventDefault();
+    document.execCommand('italic');
+  });
+  document.getElementById('strikeBtn')?.addEventListener('mousedown', e => {
+    e.preventDefault();
+    document.execCommand('strikeThrough');
   });
 
   // Prevent any formatting keyboard shortcuts
@@ -69,22 +94,24 @@ export function setupClipboardPaste() {
       }
     }
 
-    // If no image, paste as plain text only
+    // If no image, paste as plain text with line breaks preserved
     if (!hasImage) {
       e.preventDefault();
       const text = e.clipboardData.getData('text/plain');
 
-      // Insert plain text at cursor position
       const selection = window.getSelection();
       if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         range.deleteContents();
-        const textNode = document.createTextNode(text);
-        range.insertNode(textNode);
-        range.setStartAfter(textNode);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        const fragment = plainTextToFragment(text);
+        const lastNode = fragment.lastChild;
+        range.insertNode(fragment);
+        if (lastNode) {
+          range.setStartAfter(lastNode);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
       }
 
       state.setModalHasChanges(true);
@@ -96,12 +123,14 @@ export function setupClipboardPaste() {
 export function updateClearNotesButton() {
   const notesEditor = document.getElementById('modalNotesEditor');
   const clearNotesBtn = document.getElementById('clearNotesBtn');
+  const formatBtns = document.getElementById('notesFormatBtns');
 
   if (notesEditor && clearNotesBtn) {
     const hasTextContent = notesEditor.textContent.trim().length > 0;
     const hasImages = notesEditor.querySelectorAll('img').length > 0;
     const hasContent = notesEditor.innerHTML.trim() && (hasTextContent || hasImages);
     clearNotesBtn.style.display = hasContent ? 'inline-block' : 'none';
+    if (formatBtns) formatBtns.style.display = hasContent ? 'flex' : 'none';
   }
 }
 

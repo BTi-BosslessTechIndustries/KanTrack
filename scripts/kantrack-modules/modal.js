@@ -4,7 +4,14 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { storeImage, getImage, deleteImagesByIds } from './database.js';
-import { formatTime, escapeHtml, getTextPreview, deepClone, createFocusTrap } from './utils.js';
+import {
+  formatTime,
+  escapeHtml,
+  getTextPreview,
+  deepClone,
+  createFocusTrap,
+  plainTextToFragment,
+} from './utils.js';
 import { sanitizeHTML } from './sanitize.js';
 import {
   getPriorityLabel,
@@ -26,6 +33,25 @@ import { recordAction } from './undo.js';
 
 let _taskModalTrap = null;
 let _taskModalReturnFocus = null;
+
+function _updateNotesPreview(task) {
+  const notesEditor = document.getElementById('modalNotesEditor');
+  const preview = document.getElementById('notesPreview');
+  if (!notesEditor || !preview) return;
+
+  if (task.noteEntries && task.noteEntries.length > 0) {
+    const lastEntry = task.noteEntries[task.noteEntries.length - 1];
+    preview.innerHTML = sanitizeHTML(lastEntry.notesHTML);
+    preview.style.display = 'block';
+    notesEditor.style.display = 'none';
+    notesEditor.setAttribute('data-placeholder', '');
+  } else {
+    preview.innerHTML = '';
+    preview.style.display = 'none';
+    notesEditor.style.display = '';
+    notesEditor.setAttribute('data-placeholder', 'Write your notes here...');
+  }
+}
 
 export async function openTaskModal(taskId) {
   _taskModalReturnFocus = document.activeElement;
@@ -52,16 +78,12 @@ export async function openTaskModal(taskId) {
 
   title.textContent = task.title;
 
-  // Clear notes editor and set placeholder
+  // Clear notes editor and reset toolbar
   notesEditor.innerHTML = '';
   clearNotesBtn.style.display = 'none';
-
-  if (task.noteEntries && task.noteEntries.length > 0) {
-    const lastEntry = task.noteEntries[task.noteEntries.length - 1];
-    notesEditor.setAttribute('data-placeholder', getTextPreview(lastEntry.notesHTML));
-  } else {
-    notesEditor.setAttribute('data-placeholder', 'Write your notes here...');
-  }
+  const formatBtnsOnOpen = document.getElementById('notesFormatBtns');
+  if (formatBtnsOnOpen) formatBtnsOnOpen.style.display = 'none';
+  _updateNotesPreview(task);
 
   // Display timer total
   const totalMinutes = task.timer || 0;
@@ -364,12 +386,15 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
       if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         range.deleteContents();
-        const textNode = document.createTextNode(text);
-        range.insertNode(textNode);
-        range.setStartAfter(textNode);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        const fragment = plainTextToFragment(text);
+        const lastNode = fragment.lastChild;
+        range.insertNode(fragment);
+        if (lastNode) {
+          range.setStartAfter(lastNode);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
       }
     }
   };
@@ -571,6 +596,15 @@ export function clearNotes() {
   const notesEditor = document.getElementById('modalNotesEditor');
   notesEditor.innerHTML = '';
   state.setModalHasChanges(true);
+  const preview = document.getElementById('notesPreview');
+  if (preview && preview.innerHTML) {
+    preview.style.display = 'block';
+    notesEditor.style.display = 'none';
+  }
+  const formatBtns = document.getElementById('notesFormatBtns');
+  if (formatBtns) formatBtns.style.display = 'none';
+  const clearBtn = document.getElementById('clearNotesBtn');
+  if (clearBtn) clearBtn.style.display = 'none';
 }
 
 export function toggleHistory() {
@@ -794,11 +828,8 @@ export async function saveModal() {
   state.setModalHasChanges(false);
   state.setModalPendingActions([]);
 
-  // Update the notes editor placeholder to show the last saved entry
-  if (task.noteEntries && task.noteEntries.length > 0) {
-    const lastEntry = task.noteEntries[task.noteEntries.length - 1];
-    notesEditor.setAttribute('data-placeholder', getTextPreview(lastEntry.notesHTML));
-  }
+  // Update preview to show the just-saved entry
+  _updateNotesPreview(task);
 
   // Refresh history to show the newly saved note
   await renderHistory(task);

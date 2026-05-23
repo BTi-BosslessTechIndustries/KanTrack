@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import {
   getColumnName,
   getCurrentDate,
@@ -10,6 +11,7 @@ import {
   debounce,
   throttle,
   MAX_TITLE_LENGTH,
+  plainTextToFragment,
 } from '../scripts/kantrack-modules/utils.js';
 
 // ─── getColumnName ────────────────────────────────────────────────────────────
@@ -294,5 +296,79 @@ describe('throttle', () => {
     const throttled = throttle(fn, 100);
     throttled('hello');
     expect(fn).toHaveBeenCalledWith('hello');
+  });
+});
+
+// ─── plainTextToFragment ──────────────────────────────────────────────────────
+// setup.js overwrites global.document with a minimal stub that lacks
+// createDocumentFragment / createTextNode / createElement. Spin up a real JSDOM
+// instance and stub the globals for just these tests, then restore after.
+
+function fragToHTML(frag) {
+  const div = document.createElement('div');
+  div.appendChild(frag);
+  return div.innerHTML;
+}
+
+describe('plainTextToFragment', () => {
+  beforeAll(() => {
+    const { window } = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+    vi.stubGlobal('document', window.document);
+    vi.stubGlobal('DocumentFragment', window.DocumentFragment);
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
+  });
+  it('returns a DocumentFragment', () => {
+    const frag = plainTextToFragment('hello');
+    expect(frag).toBeInstanceOf(DocumentFragment);
+  });
+
+  it('single line — one text node, no br', () => {
+    expect(fragToHTML(plainTextToFragment('hello world'))).toBe('hello world');
+  });
+
+  it('two lines — text, br, text', () => {
+    expect(fragToHTML(plainTextToFragment('line one\nline two'))).toBe('line one<br>line two');
+  });
+
+  it('three lines', () => {
+    expect(fragToHTML(plainTextToFragment('a\nb\nc'))).toBe('a<br>b<br>c');
+  });
+
+  it('empty string — empty fragment', () => {
+    expect(fragToHTML(plainTextToFragment(''))).toBe('');
+  });
+
+  it('Windows CRLF line endings', () => {
+    expect(fragToHTML(plainTextToFragment('a\r\nb'))).toBe('a<br>b');
+  });
+
+  it('old Mac CR line endings', () => {
+    expect(fragToHTML(plainTextToFragment('a\rb'))).toBe('a<br>b');
+  });
+
+  it('blank line in the middle', () => {
+    expect(fragToHTML(plainTextToFragment('a\n\nb'))).toBe('a<br><br>b');
+  });
+
+  it('trailing newline adds trailing br', () => {
+    expect(fragToHTML(plainTextToFragment('hello\n'))).toBe('hello<br>');
+  });
+
+  it('leading newline adds leading br', () => {
+    expect(fragToHTML(plainTextToFragment('\nhello'))).toBe('<br>hello');
+  });
+
+  it('preserves spaces within a line', () => {
+    expect(fragToHTML(plainTextToFragment('a  b   c'))).toBe('a  b   c');
+  });
+
+  it('preserves tabs within a line', () => {
+    const result = fragToHTML(plainTextToFragment('col1\tcol2'));
+    expect(result).toContain('col1');
+    expect(result).toContain('col2');
+    expect(result).not.toContain('<br>');
   });
 });
