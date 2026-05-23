@@ -460,6 +460,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+  gap: 8px;
 }
 
 .notes-header h4 {
@@ -755,6 +756,63 @@
 }
 
 /* ===== Notes Editor ===== */
+/* ===== Notes Toolbar ===== */
+.notes-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notes-format-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.format-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 5px;
+  color: #f5f5f5;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 3px 9px;
+  line-height: 1.4;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+  user-select: none;
+}
+
+.format-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.format-btn:active {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* ===== Notes Preview ===== */
+.notes-preview {
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(35, 35, 35, 0.4) 0%, rgba(30, 30, 30, 0.4) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  font-style: italic;
+  font-family: inherit;
+  line-height: 1.7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  cursor: text;
+}
+
 .notes-editor {
   min-height: 200px;
   max-height: 400px;

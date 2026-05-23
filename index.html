@@ -295,8 +295,16 @@
             <div class="modal-section">
                 <div class="notes-header">
                     <h4>Notes</h4>
-                    <button id="clearNotesBtn" class="clear-btn" data-action="task:clearNotes" style="display: none;">Clear All</button>
+                    <div class="notes-toolbar-right">
+                        <div id="notesFormatBtns" class="notes-format-btns" style="display:none;">
+                            <button id="boldBtn" class="format-btn format-btn-bold" title="Bold" type="button"><b>B</b></button>
+                            <button id="italicBtn" class="format-btn format-btn-italic" title="Italic" type="button"><i>I</i></button>
+                            <button id="strikeBtn" class="format-btn format-btn-strike" title="Strikethrough" type="button"><s>S</s></button>
+                        </div>
+                        <button id="clearNotesBtn" class="clear-btn" data-action="task:clearNotes" style="display: none;">Clear All</button>
+                    </div>
                 </div>
+                <div id="notesPreview" class="notes-preview" style="display:none;"></div>
                 <div id="modalNotesEditor" class="notes-editor" contenteditable="true" data-placeholder="Write your notes here..."></div>
             </div>
 

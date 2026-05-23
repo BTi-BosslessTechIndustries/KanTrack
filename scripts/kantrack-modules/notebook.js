@@ -29,7 +29,7 @@ import { openImageViewer } from './images.js';
 import { initMentionHandler, setOpenPageModal } from './mentions.js';
 import { exportFolderAsZip } from './notebook-export.js';
 import { sanitizeHTML } from './sanitize.js';
-import { createFocusTrap } from './utils.js';
+import { createFocusTrap, plainTextToFragment } from './utils.js';
 
 /***********************
  * SIDEBAR UI
@@ -641,12 +641,15 @@ function setupPageClipboardPaste() {
       if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         range.deleteContents();
-        const textNode = document.createTextNode(text);
-        range.insertNode(textNode);
-        range.setStartAfter(textNode);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        const fragment = plainTextToFragment(text);
+        const lastNode = fragment.lastChild;
+        range.insertNode(fragment);
+        if (lastNode) {
+          range.setStartAfter(lastNode);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
       }
 
       setPageHasChanges(true);
