@@ -248,7 +248,7 @@ function getSearchableText(task) {
  * Update visible task counts in column headers.
  * Uses data-based counting when VL is active (DOM only holds a window of cards).
  */
-function updateColumnCounts() {
+export function updateColumnCounts() {
   const columns = ['todo', 'inProgress', 'onHold', 'done'];
   const filtersActive = currentSearchTerm || currentColumnFilter || currentTagFilter.length > 0;
 

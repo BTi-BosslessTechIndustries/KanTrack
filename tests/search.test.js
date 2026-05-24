@@ -8,7 +8,7 @@
  * under Vitest's module isolation (setup.js globals are not reliably propagated).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   checkTaskVisibility,
   clearFilters,
@@ -19,7 +19,9 @@ import {
   registerVLUpdaterForFilters,
   getFilterState,
   hasActiveFilters,
+  updateColumnCounts,
 } from '../scripts/kantrack-modules/search.js';
+import { setNotesData } from '../scripts/kantrack-modules/state.js';
 
 // Keep applyFilters in DOM-fallback mode (VL not active in unit tests)
 registerVLUpdaterForFilters(null);
@@ -263,5 +265,53 @@ describe('hasActiveFilters', () => {
     setTagFilter(['tag-z']);
     clearFilters();
     expect(hasActiveFilters()).toBe(false);
+  });
+});
+
+// ── updateColumnCounts ────────────────────────────────────────
+
+describe('updateColumnCounts', () => {
+  let countSpan;
+
+  beforeEach(() => {
+    // DOM mock required: updateColumnCounts always reads getElementById→h2→countSpan
+    // to write the result, regardless of whether VL or DOM-fallback counting is used.
+    countSpan = { textContent: '' };
+    const h2 = { querySelector: () => countSpan, appendChild: () => {} };
+    const todoCol = {
+      querySelector: sel => (sel === 'h2' ? h2 : null),
+      querySelectorAll: () => [],
+    };
+    global.document = {
+      addEventListener: () => {},
+      getElementById: id => (id === 'todo' ? todoCol : null),
+      querySelector: () => null,
+      querySelectorAll: () => ({ forEach: () => {} }),
+      createElement: () => ({ textContent: '', innerHTML: '', appendChild: () => {} }),
+    };
+    registerVLUpdaterForFilters(() => {});
+    setNotesData([
+      makeTask({ id: 't1', title: 'Fix bug', column: 'todo', deleted: false }),
+      makeTask({ id: 't2', title: 'Write docs', column: 'todo', deleted: false }),
+      makeTask({ id: 't3', title: 'Fix login', column: 'todo', deleted: false }),
+    ]);
+    clearFilters();
+  });
+
+  afterEach(() => {
+    registerVLUpdaterForFilters(null);
+    setNotesData([]);
+    clearFilters();
+  });
+
+  it('shows (visible/total) format when a search filter is active', () => {
+    setSearchTerm('fix'); // matches 'Fix bug' and 'Fix login' — 2 of 3 tasks
+    updateColumnCounts();
+    expect(countSpan.textContent).toBe('(2/3)');
+  });
+
+  it('shows (total) format when no filters are active', () => {
+    updateColumnCounts();
+    expect(countSpan.textContent).toBe('(3)');
   });
 });
