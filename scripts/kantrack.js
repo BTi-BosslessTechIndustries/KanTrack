@@ -92,6 +92,7 @@ import {
   setColumnFilter,
   clearFilters,
   applyFilters,
+  updateColumnCounts,
 } from './kantrack-modules/search.js';
 import {
   initTags,
@@ -473,42 +474,6 @@ function showAutoSaveIndicator() {
       indicator.classList.remove('visible', 'success');
     }, 2000);
   }
-}
-
-/***********************
- * COLUMN COUNTS
- ***********************/
-function updateColumnCounts() {
-  const columns = ['todo', 'inProgress', 'onHold', 'done'];
-
-  columns.forEach(columnId => {
-    const column = document.getElementById(columnId);
-    if (!column) return;
-
-    const header = column.querySelector('h2');
-    if (!header) return;
-
-    let countSpan = header.querySelector('.column-count');
-    if (!countSpan) {
-      countSpan = document.createElement('span');
-      countSpan.className = 'column-count';
-      header.appendChild(countSpan);
-    }
-
-    let taskCount;
-    if (getColumnVirtualList(columnId)) {
-      // Data-based counting — DOM only holds a window of cards
-      taskCount = state.notesData.filter(t => !t.deleted && t.column === columnId).length;
-    } else {
-      const allNoteElements = Array.from(column.querySelectorAll('.note'));
-      taskCount = allNoteElements.filter(el => {
-        const style = window.getComputedStyle(el);
-        return style.display !== 'none' && style.visibility !== 'hidden';
-      }).length;
-    }
-
-    countSpan.textContent = taskCount > 0 ? `(${taskCount})` : '';
-  });
 }
 
 /***********************
