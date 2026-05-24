@@ -9,7 +9,8 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 ## Features
 
 - **Kanban board** — four columns (To Do, In Progress, On Hold, Done) with drag-and-drop
-- **Task detail modal** — rich notes with history, images (paste-to-insert), and a full edit/delete log; **Save** keeps the modal open for multi-step edits, **Save & Close** saves and dismisses
+- **Task detail modal** — rich notes editor with **Bold**, **Italic**, and **Strikethrough** formatting; images (paste-to-insert, with full-screen viewer and zoom controls); a chronological edit/delete log; a collapsible sub-kanban board; **Save** keeps the modal open for multi-step edits, **Save & Close** saves and dismisses; double-click the title to rename it inline
+- **Sub-kanban boards** — each task contains a toggleable mini kanban board with the same four columns (To Do, In Progress, On Hold, Done); sub-tasks support drag-and-drop between states and display a live done/total counter on the parent card
 - **Card size** — three global card sizes (Small / Medium / Large) selectable from the ⋮ menu; preference persists across sessions
 - **Priority system** — High / Medium / Low with colour tinting and column sorting
 - **Tags** — colour-coded labels with preset palette or custom hex colour; pinned tags appear in a quick-assign panel
@@ -17,11 +18,13 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Timer** — per-task time tracking with quick-add and quick-remove
 - **Undo / Redo** — full history with durable IDB-backed undo entries
 - **Trash** — soft-delete with restore; recoverable until you empty it
-- **Notebook** — a separate sidebar for free-form notes and folders
-- **Export** — individual tasks or notebook pages as PDF (cross-platform, including Mac); entire notebook as ZIP; full board as JSON (with embedded images) or lightweight JSON; encrypted `.kantrack.enc`
+- **Notebook** — a resizable sidebar with a folder/page tree; pages support rich text, image paste, and per-page PDF export; right-click any item for a context menu (rename, delete); drag-and-drop to reorder and move pages and folders; live search to filter by name; import pages from a ZIP archive or export the whole notebook as ZIP; sidebar open/closed state and width persist across sessions
+- **Export & Import** — export individual tasks or notebook pages as PDF (cross-platform, including Mac); export the entire board as a static HTML snapshot (task data and images embedded for re-import; images not rendered in the browser view), full JSON (with embedded images), lightweight JSON, or AES-256-GCM encrypted `.kantrack.enc`; export the entire notebook as a ZIP; import a full board (merge or replace mode) from any previously exported JSON or encrypted file; import a notebook from a ZIP archive
 - **World clocks** — multiple timezone clocks and a chronometer
 - **Search & filter** — full-text search with tag and column filters; the task input, Add button, and search bar form a single proportional-scaling row that never wraps on window resize; tag filters occupy a dedicated row below
-- **Keyboard shortcuts** — N to focus new task, / for search, ? for the shortcuts reference, arrow keys to navigate cards
+- **Column task counts** — each column header shows a live count of visible tasks; the count reflects active search and filter state
+- **Storage quota monitoring** — checks browser storage quota silently at startup; displays a calm informational message in the settings panel when usage reaches 70%, and a stronger prompt to export a backup at 85%; also requests durable storage permission from the browser so data is protected from automatic eviction
+- **Keyboard shortcuts** — `N` focus new task input; `/` focus search; `?` open shortcuts reference; arrow keys navigate cards across and within columns; `Ctrl+Z` undo; `Ctrl+Shift+Z` / `Ctrl+Y` redo; `Ctrl+B` toggle notebook sidebar; `Escape` closes any open modal or panel
 - **Fully offline** — no CDN dependencies at runtime; everything is bundled
 - **No analytics, no telemetry, no cookies** — not ever
 
@@ -68,7 +71,7 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 542 tests across 19 files, ~1s)
+npm run test:run     # unit tests (Vitest, 576 tests across 21 files, ~1s)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
@@ -114,9 +117,9 @@ KanTrack/
 │   └── responsive.css           # Media queries (breakpoints at 480 / 640 / 768 / 1024 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (542 tests, 19 files)
+│   ├── *.test.js                # Vitest unit tests (576 tests, 21 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (52 tests, 7 files)
+│   └── e2e/                     # Playwright end-to-end tests (84 tests, 8 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management (Phase 7)
@@ -177,6 +180,8 @@ No framework. No runtime dependencies beyond jsPDF and JSZip.
 KanTrack is built around one conviction: **your productivity tools should serve you, not extract value from you.**
 
 Every engineering decision is governed by ten red lines that can never be crossed at any phase of development — no server-stored plaintext, no behavioral analytics, no gamification, no urgency-inducing design, no mandatory accounts. The full framework lives in [`docs/philosophy/`](docs/philosophy/).
+
+At the technical level, a strict Content Security Policy blocks all third-party scripts, styles, and network connections at the browser level — enforced by the browser itself, not just by convention.
 
 ---
 
