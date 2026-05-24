@@ -36,6 +36,18 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 
 ---
 
+## User Guide
+
+A full user guide covering every feature, the product philosophy, and the BTi story is available in [`user-guide/`](user-guide/).
+
+| File                                            | Description                                                                  |
+| ----------------------------------------------- | ---------------------------------------------------------------------------- |
+| [`USER_GUIDE.md`](user-guide/USER_GUIDE.md)     | Plain-text Markdown — readable here on GitHub or in any editor               |
+| [`USER_GUIDE.html`](user-guide/USER_GUIDE.html) | Self-contained styled presentation — open in a browser, no internet required |
+| [`USER_GUIDE.pdf`](user-guide/USER_GUIDE.pdf)   | Pre-generated PDF — ready to share or attach to a pitch                      |
+
+---
+
 ## Running locally
 
 ### Prerequisites
@@ -141,6 +153,11 @@ KanTrack/
 │   ├── philosophy/              # Engineering and design principles
 │   ├── product/                 # Product vision and marketing docs
 │   └── vision/                  # Manifesto and mission
+│
+├── user-guide/                  # User guide and promotional material
+│   ├── USER_GUIDE.md            # Plain-text Markdown source
+│   ├── USER_GUIDE.html          # Self-contained BTi-styled presentation (logos embedded)
+│   └── USER_GUIDE.pdf           # Pre-generated A4 PDF
 │
 ├── images/                      # Static assets (kantrack_logo.png, kantrack_icon.png, bti-logo.png)
 │
