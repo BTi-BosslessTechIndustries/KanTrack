@@ -2,10 +2,10 @@
  * KanTrack E2E flow tests.
  *
  * Covers core user workflows not tested by smoke.spec.js:
- *   1. Delete a task via the modal — card is removed from the board.
- *   2. Edit a task's title in the modal — change persists after reload.
- *   3. Add a note entry in the modal — preview appears on card after reload.
- *   4. Undo a task creation — card disappears.
+ *   1. Delete a task via the modal: card is removed from the board.
+ *   2. Edit a task's title in the modal: change persists after reload.
+ *   3. Add a note entry in the modal: preview appears on card after reload.
+ *   4. Undo a task creation: card disappears.
  *
  * All tests run against the production build served by `npm run preview`
  * (started automatically by Playwright's webServer config).
@@ -211,13 +211,13 @@ test.describe('KanTrack flow tests', () => {
       }
     });
 
-    // Reload — the oplog must rebuild the undo stack on re-init
+    // Reload: the oplog must rebuild the undo stack on re-init
     await page.reload({ waitUntil: 'networkidle' });
 
     // Task should still be visible after reload
     await expect(page.locator('#todo .note').filter({ hasText: title })).toBeVisible();
 
-    // Undo should still work — the stack was rebuilt from the oplog
+    // Undo should still work: the stack was rebuilt from the oplog
     await page.locator('[data-action="history:undo"]').click();
     await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
   });
@@ -233,8 +233,61 @@ test.describe('KanTrack flow tests', () => {
     await page.locator('[data-action="history:undo"]').click();
     await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
 
-    // Redo — task should reappear
+    // Redo: task should reappear
     await page.locator('[data-action="history:redo"]').click();
     await expect(page.locator('#todo .note').filter({ hasText: title })).toBeVisible();
+  });
+});
+
+// Tests for the clock reset button added in the Remove-all-clocks-keep-Current-Time feature.
+// Each test gets a fresh browser context (clean storage) so the app initialises
+// 5 default clocks: Current Time, Europe, China, Americas, Africa.
+test.describe('Clock reset button', () => {
+  test('reset button is visible when multiple clocks are shown', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    // Default state: 5 clocks, so the reset button must be visible
+    await expect(page.locator('.clock-reset-btn')).toBeVisible();
+  });
+
+  test('reset button is hidden when only Current Time is shown', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    await page.locator('.clock-reset-btn').click();
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('.clock-reset-btn')).toBeHidden();
+  });
+
+  test('clicking reset leaves exactly one clock labelled Current Time', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    await page.locator('.clock-reset-btn').click();
+    await page.waitForTimeout(300);
+
+    const clocks = page.locator('#clockContainer .clock');
+    await expect(clocks).toHaveCount(1);
+    await expect(clocks.first().locator('.clock-name')).toHaveText('Current Time');
+  });
+
+  test('add clock button remains visible after reset', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    await page.locator('.clock-reset-btn').click();
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('.clock-add-button')).toBeVisible();
+  });
+
+  test('clock-spacer and clock-actions-col layout elements are present', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    await expect(page.locator('.clock-spacer')).toBeAttached();
+    await expect(page.locator('.clock-actions-col')).toBeAttached();
   });
 });

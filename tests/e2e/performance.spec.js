@@ -32,7 +32,7 @@ async function seedTasks(page, count, prefix = 'perf') {
   );
 }
 
-test.describe('Virtual list — DOM node budget', () => {
+test.describe('Virtual list: DOM node budget', () => {
   test('200 tasks should render fewer than 30 .note nodes initially', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();

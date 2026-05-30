@@ -74,11 +74,11 @@ test.describe('KanTrack header UI', () => {
     await page.locator('#headerMenuBtn').click();
     await expect(page.locator('#headerDropdown')).toBeVisible();
 
-    // Verify the dropdown is not clipped by an overflow boundary —
+    // Verify the dropdown is not clipped by an overflow boundary:
     // it must have non-zero dimensions and be rendered on screen.
     // Note: the dropdown opens below the menu button, which is centred
     // inside the 60px header, so its top may sit within the header's
-    // height range — checking only that it is rendered on screen (y >= 0)
+    // height range: checking only that it is rendered on screen (y >= 0)
     // and has a usable size is the correct invariant.
     const box = await page.locator('#headerDropdown').boundingBox();
     expect(box).not.toBeNull();
@@ -91,7 +91,7 @@ test.describe('KanTrack header UI', () => {
     await page.locator('#headerMenuBtn').click();
     await expect(page.locator('#headerDropdown')).toBeVisible();
 
-    // Click the board background — a neutral area not inside the dropdown wrapper
+    // Click the board background: a neutral area not inside the dropdown wrapper
     await page.locator('.kanban-board').click({ position: { x: 10, y: 10 } });
     await expect(page.locator('#headerDropdown')).toBeHidden();
   });
@@ -384,13 +384,13 @@ test.describe('header responsive layout', () => {
     const getBtnWidth = async () =>
       page.locator('.support-us-btn').evaluate(el => el.getBoundingClientRect().width);
 
-    // At 1280px: clamp max — font 12.5px, horizontal padding 14px each side
+    // At 1280px: clamp max: font 12.5px, horizontal padding 14px each side
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
     const widthAt1280 = await getBtnWidth();
 
-    // At 600px: padding hits clamp min (7px each side) — clearly smaller than 1280px
+    // At 600px: padding hits clamp min (7px each side): clearly smaller than 1280px
     // 1.1vw=6.6px < 7px floor, so horizontal padding = 7px vs 14px at 1280px
     await page.setViewportSize({ width: 600, height: 800 });
     await page.goto('/');
@@ -470,7 +470,7 @@ test.describe('header responsive layout', () => {
         return { width: parseFloat(s.width), height: parseFloat(s.height) };
       });
 
-    // KanTrack logo is 700x150px natural — aspect ratio ≈ 4.67:1
+    // KanTrack logo is 700x150px natural: aspect ratio ≈ 4.67:1
     const expectedRatio = 700 / 150;
 
     for (const width of [1280, 900, 600]) {
@@ -628,14 +628,14 @@ test.describe('header responsive layout', () => {
         .locator('#undoBtn svg')
         .evaluate(el => Math.round(parseFloat(getComputedStyle(el).width)));
 
-    // At 1280px: clamp max — 1.8vw = 23px, capped at 20px
+    // At 1280px: clamp max: 1.8vw = 23px, capped at 20px
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
     const svgAt1280 = await getSvgSize();
     expect(svgAt1280).toBe(20);
 
-    // At 768px: clamp min — 1.8vw = 13.8px, floored at 14px
+    // At 768px: clamp min: 1.8vw = 13.8px, floored at 14px
     await page.setViewportSize({ width: 768, height: 800 });
     await page.evaluate(() => void document.body.offsetHeight);
     const svgAt768 = await getSvgSize();
@@ -650,14 +650,14 @@ test.describe('header responsive layout', () => {
         .locator('.notebook-toggle-btn svg')
         .evaluate(el => Math.round(parseFloat(getComputedStyle(el).width)));
 
-    // At 1280px: clamp max — 2vw = 25.6px, capped at 22px
+    // At 1280px: clamp max: 2vw = 25.6px, capped at 22px
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
     const svgAt1280 = await getSvgSize();
     expect(svgAt1280).toBe(22);
 
-    // At 768px: clamp min — 2vw = 15.4px, floored at 16px
+    // At 768px: clamp min: 2vw = 15.4px, floored at 16px
     await page.setViewportSize({ width: 768, height: 800 });
     await page.evaluate(() => void document.body.offsetHeight);
     const svgAt768 = await getSvgSize();
@@ -701,7 +701,7 @@ test.describe('header responsive layout', () => {
     const gapWide = await getUndoRedoGap();
     expect(gapWide).toBeCloseTo(6, 0);
 
-    // At 768px: 0.6vw=4.6px — smaller than at 1280px
+    // At 768px: 0.6vw=4.6px: smaller than at 1280px
     await page.setViewportSize({ width: 768, height: 800 });
     await page.evaluate(() => void document.body.offsetHeight);
     const gapNarrow = await getUndoRedoGap();

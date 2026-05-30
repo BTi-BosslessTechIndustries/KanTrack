@@ -1,5 +1,5 @@
 /**
- * Tests for crypto.js — WebCrypto-based encrypt/decrypt + hash.
+ * Tests for crypto.js: WebCrypto-based encrypt/decrypt + hash.
  * crypto.subtle is available natively in Node 18+ (Vitest runtime).
  */
 import { describe, it, expect } from 'vitest';
@@ -10,10 +10,10 @@ import {
 } from '../scripts/kantrack-modules/crypto.js';
 
 // ---------------------------------------------------------------------------
-// encryptWorkspace / decryptWorkspace — round-trip
+// encryptWorkspace / decryptWorkspace: round-trip
 // ---------------------------------------------------------------------------
 
-describe('encryptWorkspace / decryptWorkspace — round-trip', () => {
+describe('encryptWorkspace / decryptWorkspace: round-trip', () => {
   it('decrypts back to the original string', async () => {
     const original = JSON.stringify({ hello: 'world', tasks: [1, 2, 3] });
     const buf = await encryptWorkspace(original, 'my-secret');
@@ -45,10 +45,10 @@ describe('encryptWorkspace / decryptWorkspace — round-trip', () => {
 });
 
 // ---------------------------------------------------------------------------
-// decryptWorkspace — wrong passphrase
+// decryptWorkspace: wrong passphrase
 // ---------------------------------------------------------------------------
 
-describe('decryptWorkspace — wrong passphrase', () => {
+describe('decryptWorkspace: wrong passphrase', () => {
   it('throws when the passphrase is wrong', async () => {
     const buf = await encryptWorkspace('secret data', 'correct-pass');
     await expect(decryptWorkspace(buf, 'wrong-pass')).rejects.toThrow();
@@ -62,10 +62,10 @@ describe('decryptWorkspace — wrong passphrase', () => {
 });
 
 // ---------------------------------------------------------------------------
-// encryptWorkspace — ciphertext uniqueness
+// encryptWorkspace: ciphertext uniqueness
 // ---------------------------------------------------------------------------
 
-describe('encryptWorkspace — unique ciphertexts', () => {
+describe('encryptWorkspace: unique ciphertexts', () => {
   it('encrypting the same plaintext twice produces different bytes (random salt + IV)', async () => {
     const text = 'same plaintext';
     const buf1 = await encryptWorkspace(text, 'pass');

@@ -1,5 +1,5 @@
 /**
- * KanTrack E2E accessibility tests — Phase 7.
+ * KanTrack E2E accessibility tests: Phase 7.
  *
  * Covers the keyboard-driven UX and accessibility features added in Phase 7:
  *   1. ESC closes the task modal.
@@ -29,7 +29,7 @@ async function createTask(page, title) {
  * allowing global keyboard shortcuts to fire.
  */
 async function blurAllInputs(page) {
-  // Click the board background — not on a card or control
+  // Click the board background: not on a card or control
   await page.evaluate(() => document.body.click());
   // Small wait to let any focus side-effects settle
   await page.waitForTimeout(50);
@@ -37,7 +37,7 @@ async function blurAllInputs(page) {
 
 // ─── tests ────────────────────────────────────────────────────────────────────
 
-test.describe('Phase 7 — Keyboard shortcuts & accessibility', () => {
+test.describe('Phase 7: Keyboard shortcuts & accessibility', () => {
   // ── ESC closes task modal ──────────────────────────────────────────────────
 
   test('ESC closes the task modal', async ({ page }) => {
@@ -52,7 +52,7 @@ test.describe('Phase 7 — Keyboard shortcuts & accessibility', () => {
     const modal = page.locator('#taskModal');
     await expect(modal).toBeVisible();
 
-    // Press ESC — modal should close
+    // Press ESC: modal should close
     await page.keyboard.press('Escape');
     await expect(modal).toBeHidden();
   });
@@ -91,7 +91,7 @@ test.describe('Phase 7 — Keyboard shortcuts & accessibility', () => {
 
     await blurAllInputs(page);
 
-    // '?' is a shifted character — use keyboard.type to fire keydown with key:'?'
+    // '?' is a shifted character: use keyboard.type to fire keydown with key:'?'
     await page.keyboard.type('?');
 
     await expect(page.locator('#shortcutsModal')).toBeVisible();
@@ -143,7 +143,7 @@ test.describe('Phase 7 — Keyboard shortcuts & accessibility', () => {
     await card.evaluate(el => el.focus());
     await expect(card).toBeFocused();
 
-    // Press Enter — task modal should open
+    // Press Enter: task modal should open
     await page.keyboard.press('Enter');
 
     await expect(page.locator('#taskModal')).toBeVisible();

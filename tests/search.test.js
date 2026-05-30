@@ -1,5 +1,5 @@
 /**
- * Unit tests for search.js — checkTaskVisibility pure filter logic.
+ * Unit tests for search.js: checkTaskVisibility pure filter logic.
  *
  * The filter-setter functions (setSearchTerm, setColumnFilter, setTagFilter,
  * clearFilters) call document.querySelectorAll and document.getElementById
@@ -51,7 +51,7 @@ beforeEach(() => {
 
 // ── Basic visibility ──────────────────────────────────────────
 
-describe('checkTaskVisibility — no active filters', () => {
+describe('checkTaskVisibility: no active filters', () => {
   it('returns true for a normal task', () => {
     expect(checkTaskVisibility(makeTask())).toBe(true);
   });
@@ -63,7 +63,7 @@ describe('checkTaskVisibility — no active filters', () => {
 
 // ── Column filter ─────────────────────────────────────────────
 
-describe('checkTaskVisibility — column filter', () => {
+describe('checkTaskVisibility: column filter', () => {
   it('returns false when task column does not match the active column filter', () => {
     setColumnFilter('done');
     expect(checkTaskVisibility(makeTask({ column: 'todo' }))).toBe(false);
@@ -82,7 +82,7 @@ describe('checkTaskVisibility — column filter', () => {
 
 // ── Search term ───────────────────────────────────────────────
 
-describe('checkTaskVisibility — search term', () => {
+describe('checkTaskVisibility: search term', () => {
   it('returns false when search term does not appear in the title', () => {
     setSearchTerm('xyz');
     expect(checkTaskVisibility(makeTask({ title: 'My task' }))).toBe(false);
@@ -99,7 +99,7 @@ describe('checkTaskVisibility — search term', () => {
   });
 
   // Note: searching note-entry HTML content relies on getTextPreview() which
-  // uses document.createElement to parse HTML — not testable in the Node
+  // uses document.createElement to parse HTML: not testable in the Node
   // environment. That path is covered by E2E tests.
 
   it('returns true when search matches priority text', () => {
@@ -117,7 +117,7 @@ describe('checkTaskVisibility — search term', () => {
 
 // ── Tag filter ────────────────────────────────────────────────
 
-describe('checkTaskVisibility — tag filter', () => {
+describe('checkTaskVisibility: tag filter', () => {
   it('returns false when tag filter is active but task has no matching tag', () => {
     setTagFilter(['tag-a']);
     expect(checkTaskVisibility(makeTask({ tags: ['tag-b'] }))).toBe(false);
@@ -141,7 +141,7 @@ describe('checkTaskVisibility — tag filter', () => {
 
 // ── Combined filters ──────────────────────────────────────────
 
-describe('checkTaskVisibility — combined filters', () => {
+describe('checkTaskVisibility: combined filters', () => {
   it('returns false when search matches but column filter does not', () => {
     setSearchTerm('my task');
     setColumnFilter('done');
@@ -157,7 +157,7 @@ describe('checkTaskVisibility — combined filters', () => {
 
 // ── Search term edge cases ────────────────────────────────────
 
-describe('checkTaskVisibility — search term edge cases', () => {
+describe('checkTaskVisibility: search term edge cases', () => {
   it('handles regex-special characters in the search term without throwing', () => {
     setSearchTerm('(high)');
     expect(() => checkTaskVisibility(makeTask({ title: 'My task' }))).not.toThrow();
@@ -196,7 +196,7 @@ describe('toggleTagFilter', () => {
     expect(checkTaskVisibility(makeTask({ tags: [] }))).toBe(true);
   });
 
-  it('supports multiple tags active simultaneously (AND logic — task must have all)', () => {
+  it('supports multiple tags active simultaneously (AND logic: task must have all)', () => {
     toggleTagFilter('tag-a');
     toggleTagFilter('tag-b');
     // task with only one of the selected tags is hidden
@@ -305,7 +305,7 @@ describe('updateColumnCounts', () => {
   });
 
   it('shows (visible/total) format when a search filter is active', () => {
-    setSearchTerm('fix'); // matches 'Fix bug' and 'Fix login' — 2 of 3 tasks
+    setSearchTerm('fix'); // matches 'Fix bug' and 'Fix login': 2 of 3 tasks
     updateColumnCounts();
     expect(countSpan.textContent).toBe('(2/3)');
   });

@@ -1,5 +1,5 @@
 /**
- * Tests for images.js — updateClearNotesButton, preview click-to-edit,
+ * Tests for images.js: updateClearNotesButton, preview click-to-edit,
  * and format button (Bold / Italic / Strikethrough) handlers.
  *
  * setup.js overwrites global.document with a minimal stub. We spin up a real
@@ -132,7 +132,7 @@ describe('updateClearNotesButton', () => {
 
 // ── Preview click → edit mode ─────────────────────────────────────────────────
 
-describe('setupClipboardPaste — preview click switches to edit mode', () => {
+describe('setupClipboardPaste: preview click switches to edit mode', () => {
   let els;
 
   beforeEach(() => {
@@ -156,14 +156,14 @@ describe('setupClipboardPaste — preview click switches to edit mode', () => {
 
 // ── Format buttons ────────────────────────────────────────────────────────────
 
-describe('setupClipboardPaste — format buttons', () => {
+describe('setupClipboardPaste: format buttons', () => {
   let els;
   let execSpy;
 
   beforeEach(() => {
     els = buildDOM();
     setupClipboardPaste();
-    // jsdom does not define execCommand — install it so vi.spyOn can wrap it
+    // jsdom does not define execCommand: install it so vi.spyOn can wrap it
     if (!document.execCommand) {
       document.execCommand = () => false;
     }

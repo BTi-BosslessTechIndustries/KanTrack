@@ -1,12 +1,12 @@
 /**
- * KanTrack Phase 4 E2E tests — Export / Import v2.
+ * KanTrack Phase 4 E2E tests: Export / Import v2.
  *
  * Covers flows that cannot be tested at the unit level:
- *   1. Export workspace as JSON — download is intercepted; content verified.
- *   2. Import .kantrack.json (Merge) — file upload via setInputFiles; dialog
+ *   1. Export workspace as JSON: download is intercepted; content verified.
+ *   2. Import .kantrack.json (Merge): file upload via setInputFiles; dialog
  *      interaction; data present after reload.
- *   3. Import file with unsupported formatVersion — error notification shown.
- *   4. Encrypted export + import round-trip — passphrase dialogs; decrypt on
+ *   3. Import file with unsupported formatVersion: error notification shown.
+ *   4. Encrypted export + import round-trip: passphrase dialogs; decrypt on
  *      import; data present after reload.
  */
 import { test, expect } from '@playwright/test';
@@ -38,7 +38,7 @@ function makeImportPayload(tasks = []) {
 
 // ─── tests ────────────────────────────────────────────────────────────────────
 
-test.describe('Phase 4 — Export / Import', () => {
+test.describe('Phase 4: Export / Import', () => {
   // ── 4.1 Export JSON ─────────────────────────────────────────────────────────
 
   test('exports workspace as .kantrack.json with correct structure', async ({ page }) => {
@@ -98,9 +98,7 @@ test.describe('Phase 4 — Export / Import', () => {
 
   // ── 4.2 Import .kantrack.json ────────────────────────────────────────────────
 
-  test('imports .kantrack.json via Merge — imported task appears after reload', async ({
-    page,
-  }) => {
+  test('imports .kantrack.json via Merge: imported task appears after reload', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
 
@@ -132,7 +130,7 @@ test.describe('Phase 4 — Export / Import', () => {
     // Click Merge
     await dialog.locator('#kt-import-merge').click();
 
-    // Page reloads after merge — wait for it
+    // Page reloads after merge: wait for it
     await page.waitForLoadState('networkidle');
 
     // Imported task must be visible
@@ -167,7 +165,7 @@ test.describe('Phase 4 — Export / Import', () => {
     // Summary should mention "2 tasks"
     await expect(dialog).toContainText('2 tasks');
 
-    // Cancel — we don't need to actually import
+    // Cancel: we don't need to actually import
     await dialog.locator('#kt-import-cancel').click();
     await expect(dialog).toBeHidden();
   });
@@ -185,7 +183,7 @@ test.describe('Phase 4 — Export / Import', () => {
     });
 
     // Invalid formatVersion is caught by the validator before any dialog is
-    // created — confirm no preview dialog was opened.
+    // created: confirm no preview dialog was opened.
     await expect(page.locator('dialog[open]')).toHaveCount(0);
 
     // The notification starts at translateX(120%) but Playwright still detects
@@ -207,7 +205,7 @@ test.describe('Phase 4 — Export / Import', () => {
 
     // ── Export step ──────────────────────────────────────────────────────────
 
-    // Click the encrypted export button — passphrase dialog appears
+    // Click the encrypted export button: passphrase dialog appears
     await page.locator('[data-action="board:exportEncrypted"]').click();
 
     const passphraseDialog = page.locator('dialog');

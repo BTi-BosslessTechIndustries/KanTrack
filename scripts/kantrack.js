@@ -26,6 +26,7 @@ import {
   filterTimezones,
   addTimezoneClock,
   addChronometer,
+  resetToCurrentTime,
 } from './kantrack-modules/clocks.js';
 import {
   openTaskModal,
@@ -288,6 +289,7 @@ registerAction('clock:closeModal', () => closeAddClockModal());
 registerAction('clock:selectType', param => selectClockType(param));
 registerAction('clock:addTimezone', () => addTimezoneClock());
 registerAction('clock:addChronometer', () => addChronometer());
+registerAction('clock:resetClocks', () => resetToCurrentTime());
 
 // Tasks
 registerAction('task:add', () => addNote());

@@ -17,7 +17,7 @@ test.describe('KanTrack smoke tests', () => {
   test('creates a task and it persists after a hard reload', async ({ page }) => {
     await page.goto('/');
 
-    // App should load — the board header must be visible
+    // App should load: the board header must be visible
     await expect(page.locator('.top-header')).toBeVisible();
 
     const taskTitle = `Smoke test ${Date.now()}`;
@@ -30,7 +30,7 @@ test.describe('KanTrack smoke tests', () => {
     const todoCol = page.locator('#todo');
     await expect(todoCol.locator('.note').filter({ hasText: taskTitle })).toBeVisible();
 
-    // Hard reload — simulates a new session; app re-reads from localStorage/IDB
+    // Hard reload: simulates a new session; app re-reads from localStorage/IDB
     await page.reload({ waitUntil: 'networkidle' });
 
     // Task must still be visible (persisted successfully)
@@ -60,7 +60,7 @@ test.describe('KanTrack smoke tests', () => {
     const modal = page.locator('#taskModal');
     await expect(modal).toBeVisible();
 
-    // Set priority to High — the label inside the modal updates immediately
+    // Set priority to High: the label inside the modal updates immediately
     await modal.locator('[data-action="task:setPriority"][data-action-param="high"]').click();
     await expect(modal.locator('#modalPriorityLabel')).toHaveText('High');
 
@@ -68,7 +68,7 @@ test.describe('KanTrack smoke tests', () => {
     await modal.locator('[data-action="task:saveModal"]').click();
     await expect(modal).toBeHidden();
 
-    // Verify updateNoteCardPriority ran — class is added synchronously during save
+    // Verify updateNoteCardPriority ran: class is added synchronously during save
     await expect(card).toHaveClass(/priority-high/);
 
     // saveTasks() commits to localStorage synchronously but fires the IDB write

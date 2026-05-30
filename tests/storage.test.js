@@ -1,5 +1,5 @@
 /**
- * Tests for storage.js — IDB-first loading with localStorage fallback.
+ * Tests for storage.js: IDB-first loading with localStorage fallback.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
@@ -62,7 +62,7 @@ const validNotebookItem = (id = 'page-1') => ({
 });
 
 // ---------------------------------------------------------------------------
-// loadNotesFromLocalStorage — IDB primary source
+// loadNotesFromLocalStorage: IDB primary source
 // ---------------------------------------------------------------------------
 describe('loadNotesFromLocalStorage', () => {
   it('reads tasks from IDB when the tasks store is populated', async () => {
@@ -154,7 +154,7 @@ describe('loadNotesFromLocalStorage', () => {
 });
 
 // ---------------------------------------------------------------------------
-// saveNotesToLocalStorage — writes to both localStorage and IDB
+// saveNotesToLocalStorage: writes to both localStorage and IDB
 // ---------------------------------------------------------------------------
 describe('saveNotesToLocalStorage', () => {
   it('writes tasks to localStorage synchronously', () => {

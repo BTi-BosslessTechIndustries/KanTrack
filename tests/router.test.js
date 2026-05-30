@@ -1,9 +1,9 @@
 /**
- * Tests for router.js — centralized event delegation module.
+ * Tests for router.js: centralized event delegation module.
  *
  * Strategy: initRouter() registers a click handler on document.addEventListener.
  * In tests we intercept that registration, then call the captured handler manually
- * with mock events — no browser required.
+ * with mock events: no browser required.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 

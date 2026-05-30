@@ -1,5 +1,5 @@
 /**
- * Unit tests for the createFocusTrap() utility (Phase 7 — Accessibility).
+ * Unit tests for the createFocusTrap() utility (Phase 7: Accessibility).
  *
  * tests/setup.js installs a minimal document stub over the Node global so that
  * other modules can import without crashing.  That stub has no real DOM methods
@@ -11,7 +11,7 @@
  * element interactions work correctly.
  *
  * Note: jsdom does not implement layout (offsetParent is always null), so we
- * patch offsetParent on each test element to return a truthy value — exactly
+ * patch offsetParent on each test element to return a truthy value: exactly
  * as the focus-trap's getFocusable() visibility filter requires.
  */
 import { JSDOM } from 'jsdom';
@@ -146,7 +146,7 @@ describe('createFocusTrap', () => {
 
     trap = createFocusTrap(container);
     trap.activate();
-    btn2.focus(); // middle element — Tab should not be intercepted
+    btn2.focus(); // middle element: Tab should not be intercepted
 
     const e = tab(container);
     expect(e.defaultPrevented).toBe(false);
@@ -213,7 +213,7 @@ describe('createFocusTrap', () => {
 
   // ── deactivate ─────────────────────────────────────────────────────────────
 
-  it('deactivate() removes the Tab handler — subsequent Tab is no longer intercepted', () => {
+  it('deactivate() removes the Tab handler: subsequent Tab is no longer intercepted', () => {
     const btn1 = makeBtn();
     const btn2 = makeBtn();
     container.append(btn1, btn2);
@@ -222,7 +222,7 @@ describe('createFocusTrap', () => {
     trap.activate();
     trap.deactivate();
 
-    btn2.focus(); // last element — would normally trigger wrap
+    btn2.focus(); // last element: would normally trigger wrap
     const e = tab(container);
     // Handler removed → default NOT prevented, focus stays on btn2
     expect(e.defaultPrevented).toBe(false);
@@ -266,7 +266,7 @@ describe('createFocusTrap', () => {
     trap.activate();
     expect(doc.activeElement).toBe(btn1);
 
-    // Tab from btn1 (not last) — should NOT wrap
+    // Tab from btn1 (not last): should NOT wrap
     let e = tab(container);
     expect(e.defaultPrevented).toBe(false);
 
