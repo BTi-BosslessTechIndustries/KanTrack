@@ -1,5 +1,5 @@
 /**
- * Tests for repository.js — persistence abstraction layer.
+ * Tests for repository.js: persistence abstraction layer.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
@@ -208,13 +208,13 @@ describe('saveTasks', () => {
 });
 
 // ===========================================================================
-// saveTasks — debounce behaviour
+// saveTasks: debounce behaviour
 // ===========================================================================
-describe('saveTasks — debounced IDB writes', () => {
+describe('saveTasks: debounced IDB writes', () => {
   it('does not write to IDB before the debounce timer fires', async () => {
     vi.useFakeTimers();
     saveTasks([validTask('early')]);
-    // Timer hasn't fired yet — IDB should be empty
+    // Timer hasn't fired yet: IDB should be empty
     const idbTasks = await idbGetAll('tasks');
     expect(idbTasks).toHaveLength(0);
     vi.useRealTimers();
@@ -223,11 +223,11 @@ describe('saveTasks — debounced IDB writes', () => {
   it('coalesces rapid calls and writes only the last snapshot', async () => {
     vi.useFakeTimers();
     saveTasks([validTask('call-1')]);
-    await vi.advanceTimersByTimeAsync(100); // partial — no fire yet
+    await vi.advanceTimersByTimeAsync(100); // partial: no fire yet
     saveTasks([validTask('call-2')]); // resets timer
     await vi.advanceTimersByTimeAsync(100); // still < 300ms from last call
     expect(await idbGetAll('tasks')).toHaveLength(0); // not yet
-    await vi.advanceTimersByTimeAsync(250); // total 350ms from last call — fires
+    await vi.advanceTimersByTimeAsync(250); // total 350ms from last call: fires
     const idbTasks = await idbGetAll('tasks');
     expect(idbTasks).toHaveLength(1);
     expect(idbTasks[0].id).toBe('call-2'); // last call's snapshot wins
@@ -574,7 +574,7 @@ describe('deleteOplogEntriesOlderThan', () => {
 
   it('does nothing when all undone entries are within the cutoff window', async () => {
     await idbBulkPut('oplog', [makeOplogEntry('recent-undone', 1, true, Date.now())]);
-    await deleteOplogEntriesOlderThan(Date.now() - 60_000); // 1 minute ago — recent entry is newer
+    await deleteOplogEntriesOlderThan(Date.now() - 60_000); // 1 minute ago: recent entry is newer
     expect(await idbGetAll('oplog')).toHaveLength(1);
   });
 
@@ -584,7 +584,7 @@ describe('deleteOplogEntriesOlderThan', () => {
 });
 
 // ===========================================================================
-// getNotebookItemContent — IDB → notebookItems localStorage → notebookContent_<id>
+// getNotebookItemContent: IDB → notebookItems localStorage → notebookContent_<id>
 // ===========================================================================
 describe('getNotebookItemContent', () => {
   it('returns empty string when all sources are empty', async () => {
@@ -648,7 +648,7 @@ describe('saveNotebookContentBackup', () => {
     expect(localStorage.getItem('notebookContent_page-1')).toBe('<p>updated</p>');
   });
 
-  it('stores raw HTML — not JSON-wrapped', () => {
+  it('stores raw HTML: not JSON-wrapped', () => {
     const html = '<p>raw &amp; unencoded</p>';
     saveNotebookContentBackup('page-raw', html);
     expect(localStorage.getItem('notebookContent_page-raw')).toBe(html);

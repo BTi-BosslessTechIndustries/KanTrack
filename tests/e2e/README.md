@@ -20,9 +20,9 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ## What is tested
 
-### `smoke.spec.js` — core persistence
+### `smoke.spec.js`: core persistence
 
-**Test 1 — Create a task and verify it persists after reload**
+**Test 1: Create a task and verify it persists after reload**
 
 1. Open the app
 2. Fill in the `#newNote` input and click the Add button (`[data-action="task:add"]`)
@@ -30,7 +30,7 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 4. Hard reload the page (`waitUntil: 'networkidle'`)
 5. Assert the card is still there (data survived the reload via IDB/localStorage)
 
-**Test 2 — Open the task modal, set priority, and verify it persists after reload**
+**Test 2: Open the task modal, set priority, and verify it persists after reload**
 
 1. Create a task (same as above)
 2. Click the card's `<strong>` title element to open the task modal
@@ -45,16 +45,16 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ---
 
-### `flows.spec.js` — user flows
+### `flows.spec.js`: user flows
 
-**Test 1 — Delete a task via the modal**
+**Test 1: Delete a task via the modal**
 
 1. Create a task
 2. Open the modal, click Delete (`[data-action="task:deleteModal"]`)
 3. Accept the browser confirm dialog
 4. Assert the card is gone from the board
 
-**Test 2 — Edit task title in the modal and verify it persists after reload**
+**Test 2: Edit task title in the modal and verify it persists after reload**
 
 1. Create a task
 2. Open modal, double-click `#modalTitle` to enable editing
@@ -62,39 +62,39 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 4. Save & Close
 5. Assert card shows the new title
 6. Poll IDB until the new title is committed
-7. Reload — assert title still correct
+7. Reload: assert title still correct
 
-**Test 3 — Add a note entry and verify the preview appears after reload**
+**Test 3: Add a note entry and verify the preview appears after reload**
 
 1. Create a task
 2. Open modal, type into `#modalNotesEditor` (contenteditable)
 3. Save & Close
 4. Assert the card's `.note-text` is no longer "No additional notes"
 5. Poll IDB until `noteEntries.length > 0`
-6. Reload — assert note preview still present
+6. Reload: assert note preview still present
 
-**Test 4 — Undo removes a newly created task**
+**Test 4: Undo removes a newly created task**
 
 1. Create a task
 2. Click the Undo button (`[data-action="history:undo"]`)
 3. Assert the card is gone from the board
 
-**Test 5 — Undo survives a page refresh (oplog persistence)**
+**Test 5: Undo survives a page refresh (oplog persistence)**
 
 1. Create a task, wait for the oplog entry to commit to IDB
 2. Reload the page (oplog rebuilds the undo stack)
 3. Assert the task is still visible
-4. Undo — assert the card is gone (stack was rebuilt correctly)
+4. Undo: assert the card is gone (stack was rebuilt correctly)
 
-**Test 6 — Redo re-applies an undone action**
+**Test 6: Redo re-applies an undone action**
 
-1. Create a task, undo it, redo it — assert card reappears
+1. Create a task, undo it, redo it: assert card reappears
 
 ---
 
-### `accessibility.spec.js` — keyboard shortcuts & focus (Phase 7)
+### `accessibility.spec.js`: keyboard shortcuts & focus (Phase 7)
 
-- **ESC closes task modal** — open modal via card click, press Escape
+- **ESC closes task modal**: open modal via card click, press Escape
 - **N key** focuses `#newNote` input when no modal is open
 - **/ key** focuses `#taskSearchInput` when no modal is open
 - **? key** opens `#shortcutsModal`
@@ -105,11 +105,11 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ---
 
-### `import-export.spec.js` — export / import round-trips (Phase 4)
+### `import-export.spec.js`: export / import round-trips (Phase 4)
 
 - JSON export produces `.kantrack.json` with correct structure
 - Lightweight export strips `imageData`
-- JSON import (Merge) — imported task appears after reload
+- JSON import (Merge): imported task appears after reload
 - Import summary shows task count
 - Unsupported `formatVersion` shows an error
 - Encrypted export + import round-trip restores data
@@ -117,14 +117,14 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ---
 
-### `performance.spec.js` — virtual list DOM budget (Phase 5)
+### `performance.spec.js`: virtual list DOM budget (Phase 5)
 
 - 200 tasks renders fewer than 30 `.note` DOM nodes initially
 - Scrolling to the bottom keeps the DOM count below 60
 
 ---
 
-### `search.spec.js` — live search & filter
+### `search.spec.js`: live search & filter
 
 - Typing in the search box shows only cards whose titles match
 - Search is case-insensitive (uppercase title, lowercase query)
@@ -134,22 +134,22 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ---
 
-### `header.spec.js` — header UI
+### `header.spec.js`: header UI
 
-- **Support Us button** — clicking it opens `#supportModal`
+- **Support Us button**: clicking it opens `#supportModal`
 - **ESC** closes the Support modal
 - **Backdrop click** closes the Support modal
 - **Close button** closes the Support modal
-- **Credit button** — visible, links to the BTi website
-- **⋮ menu button** — clicking opens `#headerDropdown`
-- **Click outside** — clicking the board area closes the open dropdown
-- **Toggle** — clicking the menu button a second time closes the dropdown
-- **About modal** — "About KanTrack" item opens `#aboutModal`
+- **Credit button**: visible, links to the BTi website
+- **⋮ menu button**: clicking opens `#headerDropdown`
+- **Click outside**: clicking the board area closes the open dropdown
+- **Toggle**: clicking the menu button a second time closes the dropdown
+- **About modal**: "About KanTrack" item opens `#aboutModal`
 - **ESC** closes the About modal
 - **Backdrop click** closes the About modal
 - **Close button** closes the About modal
-- **Scroll position** — About modal opens scrolled to the top
-- **Shortcuts from dropdown** — "Shortcuts" item opens `#shortcutsModal`
+- **Scroll position**: About modal opens scrolled to the top
+- **Shortcuts from dropdown**: "Shortcuts" item opens `#shortcutsModal`
 - **Backdrop click** closes the Shortcuts modal
 
 ---
@@ -196,7 +196,7 @@ npm run e2e
 npm run e2e:ui
 ```
 
-The `webServer` in `config/playwright.config.js` automatically runs `npm run build && npm run preview` before tests start. If a preview server is already running on port 4173, it is reused (skipping the build step) — useful during local development.
+The `webServer` in `config/playwright.config.js` automatically runs `npm run build && npm run preview` before tests start. If a preview server is already running on port 4173, it is reused (skipping the build step): useful during local development.
 
 ---
 

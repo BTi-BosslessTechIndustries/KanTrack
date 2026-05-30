@@ -1,5 +1,5 @@
 /**
- * Tests for undo.js — trash (no hard cap) + undo history persistence.
+ * Tests for undo.js: trash (no hard cap) + undo history persistence.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';

@@ -216,13 +216,19 @@
 		</div>
 	</div>
     <div class="clock-wrapper">
+        <div class="clock-spacer" aria-hidden="true"></div>
         <div class="clock-container" id="clockContainer">
             <!-- Clocks will be dynamically generated here -->
         </div>
-        <div class="clock-add-button" data-action="clock:openModal">
-            <div class="clock-add-content">
-                <span class="clock-add-icon">+</span>
+        <div class="clock-actions-col">
+            <div class="clock-add-button" data-action="clock:openModal">
+                <div class="clock-add-content">
+                    <span class="clock-add-icon">+</span>
+                </div>
             </div>
+            <button class="clock-reset-btn" data-action="clock:resetClocks" title="Remove all clocks, keep Current Time only" style="display: none;">
+                &#x21BA; Reset clocks
+            </button>
         </div>
     </div>
 

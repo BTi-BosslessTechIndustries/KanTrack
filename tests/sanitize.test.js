@@ -9,7 +9,7 @@ import { sanitizeHTML } from '../scripts/kantrack-modules/sanitize.js';
 
 // ── No-op for safe / expected content ────────────────────────────────────────
 
-describe('sanitizeHTML — safe content passes through', () => {
+describe('sanitizeHTML: safe content passes through', () => {
   it('returns empty string for empty input', () => {
     expect(sanitizeHTML('')).toBe('');
   });
@@ -76,7 +76,7 @@ describe('sanitizeHTML — safe content passes through', () => {
 
 // ── Event handlers are stripped ───────────────────────────────────────────────
 
-describe('sanitizeHTML — event handlers stripped', () => {
+describe('sanitizeHTML: event handlers stripped', () => {
   it('strips onclick', () => {
     const html = '<b onclick="alert(1)">text</b>';
     expect(sanitizeHTML(html)).not.toContain('onclick');
@@ -105,7 +105,7 @@ describe('sanitizeHTML — event handlers stripped', () => {
 
 // ── Disallowed tags unwrapped ─────────────────────────────────────────────────
 
-describe('sanitizeHTML — disallowed tags unwrapped', () => {
+describe('sanitizeHTML: disallowed tags unwrapped', () => {
   it('strips <script> and keeps no content', () => {
     const html = '<script>alert(1)</script>';
     const result = sanitizeHTML(html);
@@ -132,7 +132,7 @@ describe('sanitizeHTML — disallowed tags unwrapped', () => {
 
 // ── Dangerous URL schemes ─────────────────────────────────────────────────────
 
-describe('sanitizeHTML — dangerous URL schemes', () => {
+describe('sanitizeHTML: dangerous URL schemes', () => {
   it('removes javascript: href from <a>', () => {
     const html = '<a href="javascript:alert(1)">click</a>';
     const result = sanitizeHTML(html);
@@ -158,7 +158,7 @@ describe('sanitizeHTML — dangerous URL schemes', () => {
 
 // ── Nested / mixed content ────────────────────────────────────────────────────
 
-describe('sanitizeHTML — nested content', () => {
+describe('sanitizeHTML: nested content', () => {
   it('sanitizes nested event handlers inside allowed tags', () => {
     const html = '<ul><li onclick="evil()">item</li></ul>';
     const result = sanitizeHTML(html);

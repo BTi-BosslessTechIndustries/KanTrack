@@ -1,5 +1,5 @@
 /**
- * Tests for import-validator.js — pure validation functions.
+ * Tests for import-validator.js: pure validation functions.
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -35,10 +35,10 @@ const validPayload = () => ({
 });
 
 // ---------------------------------------------------------------------------
-// validateImportFile — hard errors
+// validateImportFile: hard errors
 // ---------------------------------------------------------------------------
 
-describe('validateImportFile — errors', () => {
+describe('validateImportFile: errors', () => {
   it('returns invalid for null input', () => {
     const result = validateImportFile(null);
     expect(result.valid).toBe(false);
@@ -78,10 +78,10 @@ describe('validateImportFile — errors', () => {
 });
 
 // ---------------------------------------------------------------------------
-// validateImportFile — warnings (do not make valid → invalid)
+// validateImportFile: warnings (do not make valid → invalid)
 // ---------------------------------------------------------------------------
 
-describe('validateImportFile — warnings', () => {
+describe('validateImportFile: warnings', () => {
   it('warns when integrity.tasks_count does not match actual task count', () => {
     const payload = validPayload();
     payload.integrity.tasks_count = 99; // claims 99, has 1
@@ -137,10 +137,10 @@ describe('validateImportFile — warnings', () => {
 });
 
 // ---------------------------------------------------------------------------
-// validateImportFile — valid file
+// validateImportFile: valid file
 // ---------------------------------------------------------------------------
 
-describe('validateImportFile — valid', () => {
+describe('validateImportFile: valid', () => {
   it('returns valid: true for a well-formed payload', () => {
     const result = validateImportFile(validPayload());
     expect(result.valid).toBe(true);

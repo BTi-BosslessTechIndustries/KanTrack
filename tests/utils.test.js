@@ -128,7 +128,7 @@ describe('deepClone', () => {
     expect(clone).toEqual(obj);
     expect(clone).not.toBe(obj);
   });
-  it('deep clones nested objects — mutating clone does not affect original', () => {
+  it('deep clones nested objects: mutating clone does not affect original', () => {
     const obj = { a: { b: { c: 3 } } };
     const clone = deepClone(obj);
     clone.a.b.c = 99;
@@ -325,11 +325,11 @@ describe('plainTextToFragment', () => {
     expect(frag).toBeInstanceOf(DocumentFragment);
   });
 
-  it('single line — one text node, no br', () => {
+  it('single line: one text node, no br', () => {
     expect(fragToHTML(plainTextToFragment('hello world'))).toBe('hello world');
   });
 
-  it('two lines — text, br, text', () => {
+  it('two lines: text, br, text', () => {
     expect(fragToHTML(plainTextToFragment('line one\nline two'))).toBe('line one<br>line two');
   });
 
@@ -337,7 +337,7 @@ describe('plainTextToFragment', () => {
     expect(fragToHTML(plainTextToFragment('a\nb\nc'))).toBe('a<br>b<br>c');
   });
 
-  it('empty string — empty fragment', () => {
+  it('empty string: empty fragment', () => {
     expect(fragToHTML(plainTextToFragment(''))).toBe('');
   });
 

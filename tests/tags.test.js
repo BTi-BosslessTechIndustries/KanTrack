@@ -1,14 +1,14 @@
 // tags.js has a module-level tagDefinitions array.
 //
 // Strategy:
-//   - Mock repository.js so getAllTags returns [] — this causes initTags() to
+//   - Mock repository.js so getAllTags returns []: this causes initTags() to
 //     set tagDefinitions = [], giving us a clean slate before each test.
 //   - After the reset, call createTag() directly to set up specific tags.
 //     createTag() pushes to tagDefinitions without the filtering logic that
 //     loadTagDefinitions() applies (which would discard non-pinned unused tags).
 //   - Mock saveTags from repository so createTag() side-effects are swallowed.
 //   - state.js and storage.js are imported by tags.js but the functions under
-//     test never reach those paths — import them as-is (setup.js mocks
+//     test never reach those paths: import them as-is (setup.js mocks
 //     localStorage globally, so storage.js is safe in Node).
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -47,7 +47,7 @@ import {
 
 // Reset tagDefinitions and notesData to an empty slate before every test.
 beforeEach(async () => {
-  // toggleTagPinned → renderTagFilterButtons and deleteTag both reach document —
+  // toggleTagPinned → renderTagFilterButtons and deleteTag both reach document,
   // set up document so bare lookups resolve under Vitest module isolation.
   global.document = {
     addEventListener: () => {},
@@ -80,7 +80,7 @@ describe('getTagDefinitions', () => {
     expect(getTagDefinitions()).toHaveLength(2);
   });
 
-  it('returns a copy — mutating the result does not affect internal state', () => {
+  it('returns a copy: mutating the result does not affect internal state', () => {
     createTag('Bug', 0, true);
     const defs = getTagDefinitions();
     defs.push({ id: 'fake', name: 'Fake', colorIndex: 0, pinned: false });

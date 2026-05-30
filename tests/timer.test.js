@@ -1,5 +1,5 @@
 /**
- * Unit tests for timer.js — addTime(), quickAddTime(), LONG_PRESS_THRESHOLD.
+ * Unit tests for timer.js: addTime(), quickAddTime(), LONG_PRESS_THRESHOLD.
  *
  * All DOM side-effects (getElementById, updateNoteCardDisplay, saveNotesToLocalStorage)
  * and module dependencies are mocked. The mutable mockState object is created via
@@ -45,7 +45,7 @@ function makeTask(overrides = {}) {
 }
 
 beforeEach(() => {
-  // addTime() calls document.getElementById — set up document so it resolves
+  // addTime() calls document.getElementById: set up document so it resolves
   // under Vitest module isolation (setup.js global is not reliably propagated).
   global.document = { getElementById: vi.fn(() => null) };
   mockState.currentTaskId = null;

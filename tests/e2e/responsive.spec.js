@@ -51,7 +51,7 @@ test.describe('Layout persistence at narrow viewports', () => {
   });
 
   test('clock card text shrinks as the card gets narrower', async ({ page }) => {
-    // Wide viewport: 5 default clocks each hit max-width 160px — cqw at max
+    // Wide viewport: 5 default clocks each hit max-width 160px: cqw at max
     await page.setViewportSize({ width: 1200, height: 900 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
@@ -65,7 +65,7 @@ test.describe('Layout persistence at narrow viewports', () => {
     // At 160px wide, 13cqw ≈ 20.8px (1.3rem); allow for browser rounding
     expect(wideFontSize).toBeGreaterThan(14);
 
-    // Narrow viewport: 5 clocks divide ~300px of space ≈ 60px each — cqw scales down
+    // Narrow viewport: 5 clocks divide ~300px of space ≈ 60px each: cqw scales down
     await page.setViewportSize({ width: 400, height: 900 });
     // Force layout recalculation before reading computed style
     await page.evaluate(() => void document.body.offsetHeight);

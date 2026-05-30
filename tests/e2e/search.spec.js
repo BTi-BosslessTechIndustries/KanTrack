@@ -88,7 +88,7 @@ test.describe('KanTrack search & filter', () => {
     await page.locator('#taskSearchInput').fill('zzz_no_match');
     await expect(page.locator('.note').filter({ hasText: `EscapeTest ${ts}` })).toHaveCount(0);
 
-    // Press ESC — the initSearch() handler clears the input and calls setSearchTerm('')
+    // Press ESC: the initSearch() handler clears the input and calls setSearchTerm('')
     await page.locator('#taskSearchInput').press('Escape');
 
     // Card should reappear and the input should be empty

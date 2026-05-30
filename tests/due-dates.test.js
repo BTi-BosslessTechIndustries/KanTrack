@@ -1,6 +1,6 @@
 // due-dates.js imports state, storage, utils, and undo.
 // We mock those so we can test all pure + state-dependent functions.
-// state.notesData is a mutable array on the shared mock object — tests
+// state.notesData is a mutable array on the shared mock object: tests
 // push tasks in and clear them in beforeEach.
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

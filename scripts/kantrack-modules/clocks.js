@@ -67,6 +67,11 @@ export function renderClocks() {
       addButton.style.display = 'flex';
     }
   }
+
+  // Show reset button only when more than Current Time exists
+  const hasExtra = state.clocksData.length > 1;
+  const resetButton = document.querySelector('.clock-reset-btn');
+  if (resetButton) resetButton.style.display = hasExtra ? 'flex' : 'none';
 }
 
 export function createClockElement(clock) {
@@ -242,6 +247,32 @@ export function handleClockDrop(e, targetClock) {
   newClocks.splice(targetIndex, 0, removed);
 
   state.setClocksData(newClocks);
+  saveClocks();
+  renderClocks();
+}
+
+export function resetToCurrentTime() {
+  // Clear any running chronometer intervals
+  Object.keys(state.chronometerIntervals).forEach(id => {
+    clearInterval(state.chronometerIntervals[id]);
+    state.deleteChronometerInterval(id);
+  });
+
+  const currentClock = state.clocksData.find(c => c.isCurrent);
+  if (currentClock) {
+    state.setClocksData([currentClock]);
+  } else {
+    state.setClocksData([
+      {
+        id: crypto.randomUUID(),
+        type: 'timezone',
+        name: 'Current Time',
+        timezone: null,
+        isCurrent: true,
+      },
+    ]);
+  }
+
   saveClocks();
   renderClocks();
 }

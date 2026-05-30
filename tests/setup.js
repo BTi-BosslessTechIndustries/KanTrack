@@ -1,5 +1,5 @@
 /**
- * Global test setup — runs once before all test files.
+ * Global test setup: runs once before all test files.
  * Installs browser API stubs needed by KanTrack modules in Node.js.
  */
 import 'fake-indexeddb/auto';
@@ -78,7 +78,7 @@ global.document = {
 
 // ---------------------------------------------------------------------------
 // navigator.storage stub (used by storage-monitor.js)
-// global.navigator is a read-only getter in Node/Vitest — use defineProperty.
+// global.navigator is a read-only getter in Node/Vitest: use defineProperty.
 // ---------------------------------------------------------------------------
 Object.defineProperty(global, 'navigator', {
   value: {
