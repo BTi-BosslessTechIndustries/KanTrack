@@ -757,3 +757,86 @@ test.describe('header responsive layout', () => {
     await expect(page.locator('#trashToggleBtn')).toBeVisible();
   });
 });
+
+test.describe('clock collapsed / expanded state', () => {
+  test.beforeEach(async ({ page }) => {
+    // Start with a clean clock state so the app resets to 5-clock default on load.
+    // Clocks are stored in localStorage ('kanbanClocks') and IDB ('KanbanDB' → 'clocks' store).
+    // Both must be cleared; IDB is primary so clearing only localStorage is insufficient.
+    await page.goto('/');
+    // page.evaluate() requires an active page context, so we navigate first,
+    // clear both storage layers (localStorage sync, IDB async), then reload
+    // so the app re-initialises from the clean state.
+    await page.evaluate(async () => {
+      localStorage.removeItem('kanbanClocks');
+      await new Promise(resolve => {
+        const req = indexedDB.open('KanbanDB');
+        req.onsuccess = () => {
+          const db = req.result;
+          try {
+            const tx = db.transaction('clocks', 'readwrite');
+            tx.objectStore('clocks').clear();
+            tx.oncomplete = resolve;
+            tx.onerror = resolve;
+          } catch {
+            resolve();
+          }
+        };
+        req.onerror = resolve;
+      });
+    });
+    await page.reload({ waitUntil: 'load' });
+    await expect(page.locator('.top-header')).toBeVisible();
+  });
+
+  test('header clock group is hidden when multiple clocks are present', async ({ page }) => {
+    // Default state: 5 clocks (expanded) → header group must be hidden
+    await expect(page.locator('#headerClockGroup')).toBeHidden();
+    await expect(page.locator('.clock-wrapper')).toBeVisible();
+  });
+
+  test('resetting clocks collapses the widget and shows the header clock group', async ({
+    page,
+  }) => {
+    await page.locator('.clock-reset-btn').click();
+
+    await expect(page.locator('body')).toHaveClass(/clocks-collapsed/);
+    await expect(page.locator('#headerClockGroup')).toBeVisible();
+    await expect(page.locator('.clock-wrapper')).toBeHidden();
+  });
+
+  test('header clock time shows HH:MM format when collapsed', async ({ page }) => {
+    await page.locator('.clock-reset-btn').click();
+    await expect(page.locator('#headerClockGroup')).toBeVisible();
+
+    const timeText = await page.locator('#headerClockTime').textContent();
+    // e.g. "14:32" or "02:05"
+    expect(timeText).toMatch(/^\d{2}:\d{2}$/);
+  });
+
+  test('header Add Clock button opens the Add Clock modal when collapsed', async ({ page }) => {
+    await page.locator('.clock-reset-btn').click();
+    await page.locator('#headerAddClockBtn').click();
+
+    await expect(page.locator('#addClockModal')).toBeVisible();
+  });
+
+  test('adding a clock from collapsed state restores the expanded widget', async ({ page }) => {
+    await page.locator('.clock-reset-btn').click();
+    await expect(page.locator('#headerClockGroup')).toBeVisible();
+
+    // Open modal via header button
+    await page.locator('#headerAddClockBtn').click();
+    await expect(page.locator('#addClockModal')).toBeVisible();
+
+    // Timezone type is selected by default; pick any timezone
+    await page.locator('#clockTimezoneSearch').fill('Europe/Paris');
+    await page.locator('.timezone-item', { hasText: 'Europe/Paris' }).click();
+    await page.locator('[data-action="clock:addTimezone"]').click();
+
+    // Should be back in expanded state
+    await expect(page.locator('body')).not.toHaveClass(/clocks-collapsed/);
+    await expect(page.locator('#headerClockGroup')).toBeHidden();
+    await expect(page.locator('.clock-wrapper')).toBeVisible();
+  });
+});

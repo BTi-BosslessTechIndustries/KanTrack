@@ -273,14 +273,15 @@ test.describe('Clock reset button', () => {
     await expect(clocks.first().locator('.clock-name')).toHaveText('Current Time');
   });
 
-  test('add clock button remains visible after reset', async ({ page }) => {
+  test('add clock button is accessible in header after reset', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
 
     await page.locator('.clock-reset-btn').click();
     await page.waitForTimeout(300);
 
-    await expect(page.locator('.clock-add-button')).toBeVisible();
+    // After reset the widget row is hidden; the add button moves to the header
+    await expect(page.locator('#headerAddClockBtn')).toBeVisible();
   });
 
   test('clock-spacer and clock-actions-col layout elements are present', async ({ page }) => {
