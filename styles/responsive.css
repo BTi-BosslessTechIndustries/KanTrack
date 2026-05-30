@@ -50,6 +50,18 @@
   }
 }
 
+/* ===== Help Feature Grid Responsive ===== */
+@media (max-width: 600px) {
+  .help-feat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 400px) {
+  .help-feat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ===== Modal Responsive ===== */
 @media (max-width: 768px) {
   .modal-content {

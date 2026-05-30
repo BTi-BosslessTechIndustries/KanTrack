@@ -23,7 +23,6 @@ export default defineConfig({
       input: {
         main: 'index.html',
         privacy: 'privacy.html',
-        userGuide: 'user-guide/USER_GUIDE.html',
       },
     },
   },
