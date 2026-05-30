@@ -5,15 +5,141 @@
 
 /* ===== Help Dialog ===== */
 .shortcuts-modal-content {
-  max-width: 640px;
+  max-width: 780px;
   max-height: 88vh;
   overflow-y: auto;
+  --h-brand: #00c2ff;
+  --h-accent: #43ffd2;
 }
+
+/* Neutralise float on the close button when inside the Help header flex row */
+.help-modal-right .modal-close {
+  float: none;
+  line-height: 1;
+  font-size: 26px;
+}
+
+/* Modal header bar */
+.help-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.help-modal-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.help-modal-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.help-modal-brand-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.65);
+}
+.help-modal-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.help-modal-bti-logo {
+  width: 90px;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+/* Section badge pill */
+.help-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(67, 255, 210, 0.08);
+  border: 1px solid rgba(67, 255, 210, 0.2);
+  color: #43ffd2;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* Section wrapper (border divider + spacing) */
+.help-feat-section {
+  margin-top: 1.4rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* 3-column feature grid */
+.help-feat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* Feature card */
+.help-feat-card {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+.help-feat-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  background: rgba(67, 255, 210, 0.1);
+  border: 1px solid rgba(67, 255, 210, 0.2);
+  margin-bottom: 9px;
+}
+.help-feat-card h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.help-feat-card p {
+  font-size: 0.76rem;
+  opacity: 0.65;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Notice / info card */
+.help-notice {
+  padding: 13px 15px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+.help-notice strong {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* Keyboard shortcuts grid */
 .shortcuts-groups {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-  margin-top: 1rem;
+  margin-top: 4px;
 }
 .shortcuts-group h3 {
   font-size: 0.8rem;
@@ -43,28 +169,14 @@
   margin: 0;
 }
 
-/* Exports & Imports section inside Help dialog */
-.help-section {
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-.help-section h3 {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  opacity: 0.5;
-  margin: 0 0 0.75rem;
-}
+/* Exports & Imports table section */
 .help-section-label {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   opacity: 0.45;
-  margin: 0.9rem 0 0.3rem;
-}
-.help-section-label:first-of-type {
-  margin-top: 0;
+  margin: 0.75rem 0 0.3rem;
+  display: block;
 }
 .help-exports-table {
   width: 100%;
@@ -103,6 +215,30 @@
   margin: 0.65rem 0 0;
   font-style: italic;
   line-height: 1.4;
+}
+
+/* BTi attribution blockquote */
+.help-blockquote {
+  border-left: 3px solid #00c2ff;
+  margin: 0;
+  padding: 10px 16px;
+  background: rgba(0, 194, 255, 0.06);
+  border-radius: 0 10px 10px 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.84rem;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.55;
+}
+
+/* Closing tagline */
+.help-tagline {
+  font-size: 0.74rem;
+  opacity: 0.38;
+  margin: 0.6rem 0 0;
+  font-style: italic;
+  text-align: right;
 }
 
 /* ── Virtual List ─────────────────────────────────────────── */
