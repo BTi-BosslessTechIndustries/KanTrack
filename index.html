@@ -65,7 +65,6 @@
 					<button class="header-dropdown-item" data-action="about:open" role="menuitem">About KanTrack</button>
 					<a class="header-dropdown-item" href="https://github.com/BTi-BosslessTechIndustries/KanTrack" target="_blank" rel="noopener noreferrer" role="menuitem">View the Code</a>
 					<button class="header-dropdown-item" data-action="shortcuts:open" role="menuitem">Help</button>
-					<a class="header-dropdown-item" href="user-guide/USER_GUIDE.html" target="_blank" rel="noopener noreferrer" role="menuitem">User Guide</a>
 					<div class="card-size-picker" role="group" aria-label="Card size">
 						<span class="card-size-picker-label">Card Size</span>
 						<div class="card-size-picker-btns">
@@ -589,36 +588,138 @@
     <!-- Help Dialog -->
     <div id="shortcutsModal" class="modal shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle" style="display:none;">
         <div class="modal-content shortcuts-modal-content">
-            <span class="modal-close" data-action="shortcuts:close" aria-label="Close">&times;</span>
-            <h2 id="shortcutsModalTitle">Help</h2>
-
-            <!-- Keyboard shortcuts -->
-            <div class="shortcuts-groups">
-                <section class="shortcuts-group">
-                    <h3>Board</h3>
-                    <dl>
-                        <dt>N</dt><dd>Focus new task input</dd>
-                        <dt>/</dt><dd>Focus search</dd>
-                        <dt>?</dt><dd>Open Help</dd>
-                        <dt>↑ / ↓</dt><dd>Navigate cards in column</dd>
-                        <dt>← / →</dt><dd>Jump to adjacent column</dd>
-                        <dt>Enter / Space</dt><dd>Open focused card</dd>
-                    </dl>
-                </section>
-                <section class="shortcuts-group">
-                    <h3>General</h3>
-                    <dl>
-                        <dt>Escape</dt><dd>Close modal or panel</dd>
-                        <dt>Ctrl+Z</dt><dd>Undo</dd>
-                        <dt>Ctrl+Shift+Z / Ctrl+Y</dt><dd>Redo</dd>
-                        <dt>Ctrl+B</dt><dd>Toggle notebook</dd>
-                    </dl>
-                </section>
+            <div class="help-modal-header">
+                <div class="help-modal-brand">
+                    <img src="images/kantrack_icon.png" alt="KanTrack" class="help-modal-logo">
+                    <span class="help-modal-brand-name">KanTrack</span>
+                </div>
+                <div class="help-modal-right">
+                    <img src="images/bti-logo.png" alt="BTi - Bossless Tech Industries" class="help-modal-bti-logo">
+                    <span class="help-badge" id="shortcutsModalTitle">Help</span>
+                    <span class="modal-close" data-action="shortcuts:close" aria-label="Close">&times;</span>
+                </div>
             </div>
 
-            <!-- Exports & Imports reference -->
-            <div class="help-section">
-                <h3>Exports &amp; Imports</h3>
+            <!-- Your Board -->
+            <div class="help-feat-section">
+                <div class="help-badge">Your Board</div>
+                <div class="help-feat-grid">
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">📋</div>
+                        <h4>Kanban columns</h4>
+                        <p>Four columns: To Do, In Progress, On Hold, and Done. Move tasks between them by drag and drop.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">🎯</div>
+                        <h4>Priority tinting</h4>
+                        <p>High, Medium, and Low priority with colour tinting. Columns auto-sort so the most important work rises to the top.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">📅</div>
+                        <h4>Due dates</h4>
+                        <p>Due date indicators on cards with clear overdue and due-today states so nothing slips past you.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">🏷️</div>
+                        <h4>Tags</h4>
+                        <p>Colour-coded labels with a preset palette or custom hex. Pin your most-used tags for fast assignment.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">🔍</div>
+                        <h4>Search and filter</h4>
+                        <p>Full-text search with tag and column filters. Find anything immediately across your entire board.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">⚙️</div>
+                        <h4>Card sizes</h4>
+                        <p>Small, Medium, and Large card display sizes. Your preference persists across sessions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Detail -->
+            <div class="help-feat-section">
+                <div class="help-badge">Task Detail</div>
+                <div class="help-feat-grid">
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">📝</div>
+                        <h4>Rich notes</h4>
+                        <p>Bold, italic, and strikethrough formatting. Paste images directly, stored locally and viewable in a full-screen zoom viewer.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">📜</div>
+                        <h4>Edit log</h4>
+                        <p>Chronological log of every edit and deletion. Full history of how a task evolved, always visible inside the task.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">🔲</div>
+                        <h4>Sub-tasks</h4>
+                        <p>A collapsible mini kanban board inside any task. Same four columns, drag-and-drop between states, with a live done/total counter on the parent card.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">⏱️</div>
+                        <h4>Timer</h4>
+                        <p>Per-task time tracking with quick-add and quick-remove controls directly inside the task detail view.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">✏️</div>
+                        <h4>Inline rename</h4>
+                        <p>Double-click the task title to rename it inline without opening a separate form.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">💾</div>
+                        <h4>Save options</h4>
+                        <p><strong>Save</strong> keeps the task open for multi-step edits. <strong>Save &amp; Close</strong> saves and dismisses in one action.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notebook -->
+            <div class="help-feat-section">
+                <div class="help-badge">Notebook</div>
+                <div class="help-notice">
+                    A resizable sidebar with a folder and page tree for notes and longer-form thinking. Pages support rich text with image paste, per-page PDF export, drag-and-drop reordering, right-click context menus for rename and delete, and live search by name. Export a folder or the full notebook as a ZIP archive and import pages back from ZIP.
+                </div>
+            </div>
+
+            <!-- Privacy -->
+            <div class="help-feat-section">
+                <div class="help-badge">Privacy</div>
+                <div class="help-notice">
+                    <strong>Everything stays on your device.</strong> KanTrack stores all data in your browser's IndexedDB and localStorage. Nothing is transmitted, synced, or logged to any server. No analytics. No telemetry. No cookies. A Content Security Policy enforced at the browser level blocks all third-party scripts and network connections. KanTrack monitors your browser storage quota and prompts you to export a backup when usage reaches 85%.
+                </div>
+            </div>
+
+            <!-- Keyboard Shortcuts -->
+            <div class="help-feat-section">
+                <div class="help-badge">Keyboard Shortcuts</div>
+                <div class="shortcuts-groups">
+                    <section class="shortcuts-group">
+                        <h3>Board</h3>
+                        <dl>
+                            <dt>N</dt><dd>Focus new task input</dd>
+                            <dt>/</dt><dd>Focus search</dd>
+                            <dt>?</dt><dd>Open Help</dd>
+                            <dt>↑ / ↓</dt><dd>Navigate cards in column</dd>
+                            <dt>← / →</dt><dd>Jump to adjacent column</dd>
+                            <dt>Enter / Space</dt><dd>Open focused card</dd>
+                        </dl>
+                    </section>
+                    <section class="shortcuts-group">
+                        <h3>General</h3>
+                        <dl>
+                            <dt>Escape</dt><dd>Close modal or panel</dd>
+                            <dt>Ctrl+Z</dt><dd>Undo</dd>
+                            <dt>Ctrl+Shift+Z / Ctrl+Y</dt><dd>Redo</dd>
+                            <dt>Ctrl+B</dt><dd>Toggle notebook</dd>
+                        </dl>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Exports & Imports -->
+            <div class="help-feat-section">
+                <div class="help-badge">Exports &amp; Imports</div>
 
                 <p class="help-section-label">Board - controls at the bottom of the board</p>
                 <table class="help-exports-table">
@@ -674,6 +775,13 @@
                 </table>
 
                 <p class="help-exports-note">On import, <strong>Merge</strong> adds new items without touching existing ones. <strong>Replace</strong> overwrites everything - an automatic lightweight backup is downloaded first.</p>
+            </div>
+
+            <!-- About -->
+            <div class="help-feat-section">
+                <div class="help-badge">About</div>
+                <blockquote class="help-blockquote">Built by BTi — Bossless Tech Industries, a small studio with one governing idea: software should serve the person using it.</blockquote>
+                <p class="help-tagline">KanTrack is an app, not a trap.</p>
             </div>
         </div>
     </div>
