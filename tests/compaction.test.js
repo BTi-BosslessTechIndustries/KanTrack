@@ -1,5 +1,5 @@
 /**
- * Tests for compactEntries() — the pure filter function exported from
+ * Tests for compactEntries(): the pure filter function exported from
  * compaction-worker.js. Tests run in Node via Vitest; no IDB or DOM needed.
  */
 import { describe, it, expect } from 'vitest';

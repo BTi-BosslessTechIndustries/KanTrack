@@ -1,5 +1,5 @@
 /**
- * Tests for modal.js — clearNotes DOM behaviour.
+ * Tests for modal.js: clearNotes DOM behaviour.
  *
  * All heavy dependencies of modal.js are mocked. The test focuses on the
  * observable DOM side-effects of clearNotes(): editor cleared, toolbar hidden,

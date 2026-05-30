@@ -1,5 +1,5 @@
 /**
- * Tests for database.js — IDB helpers and localStorage → IDB migration.
+ * Tests for database.js: IDB helpers and localStorage → IDB migration.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
@@ -54,7 +54,7 @@ async function resetDB() {
 }
 
 beforeEach(async () => {
-  global.indexedDB = new IDBFactory(); // fresh factory — no leftover data
+  global.indexedDB = new IDBFactory(); // fresh factory: no leftover data
   resetLocalStorage();
   await initIndexedDB();
 });
@@ -255,7 +255,7 @@ describe('migrateLocalStorageToIDB', () => {
 
     await migrateLocalStorageToIDB();
 
-    // Tasks store should still be empty — migration was skipped
+    // Tasks store should still be empty: migration was skipped
     const tasks = await idbGetAll('tasks');
     expect(tasks).toHaveLength(0);
   });
@@ -276,7 +276,7 @@ describe('migrateLocalStorageToIDB', () => {
   });
 
   it('does not throw when localStorage keys are absent', async () => {
-    // localStorage is empty — migration should complete cleanly
+    // localStorage is empty: migration should complete cleanly
     await expect(migrateLocalStorageToIDB()).resolves.toBeUndefined();
     const meta = await idbGet('meta', 'migrationDone');
     expect(meta?.value).toBe(true);
@@ -284,7 +284,7 @@ describe('migrateLocalStorageToIDB', () => {
 });
 
 // ---------------------------------------------------------------------------
-// runDataMigrations — sequential data schema version runner
+// runDataMigrations: sequential data schema version runner
 // ---------------------------------------------------------------------------
 describe('runDataMigrations', () => {
   const sampleTask = {
@@ -310,7 +310,7 @@ describe('runDataMigrations', () => {
     expect(tasks[0].id).toBe('ls-task-1');
   });
 
-  it('is idempotent — does not re-run migrations when schemaVersion is already current', async () => {
+  it('is idempotent: does not re-run migrations when schemaVersion is already current', async () => {
     // Simulate a user who already ran migrations
     await runDataMigrations();
 

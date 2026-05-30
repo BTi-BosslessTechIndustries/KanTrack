@@ -20,7 +20,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Trash**: soft-delete with restore; recoverable until you empty it
 - **Notebook**: a resizable sidebar with a folder/page tree; pages support rich text, image paste, and per-page PDF export; right-click any item for a context menu (rename, delete); drag-and-drop to reorder and move pages and folders; live search to filter by name; import pages from a ZIP archive or export the whole notebook as ZIP; sidebar open/closed state and width persist across sessions
 - **Export & Import**: export individual tasks or notebook pages as PDF (cross-platform, including Mac); export the entire board as a static HTML snapshot (task data and images embedded for re-import), full JSON (with embedded images), lightweight JSON, or AES-256-GCM encrypted `.kantrack.enc`; export the entire notebook as a ZIP; import a full board (merge or replace mode) from any previously exported JSON or encrypted file; import a notebook from a ZIP archive
-- **World clocks**: multiple timezone clocks and a chronometer
+- **World clocks**: multiple timezone clocks and a chronometer; a Reset clocks button resets the clock area to Current Time only
 - **Search & filter**: full-text search with tag and column filters; the task input, Add button, and search bar form a single proportional-scaling row that never wraps on window resize; tag filters occupy a dedicated row below
 - **Column task counts**: each column header shows a live count of visible tasks; the count reflects active search and filter state
 - **Storage quota monitoring**: checks browser storage quota silently at startup; displays a calm informational message in the settings panel when usage reaches 70%, and a stronger prompt to export a backup at 85%; also requests durable storage permission from the browser so data is protected from automatic eviction
@@ -77,7 +77,7 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 576 tests across 21 files, ~1s)
+npm run test:run     # unit tests (Vitest, 578 tests across 21 files, ~1s)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
@@ -123,9 +123,9 @@ KanTrack/
 │   └── responsive.css           # Media queries (breakpoints at 480 / 640 / 768 / 1024 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (576 tests, 21 files)
+│   ├── *.test.js                # Vitest unit tests (578 tests, 21 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (84 tests, 8 files)
+│   └── e2e/                     # Playwright end-to-end tests (89 tests, 8 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management

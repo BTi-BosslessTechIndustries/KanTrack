@@ -1,5 +1,5 @@
 /**
- * Tests for storage-monitor.js — requestDurableStorage + initStorageMonitor.
+ * Tests for storage-monitor.js: requestDurableStorage + initStorageMonitor.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
@@ -57,7 +57,7 @@ beforeEach(async () => {
   // Restore navigator.storage to clean defaults between tests
   setNavigatorStorage({
     persist: vi.fn(async () => true),
-    estimate: mockEstimate(0.05), // 5% — well below every threshold
+    estimate: mockEstimate(0.05), // 5%: well below every threshold
   });
 });
 
@@ -101,9 +101,9 @@ describe('requestDurableStorage', () => {
 });
 
 // ---------------------------------------------------------------------------
-// initStorageMonitor — IDB persistence
+// initStorageMonitor: IDB persistence
 // ---------------------------------------------------------------------------
-describe('initStorageMonitor — IDB persistence', () => {
+describe('initStorageMonitor: IDB persistence', () => {
   it('writes lastStorageCheck to meta IDB store', async () => {
     setNavigatorStorage({ persist: vi.fn(async () => true), estimate: mockEstimate(0.5) }); // 50%
 
@@ -144,9 +144,9 @@ describe('initStorageMonitor — IDB persistence', () => {
 });
 
 // ---------------------------------------------------------------------------
-// initStorageMonitor — threshold + message logic
+// initStorageMonitor: threshold + message logic
 // ---------------------------------------------------------------------------
-describe('initStorageMonitor — threshold behaviour', () => {
+describe('initStorageMonitor: threshold behaviour', () => {
   it('shows no message when usage is below 70%', async () => {
     setNavigatorStorage({ persist: vi.fn(async () => true), estimate: mockEstimate(0.6) }); // 60%
 
@@ -226,7 +226,7 @@ describe('initStorageMonitor — threshold behaviour', () => {
   });
 
   it('does not touch the DOM when the storageMonitorInfo element is absent', async () => {
-    setNavigatorStorage({ persist: vi.fn(async () => true), estimate: mockEstimate(0.9) }); // 90% — would show message
+    setNavigatorStorage({ persist: vi.fn(async () => true), estimate: mockEstimate(0.9) }); // 90%: would show message
 
     global.document = { ...global.document, getElementById: vi.fn(() => null) };
 

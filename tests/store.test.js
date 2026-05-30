@@ -1,5 +1,5 @@
 /**
- * Tests for store.js — minimal flux-like state management.
+ * Tests for store.js: minimal flux-like state management.
  *
  * store.js is pure JS with no DOM/IDB dependencies, so no mocks needed.
  * Module-level state persists within a file, so each test resets via
@@ -50,7 +50,7 @@ describe('getState', () => {
     expect(getState().tasks).toHaveLength(0);
   });
 
-  it('returns a frozen object — direct mutation is silently ignored', () => {
+  it('returns a frozen object: direct mutation is silently ignored', () => {
     dispatch({ type: TASK_SET_ALL, payload: [task()] });
     const state = getState();
     expect(Object.isFrozen(state)).toBe(true);
@@ -76,7 +76,7 @@ describe('TASK_SET_ALL', () => {
     expect(getState().tasks[1].id).toBe('b');
   });
 
-  it('replaces existing tasks — not appending', () => {
+  it('replaces existing tasks: not appending', () => {
     dispatch({ type: TASK_SET_ALL, payload: [task('first')] });
     dispatch({ type: TASK_SET_ALL, payload: [task('second')] });
     expect(getState().tasks).toHaveLength(1);

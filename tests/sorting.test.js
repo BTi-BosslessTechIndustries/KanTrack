@@ -11,7 +11,7 @@ import {
 
 // ── getPrioritySortValue ──────────────────────────────────────
 
-describe('getPrioritySortValue — non-todo column (High=0, Medium=1, Low=2, None=3)', () => {
+describe('getPrioritySortValue: non-todo column (High=0, Medium=1, Low=2, None=3)', () => {
   it('returns 0 for high', () => {
     expect(getPrioritySortValue('high', false)).toBe(0);
   });
@@ -38,8 +38,8 @@ describe('getPrioritySortValue — non-todo column (High=0, Medium=1, Low=2, Non
   });
 });
 
-describe('getPrioritySortValue — todo column (None=0, High=1, Medium=2, Low=3)', () => {
-  it('returns 0 for null (no priority — floats to top)', () => {
+describe('getPrioritySortValue: todo column (None=0, High=1, Medium=2, Low=3)', () => {
+  it('returns 0 for null (no priority: floats to top)', () => {
     expect(getPrioritySortValue(null, true)).toBe(0);
   });
   it('returns 0 for undefined', () => {
@@ -64,9 +64,9 @@ describe('getPrioritySortValue — todo column (None=0, High=1, Medium=2, Low=3)
 
 // ── registerVLUpdater / sortColumnByPriority delegation ──────
 
-describe('sortColumnByPriority — VL updater delegation', () => {
+describe('sortColumnByPriority: VL updater delegation', () => {
   beforeEach(() => {
-    // DOM-fallback path calls document.getElementById — set it up so the bare
+    // DOM-fallback path calls document.getElementById: set it up so the bare
     // identifier resolves under Vitest module isolation.
     global.document = { getElementById: () => null };
   });
@@ -101,7 +101,7 @@ describe('sortColumnByPriority — VL updater delegation', () => {
 
 // ── Unknown/arbitrary priority strings ───────────────────────
 
-describe('getPrioritySortValue — unknown priority strings', () => {
+describe('getPrioritySortValue: unknown priority strings', () => {
   it('treats an unknown string as "none" in a non-todo column (returns 3)', () => {
     expect(getPrioritySortValue('critical', false)).toBe(3);
   });
@@ -125,7 +125,7 @@ describe('getPrioritySortValue — unknown priority strings', () => {
 
 // ── Complete ordering contract ────────────────────────────────
 
-describe('getPrioritySortValue — complete ordering contract', () => {
+describe('getPrioritySortValue: complete ordering contract', () => {
   it('enforces full non-todo order: high < medium < low < none', () => {
     const values = ['high', 'medium', 'low', null].map(p => getPrioritySortValue(p, false));
     for (let i = 0; i < values.length - 1; i++) {
