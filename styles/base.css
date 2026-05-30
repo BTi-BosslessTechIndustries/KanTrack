@@ -244,6 +244,25 @@ body {
   gap: clamp(2px, 0.6vw, 6px);
 }
 
+/* ===== Collapsed clock state ===== */
+.header-clock-group {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+body.clocks-collapsed .header-clock-group {
+  display: flex;
+}
+
+.header-clock-time {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 .header-action-btn {
   width: clamp(28px, 3.5vw, 36px);
   height: clamp(28px, 3.5vw, 36px);

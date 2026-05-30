@@ -72,6 +72,8 @@ export function renderClocks() {
   const hasExtra = state.clocksData.length > 1;
   const resetButton = document.querySelector('.clock-reset-btn');
   if (resetButton) resetButton.style.display = hasExtra ? 'flex' : 'none';
+
+  updateCollapsedState();
 }
 
 export function createClockElement(clock) {
@@ -203,6 +205,17 @@ export function updateTimezoneClock(clock) {
     const currentTime = new Date();
     timeEl.textContent = currentTime.toLocaleTimeString([], timeOptions);
     dateEl.textContent = currentTime.toLocaleDateString([], dateOptions);
+  }
+
+  if (clock.isCurrent) {
+    const headerTimeEl = document.getElementById('headerClockTime');
+    if (headerTimeEl) {
+      headerTimeEl.textContent = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+    }
   }
 }
 
@@ -356,6 +369,11 @@ export function resetChronometer(id) {
   }
 
   updateChronometerDisplay(clock);
+}
+
+function updateCollapsedState() {
+  const isCollapsed = state.clocksData.length === 1 && !!state.clocksData[0]?.isCurrent;
+  document.body.classList.toggle('clocks-collapsed', isCollapsed);
 }
 
 let _clockModalTrap = null;
