@@ -269,6 +269,10 @@
   margin-right: auto;
 }
 
+body.clocks-collapsed .clock-wrapper {
+  display: none;
+}
+
 .clock-container {
   display: flex;
   justify-content: center;

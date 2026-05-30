@@ -39,6 +39,16 @@
 			</div>
 		</div>
 		<div class="header-right">
+			<div id="headerClockGroup" class="header-clock-group">
+				<button id="headerAddClockBtn" class="header-action-btn" data-action="clock:openModal" title="Add Clock" aria-label="Add Clock">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="9"></circle>
+						<polyline points="12 7 12 12 15 15"></polyline>
+					</svg>
+				</button>
+				<span id="headerClockTime" class="header-clock-time"></span>
+				<div class="header-divider"></div>
+			</div>
 			<div class="header-undo-redo">
 				<button id="undoBtn" class="header-action-btn" data-action="history:undo" title="Undo (Ctrl+Z)" aria-label="Undo (Ctrl+Z)">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -639,6 +649,11 @@
                         <div class="help-feat-icon">⚙️</div>
                         <h4>Card sizes</h4>
                         <p>Small, Medium, and Large card display sizes. Your preference persists across sessions.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">🕐</div>
+                        <h4>World clocks</h4>
+                        <p>Timezone clocks and a chronometer in a widget row above the board. Reset collapses the row: current time moves to the header and a clock icon button lets you add more. Adding any clock restores the full widget row.</p>
                     </div>
                 </div>
             </div>
