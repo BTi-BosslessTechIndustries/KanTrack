@@ -1,6 +1,7 @@
 /***********************
  * NOTEBOOK SIDEBAR SYSTEM
  ***********************/
+import JSZip from 'jszip';
 import {
   notebookItems,
   currentPageId,
@@ -23,6 +24,8 @@ import {
   getNotebookItemContent,
   saveNotebookContentBackup,
   deleteNotebookContentBackup,
+  getAllNotebookItems,
+  saveNotebookItems,
 } from './repository.js';
 import { storeNotebookImage, getNotebookImage, deletePageImages } from './database.js';
 import { openImageViewer } from './images.js';
@@ -974,14 +977,46 @@ async function importFromNotebookData(dataFile) {
 
   const itemCount = data.items.length;
   const pageCount = data.items.filter(i => i.type === 'page').length;
+  const folderCount = itemCount - pageCount;
 
-  if (
-    !confirm(
-      `Found ${pageCount} page(s) and ${itemCount - pageCount} folder(s). Import them to your notebook?`
-    )
-  ) {
-    return;
-  }
+  const countItems = [
+    pageCount > 0 && `${pageCount} page${pageCount !== 1 ? 's' : ''}`,
+    folderCount > 0 && `${folderCount} folder${folderCount !== 1 ? 's' : ''}`,
+  ].filter(Boolean);
+  const countHtml =
+    countItems.length > 0
+      ? `<ul style="margin:8px 0 0 16px;padding:0">${countItems.map(c => `<li>${c}</li>`).join('')}</ul>`
+      : '<p style="margin:8px 0 0">No items found.</p>';
+
+  const confirmed = await new Promise(resolve => {
+    const dialog = document.createElement('dialog');
+    dialog.style.cssText =
+      'background:#2c2c2c;color:#e0e0e0;border:1px solid #555;border-radius:8px;padding:24px;max-width:420px;width:90%;font-family:inherit';
+    dialog.innerHTML = `
+      <h3 style="margin:0 0 12px;color:#4caf50">Import notebook</h3>
+      <p style="margin:0">This file contains:</p>
+      ${countHtml}
+      <p style="margin:16px 0 0;font-size:0.9em"><strong>Only notebook pages will be imported. Your board tasks and settings will not be affected.</strong></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+        <button id="kt-notebook-import" style="flex:1;padding:8px 12px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer">Import</button>
+        <button id="kt-notebook-cancel" style="padding:8px 12px;background:transparent;color:#aaa;border:1px solid #555;border-radius:4px;cursor:pointer">Cancel</button>
+      </div>
+    `;
+    document.body.appendChild(dialog);
+    dialog.showModal();
+    dialog.querySelector('#kt-notebook-import').addEventListener('click', () => {
+      dialog.close();
+      dialog.remove();
+      resolve(true);
+    });
+    dialog.querySelector('#kt-notebook-cancel').addEventListener('click', () => {
+      dialog.close();
+      dialog.remove();
+      resolve(false);
+    });
+  });
+
+  if (!confirmed) return;
 
   // Create ID mapping for new IDs
   const idMap = new Map();
@@ -991,6 +1026,8 @@ async function importFromNotebookData(dataFile) {
     const newId = crypto.randomUUID();
     idMap.set(item.id, newId);
   }
+
+  const newItems = [];
 
   // Second pass: create items with new IDs and updated parentIds
   for (const item of data.items) {
@@ -1010,13 +1047,22 @@ async function importFromNotebookData(dataFile) {
       }
     }
 
-    // Clean up images array (don't store data in localStorage)
+    // Clean up images array (don't store data in IDB)
     delete newItem.images;
 
-    pushToNotebookItems(newItem);
+    newItems.push(newItem);
   }
 
-  saveNotebookToLocalStorage();
+  // Fetch current IDB items WITH content before writing — state has content
+  // stripped for lazy loading, so using state directly would wipe existing content
+  const existingItems = await getAllNotebookItems();
+  const saved = saveNotebookItems([...existingItems, ...newItems]);
+  if (!saved) return; // showError already called inside saveNotebookItems
+  // Update in-memory state: strip content per convention (lazy-loaded on open)
+  setNotebookItems([
+    ...existingItems.map(({ content: _c, ...meta }) => meta),
+    ...newItems.map(({ content: _c, ...meta }) => meta),
+  ]);
   renderNotebookTree();
 
   alert(`Successfully imported ${pageCount} page(s) to the notebook.`);
