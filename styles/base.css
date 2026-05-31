@@ -136,9 +136,7 @@ body {
 .header-center {
   display: flex;
   align-items: center;
-  position: absolute;
-  transform: translateX(-50%);
-  z-index: 1;
+  flex-shrink: 0;
 }
 
 .support-us-btn {

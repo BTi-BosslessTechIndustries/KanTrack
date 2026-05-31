@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom';
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import {
+  COLUMN_NAMES,
   getColumnName,
   getCurrentDate,
   escapeHtml,
@@ -12,6 +13,8 @@ import {
   throttle,
   MAX_TITLE_LENGTH,
   plainTextToFragment,
+  getFirstLine,
+  getTextPreview,
 } from '../scripts/kantrack-modules/utils.js';
 
 // ─── getColumnName ────────────────────────────────────────────────────────────
@@ -370,5 +373,99 @@ describe('plainTextToFragment', () => {
     expect(result).toContain('col1');
     expect(result).toContain('col2');
     expect(result).not.toContain('<br>');
+  });
+});
+
+// ─── COLUMN_NAMES ─────────────────────────────────────────────────────────────
+
+describe('COLUMN_NAMES', () => {
+  it('contains all four column ids', () => {
+    expect(COLUMN_NAMES).toHaveProperty('todo', 'To Do');
+    expect(COLUMN_NAMES).toHaveProperty('inProgress', 'In Progress');
+    expect(COLUMN_NAMES).toHaveProperty('done', 'Done');
+    expect(COLUMN_NAMES).toHaveProperty('onHold', 'On Hold');
+  });
+
+  it('agrees with getColumnName for all four columns', () => {
+    for (const [id, name] of Object.entries(COLUMN_NAMES)) {
+      expect(getColumnName(id)).toBe(name);
+    }
+  });
+});
+
+// ─── getFirstLine / getTextPreview ────────────────────────────────────────────
+
+describe('getFirstLine / getTextPreview (JSDOM)', () => {
+  beforeAll(() => {
+    const { window } = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+    vi.stubGlobal('document', window.document);
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
+  });
+
+  describe('getFirstLine', () => {
+    it('returns "No additional notes" for empty string', () => {
+      expect(getFirstLine('')).toBe('No additional notes');
+    });
+
+    it('returns "No additional notes" for null', () => {
+      expect(getFirstLine(null)).toBe('No additional notes');
+    });
+
+    it('returns "No additional notes" for undefined', () => {
+      expect(getFirstLine(undefined)).toBe('No additional notes');
+    });
+
+    it('returns "No additional notes" for whitespace-only HTML', () => {
+      expect(getFirstLine('<p>   </p>')).toBe('No additional notes');
+    });
+
+    it('returns trimmed text content from simple HTML', () => {
+      expect(getFirstLine('<p>Hello world</p>')).toBe('Hello world');
+    });
+
+    it('strips HTML tags and returns text', () => {
+      expect(getFirstLine('<b>bold</b> text')).toBe('bold text');
+    });
+
+    it('returns "Image attached" when there is no text but an <img> exists', () => {
+      expect(getFirstLine('<img src="blob:x" alt="img">')).toBe('Image attached');
+    });
+
+    it('prefers text content over image indicator', () => {
+      expect(getFirstLine('<p>note</p><img src="blob:x">')).toBe('note');
+    });
+  });
+
+  describe('getTextPreview', () => {
+    it('returns empty string for empty input', () => {
+      expect(getTextPreview('')).toBe('');
+    });
+
+    it('returns empty string for null', () => {
+      expect(getTextPreview(null)).toBe('');
+    });
+
+    it('returns empty string for undefined', () => {
+      expect(getTextPreview(undefined)).toBe('');
+    });
+
+    it('returns text content from simple HTML', () => {
+      expect(getTextPreview('<p>Hello world</p>')).toBe('Hello world');
+    });
+
+    it('strips all tags and concatenates text', () => {
+      expect(getTextPreview('<b>bold</b> and <i>italic</i>')).toBe('bold and italic');
+    });
+
+    it('returns text from deeply nested HTML', () => {
+      expect(getTextPreview('<div><ul><li>item</li></ul></div>')).toBe('item');
+    });
+
+    it('returns empty string for HTML with no text (e.g. only an image)', () => {
+      expect(getTextPreview('<img src="blob:x">')).toBe('');
+    });
   });
 });
