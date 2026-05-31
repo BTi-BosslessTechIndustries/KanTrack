@@ -152,6 +152,16 @@
   }
 }
 
+@media (max-width: 700px) {
+  .support-us-label {
+    display: none;
+  }
+  .support-us-btn {
+    padding: clamp(3px, 0.4vw, 5px);
+    border-radius: 10px;
+  }
+}
+
 @media (max-width: 480px) {
   .support-us-btn {
     display: none;
