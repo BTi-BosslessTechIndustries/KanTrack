@@ -282,6 +282,8 @@
 
     <div class="controls-bottom">
         <div class="controls-row-secondary">
+            <button class="export-btn export-btn--all" data-action="board:exportEverything" title="Download workspace + all notes (two files)">Download everything</button>
+            <span class="controls-separator" aria-hidden="true"></span>
             <button class="export-btn" data-action="board:exportJSON">Download workspace</button>
             <button class="export-btn" data-action="board:exportJSONLite">Download workspace (lightweight)</button>
             <button class="export-btn" data-action="board:exportEncrypted">Download workspace (encrypted)</button>
@@ -743,6 +745,7 @@
                 <div class="help-badge">Exports &amp; Imports</div>
 
                 <p class="help-section-label">Board - controls at the bottom of the board</p>
+                <p class="help-exports-note"><strong>Download everything</strong> downloads both files at once: a full <code>.kantrack.json</code> workspace backup and a complete notebook <code>.zip</code>. Each file can be imported separately using its own import button.</p>
                 <table class="help-exports-table">
                     <thead>
                         <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
@@ -751,17 +754,17 @@
                         <tr>
                             <td><code>.kantrack.json</code> full</td>
                             <td>Everything - tasks, tags, notebook pages &amp; images, clocks</td>
-                            <td>Yes - merge or replace</td>
+                            <td>Yes - merge or replace (restores workspace and notes)</td>
                         </tr>
                         <tr>
                             <td><code>.kantrack.json</code> lite</td>
                             <td>Same as full, without embedded images (smaller file)</td>
-                            <td>Yes - merge or replace</td>
+                            <td>Yes - merge or replace (restores workspace and notes)</td>
                         </tr>
                         <tr>
                             <td><code>.kantrack.enc</code></td>
                             <td>Full backup, passphrase-encrypted</td>
-                            <td>Yes - passphrase required</td>
+                            <td>Yes - passphrase required (restores workspace and notes)</td>
                         </tr>
                         <tr>
                             <td><code>.html</code></td>
@@ -785,7 +788,7 @@
                         <tr>
                             <td>Folder / All pages <code>.zip</code></td>
                             <td>Pages &amp; images, folder structure preserved</td>
-                            <td>Yes - via notebook import button</td>
+                            <td>Yes - notebook pages only, via notebook import button</td>
                         </tr>
                         <tr>
                             <td>Page <code>.pdf</code></td>

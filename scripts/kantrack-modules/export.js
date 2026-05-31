@@ -685,6 +685,8 @@ function _showImportPreviewDialog(summary, warnings, { onMerge, onReplace, onCan
     <p style="margin:0">This file contains:</p>
     ${countHtml}
     ${warningHtml}
+    <p style="margin:16px 0 0;font-size:0.9em"><strong>Importing this file restores your full workspace and all notebook pages together.</strong></p>
+    <p style="margin:8px 0 0;font-size:0.9em;color:#ffb74d"><strong>If you have already imported a notebook .zip file, duplicate notebook pages may appear.</strong></p>
     <p style="margin:16px 0 8px">How would you like to import?</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
       <button id="kt-import-merge" style="flex:1;padding:8px 12px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer">Merge with current</button>
