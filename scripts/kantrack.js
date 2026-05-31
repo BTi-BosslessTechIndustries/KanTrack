@@ -122,6 +122,30 @@ import { registerAction, initRouter } from './kantrack-modules/router.js';
 import { dispatch, TASK_SET_ALL } from './kantrack-modules/store.js';
 
 /***********************
+ * HEADER LOGO POSITIONING
+ * Centers the logo at the midpoint between the Support Us button's right edge
+ * and the leftmost visible element in the right section (Add Clock or Undo).
+ ***********************/
+function positionHeaderLogo() {
+  const header = document.querySelector('.top-header');
+  const supportBtn = document.querySelector('.support-us-btn');
+  const logoCenter = document.querySelector('.header-center');
+  const addClockBtn = document.getElementById('headerAddClockBtn');
+  const undoBtn = document.getElementById('undoBtn');
+
+  if (!header || !supportBtn || !logoCenter || !addClockBtn || !undoBtn) return;
+
+  const clockGroupVisible = document.body.classList.contains('clocks-collapsed');
+  const rightAnchorEl = clockGroupVisible ? addClockBtn : undoBtn;
+
+  const headerRect = header.getBoundingClientRect();
+  const leftAnchorX = supportBtn.getBoundingClientRect().right - headerRect.left;
+  const rightAnchorX = rightAnchorEl.getBoundingClientRect().left - headerRect.left;
+
+  logoCenter.style.left = (leftAnchorX + rightAnchorX) / 2 + 'px';
+}
+
+/***********************
  * CARD SIZE
  ***********************/
 function applyCardSize(size) {
@@ -531,6 +555,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load clocks (async)
   await loadClocks();
+
+  // Position logo now that clock state is known, then track continuously
+  positionHeaderLogo();
+
+  let _logoRafId = null;
+  function scheduleLogoPosition() {
+    if (_logoRafId !== null) return;
+    _logoRafId = requestAnimationFrame(() => {
+      _logoRafId = null;
+      positionHeaderLogo();
+    });
+  }
+
+  // Real-time tracking on viewport resize
+  window.addEventListener('resize', scheduleLogoPosition);
+
+  // Track element size changes: catches the support button's 200ms padding transition
+  // at the 700px breakpoint, and any size changes in the right anchors
+  const _logoRO = new ResizeObserver(scheduleLogoPosition);
+  _logoRO.observe(document.querySelector('.support-us-btn'));
+  _logoRO.observe(document.getElementById('headerAddClockBtn'));
+  _logoRO.observe(document.getElementById('undoBtn'));
+
+  // Track body class changes for clock group visibility toggle
+  new MutationObserver(scheduleLogoPosition).observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
 
   // Clean up any orphan tags (tags not used by any task)
   cleanupUnusedTags();
