@@ -6,6 +6,7 @@ import JSZip from 'jszip';
 import * as state from './state.js';
 import { getNotebookImage } from './database.js';
 import { getImageDimensions } from './utils.js';
+import { getNotebookItemContent } from './repository.js';
 
 /***********************
  * PDF EXPORT
@@ -129,9 +130,10 @@ export async function generatePagePDFBlob(pageId) {
   doc.setFontSize(11);
   doc.setFont(undefined, 'normal');
 
-  // Process content
+  // Process content — load from IDB since state has content stripped for lazy loading
+  const content = (await getNotebookItemContent(pageId)) || '';
   const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = page.content || '';
+  tempDiv.innerHTML = content;
 
   const childNodes = tempDiv.childNodes;
   for (let i = 0; i < childNodes.length; i++) {
@@ -243,20 +245,32 @@ export async function exportFolderAsZip(folderId) {
     })),
   };
 
-  // Fetch images from IndexedDB and include them
+  // Load page content from IDB (stripped from in-memory state for lazy loading)
+  // and fetch any embedded images
   for (const item of notebookData.items) {
-    if (item.type === 'page' && item.content) {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.content;
-      const images = tempDiv.querySelectorAll('img[data-image-id]');
-      for (const img of images) {
-        const imageId = img.dataset.imageId;
-        if (imageId) {
-          const dataUrl = await getNotebookImage(item.id, imageId);
-          if (dataUrl) {
-            item.images.push({ id: imageId, data: dataUrl });
+    if (item.type === 'page') {
+      try {
+        item.content = (await getNotebookItemContent(item.id)) || null;
+        if (item.content) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = item.content;
+          const images = tempDiv.querySelectorAll('img[data-image-id]');
+          for (const img of images) {
+            const imageId = img.dataset.imageId;
+            if (imageId) {
+              try {
+                const dataUrl = await getNotebookImage(item.id, imageId);
+                if (dataUrl) {
+                  item.images.push({ id: imageId, data: dataUrl });
+                }
+              } catch (err) {
+                console.warn(`Could not fetch image ${imageId} for page ${item.id}:`, err);
+              }
+            }
           }
         }
+      } catch (err) {
+        console.warn(`Could not load content for page ${item.id}, skipping:`, err);
       }
     }
   }
@@ -313,20 +327,32 @@ export async function exportAllNotebook() {
     })),
   };
 
-  // Fetch images from IndexedDB and include them
+  // Load page content from IDB (stripped from in-memory state for lazy loading)
+  // and fetch any embedded images
   for (const item of notebookData.items) {
-    if (item.type === 'page' && item.content) {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.content;
-      const images = tempDiv.querySelectorAll('img[data-image-id]');
-      for (const img of images) {
-        const imageId = img.dataset.imageId;
-        if (imageId) {
-          const dataUrl = await getNotebookImage(item.id, imageId);
-          if (dataUrl) {
-            item.images.push({ id: imageId, data: dataUrl });
+    if (item.type === 'page') {
+      try {
+        item.content = (await getNotebookItemContent(item.id)) || null;
+        if (item.content) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = item.content;
+          const images = tempDiv.querySelectorAll('img[data-image-id]');
+          for (const img of images) {
+            const imageId = img.dataset.imageId;
+            if (imageId) {
+              try {
+                const dataUrl = await getNotebookImage(item.id, imageId);
+                if (dataUrl) {
+                  item.images.push({ id: imageId, data: dataUrl });
+                }
+              } catch (err) {
+                console.warn(`Could not fetch image ${imageId} for page ${item.id}:`, err);
+              }
+            }
           }
         }
+      } catch (err) {
+        console.warn(`Could not load content for page ${item.id}, skipping:`, err);
       }
     }
   }
@@ -339,7 +365,7 @@ export async function exportAllNotebook() {
     if (pdfBlob) {
       const fullPath = getItemPath(page.id);
       const pathParts = fullPath.split('/');
-      const pageName = pathParts.pop();
+      pathParts.pop();
       const folderPath = pathParts.join('/');
 
       const safeName = page.name.replace(/[^a-z0-9 ]/gi, '_');

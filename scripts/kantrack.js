@@ -83,6 +83,7 @@ import {
 import { exportPageAsPDF, exportAllNotebook } from './kantrack-modules/notebook-export.js';
 import {
   showSuccess,
+  showError,
   checkStorageQuota,
   getStorageBreakdown,
   logStorageDiagnostics,
@@ -310,6 +311,14 @@ registerAction('board:exportJSON', () => exportWorkspaceAsJSON('full'));
 registerAction('board:exportJSONLite', () => exportWorkspaceAsJSON('lightweight'));
 registerAction('board:exportEncrypted', () => exportWorkspaceAsEncrypted());
 registerAction('board:exportHTML', () => exportBoardAsHTML());
+registerAction('board:exportEverything', async () => {
+  try {
+    await exportWorkspaceAsJSON('full');
+    await exportAllNotebook();
+  } catch (err) {
+    showError('Export failed: ' + err.message);
+  }
+});
 registerAction('board:triggerImport', () => document.getElementById('importFile').click());
 
 // Image viewer

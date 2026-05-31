@@ -513,6 +513,27 @@ button:hover {
   margin-left: 10px;
 }
 
+.export-btn--all {
+  border-color: var(--success-color);
+  background: #1e3a2f;
+  color: var(--success-color);
+  font-weight: 600;
+  margin-left: 0;
+}
+
+.export-btn--all:hover {
+  background: #2a4d3e;
+  border-color: var(--success-color);
+}
+
+.controls-separator {
+  display: block;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  align-self: stretch;
+  margin: 0 2px;
+}
+
 .delete-btn {
   background: rgba(80, 40, 40, 0.6);
   border-color: rgba(255, 100, 100, 0.3);
