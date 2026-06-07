@@ -13,7 +13,7 @@ import {
   selectDoneOverflow,
   backfillDoneTimestamps,
 } from '../scripts/kantrack-modules/done-capacity.js';
-import { getMetaValue, setMetaValue, initIndexedDB } from '../scripts/kantrack-modules/database.js';
+import { getMetaValue, initIndexedDB } from '../scripts/kantrack-modules/database.js';
 
 function doneTask(id, doneAt) {
   return {

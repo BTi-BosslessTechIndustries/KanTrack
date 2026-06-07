@@ -58,6 +58,7 @@ export async function backfillDoneTimestamps() {
     if (alreadyDone != null) return;
 
     let changed = false;
+    // Intentionally includes deleted tasks too — a stamp now means a Trash restore later won't need its own backfill.
     for (const task of state.notesData) {
       if (task.column === 'done' && task.doneAt == null) {
         task.doneAt = Date.now();
@@ -66,7 +67,7 @@ export async function backfillDoneTimestamps() {
     }
     if (changed) saveNotesToLocalStorage();
 
-    setMetaValue(DONE_AT_BACKFILL_FLAG, Date.now());
+    await setMetaValue(DONE_AT_BACKFILL_FLAG, Date.now());
   } catch (e) {
     debugWarn('[done-capacity] doneAt backfill failed (will retry on next load):', e);
   }
