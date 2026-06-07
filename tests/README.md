@@ -13,12 +13,15 @@ tests/
 ├── context-menu.test.js          # floating context-menu positioning and keyboard handling
 ├── crypto.test.js                # encrypted export/import round-trips (AES-256-GCM)
 ├── database.test.js              # IDB schema, migrations, image CRUD
+├── done-capacity.test.js         # Done column cap: oldest-overflow selection, doneAt backfill, permanent deletion
 ├── due-dates.test.js             # formatDueDate, isOverdue, isDueToday, getDueDateStatus, etc.
 ├── focus-trap.test.js            # createFocusTrap(): Tab cycling and deactivation (uses JSDOM)
+├── clocks.test.js                # formatChronometer(): ms-to-"HH:MM:SS" formatting
 ├── images.test.js                # image modal open/close and clipboard paste handler
 ├── import-validator.test.js      # .kantrack.json import validation and error cases
 ├── loading.test.js               # loading overlay show/hide and progress indicator utilities
 ├── modal-notes.test.js           # task modal notes editor: add, render, history entries
+├── notebook.test.js              # getChildItems(): notebook tree filter+sort
 ├── notebook-export.test.js       # notebook PDF export and ZIP export/import round-trips
 ├── notifications.test.js         # showError / showWarning / showInfo toast notifications
 ├── priority.test.js              # getPriorityLabel, getPriorityColor
@@ -39,12 +42,14 @@ tests/
     ├── smoke.spec.js                   # Playwright E2E: create task + persist; set priority + persist
     ├── flows.spec.js                   # Playwright E2E: delete, edit title, add note, undo/redo, clock reset
     ├── accessibility.spec.js           # Playwright E2E: keyboard shortcuts, ESC, arrow nav, focus
+    ├── drag-drop.spec.js               # Playwright E2E: card drag-and-drop between columns, doneAt stamping
     ├── import-export.spec.js           # Playwright E2E: export/import round-trips
     ├── notebook-import-export.spec.js  # Playwright E2E: Download everything button, notebook ZIP export/import
     ├── performance.spec.js             # Playwright E2E: virtual list DOM node budget
     ├── search.spec.js                  # Playwright E2E: live search, case-insensitivity, ESC clear, no-match
     ├── header.spec.js                  # Playwright E2E: header UI, responsive layout, clock collapsed state, card size
     ├── responsive.spec.js              # Playwright E2E: column layout, clock panel 700px breakpoint
+    ├── sub-kanban.spec.js              # Playwright E2E: sub-task add/move/delete/rename within a task's mini-board
     └── README.md
 ```
 
@@ -58,7 +63,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**706 tests across 26 files**: all should pass on every run.
+**734 tests across 29 files**: all should pass on every run.
 
 ### What is mocked
 

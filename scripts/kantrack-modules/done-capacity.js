@@ -199,14 +199,23 @@ function _showCapacityDialog(tasks) {
   dialog.querySelectorAll('[data-export-id]').forEach(btn => {
     btn.addEventListener('click', () => {
       exportTaskAsPDF(btn.getAttribute('data-export-id'));
+      btn.textContent = 'DONE';
+      btn.disabled = true;
+      btn.style.cssText =
+        'padding:4px 10px;background:#1e3a2f;color:var(--success-color);border:1px solid var(--success-color);border-radius:4px;font-weight:600;font-size:0.85em;cursor:default';
     });
   });
 
-  dialog.querySelector('#kt-capacity-export-all').addEventListener('click', async () => {
+  const exportAllBtn = dialog.querySelector('#kt-capacity-export-all');
+  exportAllBtn.addEventListener('click', async () => {
     statusEl.textContent = 'Building zip…';
     try {
       await _exportTasksAsZip(tasks);
       statusEl.textContent = 'Zip downloaded.';
+      exportAllBtn.textContent = 'DONE';
+      exportAllBtn.disabled = true;
+      exportAllBtn.style.cssText =
+        'padding:8px 14px;background:#1e3a2f;color:var(--success-color);border:1px solid var(--success-color);border-radius:4px;font-weight:600;cursor:default';
     } catch (e) {
       debugWarn('[done-capacity] Export-all failed:', e);
       statusEl.textContent =

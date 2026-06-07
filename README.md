@@ -18,6 +18,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Timer**: per-task time tracking with quick-add and quick-remove
 - **Undo / Redo**: full history with durable IDB-backed undo entries
 - **Trash**: soft-delete with restore; recoverable until you empty it
+- **Done column limit**: the Done column holds at most 30 cards; once it's full, a blocking dialog flags the 15 oldest for permanent deletion and offers to export each one (or all of them bundled as a ZIP) to PDF first — this bypasses Trash entirely and cannot be undone, so the dialog cannot be dismissed except by confirming the deletion
 - **Notebook**: a resizable sidebar with a folder/page tree; pages support rich text, image paste, and per-page PDF export; right-click any item for a context menu (rename, delete); drag-and-drop to reorder and move pages and folders; live search to filter by name; import pages from a ZIP archive or export the whole notebook as ZIP; sidebar open/closed state and width persist across sessions
 - **Export & Import**: export individual tasks or notebook pages as PDF (cross-platform, including Mac); export the entire board as a static HTML snapshot (task data and images embedded for re-import), full JSON (with embedded images), lightweight JSON, or AES-256-GCM encrypted `.kantrack.enc`; export the entire notebook as a ZIP; import a full board (merge or replace mode) from any previously exported JSON or encrypted file (restores workspace and notes together); import a notebook from a ZIP archive (adds notebook pages only, does not affect the board)
 - **Download everything**: a single button in the bottom controls bar that downloads a full workspace backup and a complete notebook ZIP archive in one click; the two files produced are identical to what the individual export buttons generate and each can be imported separately via its own import button
@@ -78,7 +79,7 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 706 tests across 26 files, ~1s)
+npm run test:run     # unit tests (Vitest, 734 tests across 29 files, ~1s)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
@@ -105,7 +106,7 @@ KanTrack/
 │
 ├── scripts/                     # Application source code
 │   ├── kantrack.js              # Bootstrap: registers all actions, inits router + store
-│   ├── kantrack-modules/        # Feature modules (36 files)
+│   ├── kantrack-modules/        # Feature modules (37 files)
 │   │   ├── types.ts             # Shared TypeScript types
 │   │   ├── store.ts             # Flux-like state store
 │   │   ├── router.ts            # data-action event delegation
@@ -124,18 +125,20 @@ KanTrack/
 │   └── responsive.css           # Media queries (breakpoints at 400 / 480 / 600 / 640 / 700 / 768 / 900 / 1024 px; min-width 1200 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (706 tests, 26 files)
+│   ├── *.test.js                # Vitest unit tests (734 tests, 29 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (107 tests, 9 files)
+│   └── e2e/                     # Playwright end-to-end tests (115 tests, 11 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management
+│       ├── drag-drop.spec.js    # Card drag-and-drop between columns and doneAt stamping
 │       ├── import-export.spec.js# Export/import round-trips
 │       ├── notebook-import-export.spec.js # Download everything button and notebook ZIP import/export
 │       ├── performance.spec.js  # Virtual list DOM budget
 │       ├── search.spec.js       # Live search filtering and ESC clear
 │       ├── header.spec.js       # Header UI: dropdown, About modal, Shortcuts modal
-│       └── responsive.spec.js   # Controls bar, card layout, and clock panel breakpoint at multiple viewport widths
+│       ├── responsive.spec.js   # Controls bar, card layout, and clock panel breakpoint at multiple viewport widths
+│       └── sub-kanban.spec.js   # Per-task mini-board: add/move/delete/rename sub-tasks
 │
 ├── config/                      # Build and tool configuration
 │   ├── vite.config.js           # Vite build config

@@ -11,12 +11,14 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 | `smoke.spec.js`                  | 2     | Create task + persist; set priority + persist after reload                                                                                               |
 | `flows.spec.js`                  | 11    | Delete, edit title, add note, undo, undo-persist, redo; clock reset button visibility and behaviour                                                      |
 | `accessibility.spec.js`          | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav                                                                                    |
+| `drag-drop.spec.js`              | 3     | Card drag-and-drop between board columns; persistence; `doneAt` stamped on entering Done and cleared on leaving                                          |
 | `import-export.spec.js`          | 7     | JSON export/import, encrypted export/import, format-version validation                                                                                   |
 | `notebook-import-export.spec.js` | 5     | Download everything button (visibility, dual-file download); notebook ZIP export content; notebook ZIP import (merge, no data loss)                      |
 | `performance.spec.js`            | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                                                               |
 | `search.spec.js`                 | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                                                                    |
 | `header.spec.js`                 | 54    | Support Us / About / Shortcuts modals; credit button; ⋮ dropdown; card size picker and persistence; header responsive scaling; clock collapsed state     |
 | `responsive.spec.js`             | 12    | Kanban column count at 800 px / 500 px; clock container no-wrap; clock font scaling; clock panel 700 px breakpoint (hide/show, header time, logo centre) |
+| `sub-kanban.spec.js`             | 5     | Per-task mini-board: add a sub-task, drag it between columns, drag to Done updates the count badge, delete with confirmation, double-click rename        |
 
 ---
 
@@ -104,6 +106,16 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 - **Close button** (`×`) closes shortcuts dialog
 - **Enter on focused card** opens the task modal (cards have `tabIndex=0`)
 - **ArrowDown / ArrowUp** move focus between cards in a column
+
+---
+
+### `drag-drop.spec.js`: card drag-and-drop between columns
+
+The app's drag-and-drop is **state-based**, not `DataTransfer`-based: `dragstart` stores a reference to the dragged note in module state (`setDraggedItemRef`), and the `drop` handler reads that reference and calls `updateNoteColumn(id, oldColumn, newColumn)`. This means Playwright's `locator.dragTo(target)` exercises the real move logic without needing to populate a `DataTransfer` payload.
+
+- **To Do → In Progress**: drag a card via `locator.dragTo(#inProgress)`; assert it lands in the target column and disappears from the source; poll IDB for `column === 'inProgress'`; reload and re-assert
+- **Drag into Done stamps `doneAt`**: drag a card to `#done`; poll IDB for `column === 'done' && typeof doneAt === 'number'`; assert the per-move `confirm("...export it as PDF?")` dialog appears (dismissed to skip the export)
+- **Drag out of Done clears `doneAt`**: move a card into Done, then to On Hold; poll IDB for `column === 'onHold' && typeof doneAt === 'undefined'`
 
 ---
 
@@ -219,6 +231,18 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ---
 
+### `sub-kanban.spec.js`: per-task mini-board
+
+Covers the "Sub-Tasks" mini-board reachable from the task modal (`sub-kanban.js`). Like the board's card drag-and-drop, sub-kanban drag-and-drop is state-based (`state.setSubKanbanDraggedItem`, read by the column's `ondrop` handler), so `locator.dragTo(target)` exercises the real move logic.
+
+- **Add a sub-task**: type into `#newSubTaskInput`, click `[data-action="task:addSubItem"]`; assert it appears in the To Do column and the `(0/1)` count badge updates
+- **Drag a sub-task to another column**: `dragTo(#subKanbanInProgress)`; assert it moves and disappears from the source column
+- **Drag a sub-task to Done updates the count badge**: `dragTo(#subKanbanDone)`; assert the badge reads `(1/1)`
+- **Delete a sub-task**: click its `.delete-sub-item` ❌ button, accept the `confirm("Delete sub-task...")` dialog; assert it's removed and the badge clears
+- **Rename a sub-task**: double-click its title to enable `contenteditable`, `selectText()`, type a new title, press Enter; assert the new title replaced the old one
+
+---
+
 ## IDB polling pattern
 
 `saveTasks()` in `repository.ts` writes localStorage **synchronously** but fires the IDB write as a **fire-and-forget** async operation. On reload, `getAllTasks()` prefers **localStorage** (always up-to-date after a sync write) and falls back to IDB. The IDB polling pattern in tests is retained as a safety net to confirm the async write also completed before reloading:
@@ -272,8 +296,10 @@ Add `test()` blocks to an existing spec file or create a new `*.spec.js` file in
 - Use `smoke.spec.js` for tests that verify data persistence across reloads
 - Use `flows.spec.js` for tests that cover specific user interaction flows
 - Use `accessibility.spec.js` for keyboard navigation and focus management
+- Use `drag-drop.spec.js` for board-level drag-and-drop interactions
 - Use `import-export.spec.js` for data export/import round-trips
 - Use `performance.spec.js` for DOM budget and rendering performance assertions
+- Use `sub-kanban.spec.js` for the per-task mini-board's CRUD and drag-and-drop
 - Create a new spec file for a clearly distinct area (e.g. `notebook.spec.js`, `search.spec.js`)
 
 Keep E2E tests focused on critical user paths (happy path only). Edge cases and unit-level behaviour belong in `tests/*.test.js`.
