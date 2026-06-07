@@ -21,7 +21,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Notebook**: a resizable sidebar with a folder/page tree; pages support rich text, image paste, and per-page PDF export; right-click any item for a context menu (rename, delete); drag-and-drop to reorder and move pages and folders; live search to filter by name; import pages from a ZIP archive or export the whole notebook as ZIP; sidebar open/closed state and width persist across sessions
 - **Export & Import**: export individual tasks or notebook pages as PDF (cross-platform, including Mac); export the entire board as a static HTML snapshot (task data and images embedded for re-import), full JSON (with embedded images), lightweight JSON, or AES-256-GCM encrypted `.kantrack.enc`; export the entire notebook as a ZIP; import a full board (merge or replace mode) from any previously exported JSON or encrypted file (restores workspace and notes together); import a notebook from a ZIP archive (adds notebook pages only, does not affect the board)
 - **Download everything**: a single button in the bottom controls bar that downloads a full workspace backup and a complete notebook ZIP archive in one click; the two files produced are identical to what the individual export buttons generate and each can be imported separately via its own import button
-- **World clocks**: multiple timezone clocks and a chronometer displayed in a widget row above the board; Reset collapses the row and moves a live 24-hour current time display and an Add Clock icon button into the header, reclaiming the vertical space; adding any clock restores the full widget row
+- **World clocks**: multiple timezone clocks and a chronometer displayed in a widget row above the board; Reset collapses the row and moves a live 24-hour current time display and an Add Clock icon button into the header, reclaiming the vertical space; adding any clock restores the full widget row; at viewport widths ≤ 700 px the widget row is hidden automatically and only the current time is shown in the header — the full widget reappears when the window is widened again
 - **Search & filter**: full-text search with tag and column filters; the task input, Add button, and search bar form a single proportional-scaling row that never wraps on window resize; tag filters occupy a dedicated row below
 - **Column task counts**: each column header shows a live count of visible tasks; the count reflects active search and filter state
 - **Storage quota monitoring**: checks browser storage quota silently at startup; displays a calm informational message in the settings panel when usage reaches 70%, and a stronger prompt to export a backup at 85%; also requests durable storage permission from the browser so data is protected from automatic eviction
@@ -78,7 +78,7 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 578 tests across 21 files, ~1s)
+npm run test:run     # unit tests (Vitest, 706 tests across 26 files, ~1s)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
@@ -105,7 +105,7 @@ KanTrack/
 │
 ├── scripts/                     # Application source code
 │   ├── kantrack.js              # Bootstrap: registers all actions, inits router + store
-│   ├── kantrack-modules/        # Feature modules (30 files)
+│   ├── kantrack-modules/        # Feature modules (36 files)
 │   │   ├── types.ts             # Shared TypeScript types
 │   │   ├── store.ts             # Flux-like state store
 │   │   ├── router.ts            # data-action event delegation
@@ -121,12 +121,12 @@ KanTrack/
 │   ├── base.css                 # Variables, reset, typography, .sr-only utility
 │   ├── components.css           # Reusable UI components
 │   ├── features.css             # Feature-specific styles
-│   └── responsive.css           # Media queries (breakpoints at 480 / 640 / 768 / 1024 px)
+│   └── responsive.css           # Media queries (breakpoints at 400 / 480 / 600 / 640 / 700 / 768 / 900 / 1024 px; min-width 1200 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (578 tests, 21 files)
+│   ├── *.test.js                # Vitest unit tests (706 tests, 26 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (99 tests, 9 files)
+│   └── e2e/                     # Playwright end-to-end tests (107 tests, 9 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management
@@ -135,7 +135,7 @@ KanTrack/
 │       ├── performance.spec.js  # Virtual list DOM budget
 │       ├── search.spec.js       # Live search filtering and ESC clear
 │       ├── header.spec.js       # Header UI: dropdown, About modal, Shortcuts modal
-│       └── responsive.spec.js   # Controls bar and card layout at multiple viewport widths
+│       └── responsive.spec.js   # Controls bar, card layout, and clock panel breakpoint at multiple viewport widths
 │
 ├── config/                      # Build and tool configuration
 │   ├── vite.config.js           # Vite build config

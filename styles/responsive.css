@@ -160,6 +160,17 @@
     padding: clamp(3px, 0.4vw, 5px);
     border-radius: 10px;
   }
+  .clock-wrapper {
+    display: none;
+  }
+  .header-clock-group {
+    display: flex;
+  }
+  .header-center {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 
 @media (max-width: 480px) {

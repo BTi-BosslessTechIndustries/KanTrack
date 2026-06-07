@@ -8,34 +8,43 @@ All automated tests for KanTrack.
 
 ```
 tests/
-├── setup.js                  # Vitest global setup (mocks IDB, localStorage, crypto)
-├── database.test.js          # IDB schema, migrations, image CRUD
-├── repository.test.js        # getAllTasks, saveTasks, getAllNotebookItems, etc.
-├── storage.test.js           # loadNotesFromLocalStorage, saveNotesToLocalStorage
-├── storage-monitor.test.js   # quota monitoring and durable storage request
-├── store.test.js             # Redux-like store: dispatch, subscribe, getState, reducer
-├── router.test.js            # registerAction, initRouter, event delegation
-├── undo.test.js              # recordAction, undo, redo, trash
-├── utils.test.js             # pure utility functions: escapeHtml, formatTime, deepClone, etc.
-├── priority.test.js          # getPriorityLabel, getPriorityColor
-├── due-dates.test.js         # formatDueDate, formatRelativeDueDate, sortByDueDate, isOverdue, isDueToday, isDueSoon, getDueDateStatus, getDueDate, getOverdueTasks, getTasksDueToday, getTasksDueSoon, setDueDate
-├── timer.test.js             # addTime(), quickAddTime(), LONG_PRESS_THRESHOLD
-├── tags.test.js              # getTagDefinitions, getTagById, getTagColor, getPinnedTags, createTag, toggleTagPinned, setTagPinned, updateTag, deleteTag, cleanupUnusedTags, addTagToTask, removeTagFromTask, getTaskTags
-├── search.test.js            # full-text search and tag/column filter logic
-├── sorting.test.js           # priority-based column sort
-├── import-validator.test.js  # .kantrack.json import validation and error cases
-├── compaction.test.js        # oplog compaction worker logic
-├── crypto.test.js            # encrypted export/import round-trips
-├── sanitize.test.js          # allowlist HTML sanitizer (XSS protection)
-├── focus-trap.test.js        # createFocusTrap(): Tab cycling and deactivation (uses JSDOM)
+├── setup.js                     # Vitest global setup (mocks IDB, localStorage, crypto)
+├── compaction.test.js            # oplog compaction worker logic
+├── context-menu.test.js          # floating context-menu positioning and keyboard handling
+├── crypto.test.js                # encrypted export/import round-trips (AES-256-GCM)
+├── database.test.js              # IDB schema, migrations, image CRUD
+├── due-dates.test.js             # formatDueDate, isOverdue, isDueToday, getDueDateStatus, etc.
+├── focus-trap.test.js            # createFocusTrap(): Tab cycling and deactivation (uses JSDOM)
+├── images.test.js                # image modal open/close and clipboard paste handler
+├── import-validator.test.js      # .kantrack.json import validation and error cases
+├── loading.test.js               # loading overlay show/hide and progress indicator utilities
+├── modal-notes.test.js           # task modal notes editor: add, render, history entries
+├── notebook-export.test.js       # notebook PDF export and ZIP export/import round-trips
+├── notifications.test.js         # showError / showWarning / showInfo toast notifications
+├── priority.test.js              # getPriorityLabel, getPriorityColor
+├── repository.test.js            # getAllTasks, saveTasks, getAllNotebookItems, etc.
+├── router.test.js                # registerAction, initRouter, event delegation
+├── sanitize.test.js              # allowlist HTML sanitizer (XSS protection)
+├── search.test.js                # full-text search and tag/column filter logic
+├── sorting.test.js               # priority-based column sort
+├── storage-monitor.test.js       # quota monitoring and durable storage request
+├── storage.test.js               # loadNotesFromLocalStorage, saveNotesToLocalStorage
+├── store.test.js                 # Redux-like store: dispatch, subscribe, getState, reducer
+├── tags.test.js                  # tag CRUD, pinning, assignment, cleanupUnusedTags
+├── timer.test.js                 # addTime(), quickAddTime(), LONG_PRESS_THRESHOLD
+├── undo.test.js                  # recordAction, undo, redo, trash
+├── utils.test.js                 # pure utility functions: escapeHtml, formatTime, deepClone, etc.
+├── virtual-list.test.js          # VirtualList IntersectionObserver-based card rendering
 └── e2e/
-    ├── smoke.spec.js         # Playwright E2E: create task + persist; set priority + persist
-    ├── flows.spec.js         # Playwright E2E: delete, edit title, add note, undo/redo
-    ├── accessibility.spec.js # Playwright E2E: keyboard shortcuts, ESC, arrow nav, focus (Phase 7)
-    ├── import-export.spec.js # Playwright E2E: export/import round-trips (Phase 4)
-    ├── performance.spec.js   # Playwright E2E: virtual list DOM node budget (Phase 5)
-    ├── search.spec.js        # Playwright E2E: live search, case-insensitivity, ESC clear, no-match
-    ├── header.spec.js        # Playwright E2E: header UI: Support Us modal, credit button, dropdown, About modal, Shortcuts modal
+    ├── smoke.spec.js                   # Playwright E2E: create task + persist; set priority + persist
+    ├── flows.spec.js                   # Playwright E2E: delete, edit title, add note, undo/redo, clock reset
+    ├── accessibility.spec.js           # Playwright E2E: keyboard shortcuts, ESC, arrow nav, focus
+    ├── import-export.spec.js           # Playwright E2E: export/import round-trips
+    ├── notebook-import-export.spec.js  # Playwright E2E: Download everything button, notebook ZIP export/import
+    ├── performance.spec.js             # Playwright E2E: virtual list DOM node budget
+    ├── search.spec.js                  # Playwright E2E: live search, case-insensitivity, ESC clear, no-match
+    ├── header.spec.js                  # Playwright E2E: header UI, responsive layout, clock collapsed state, card size
+    ├── responsive.spec.js              # Playwright E2E: column layout, clock panel 700px breakpoint
     └── README.md
 ```
 
@@ -49,7 +58,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**542 tests across 19 files**: all should pass on every run.
+**706 tests across 26 files**: all should pass on every run.
 
 ### What is mocked
 
