@@ -131,6 +131,32 @@ export async function exportTaskAsPDF(taskId = null) {
   const task = state.notesData.find(t => t.id === id);
   if (!task) return;
 
+  const doc = await _buildTaskPDFDoc(task);
+  const filename = `${task.title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+  doc.save(filename);
+}
+
+/**
+ * Generate a task's PDF as a Blob, for callers that need to bundle multiple
+ * task PDFs together (e.g. zipping) rather than triggering individual downloads.
+ * @param {string} taskId
+ * @returns {Promise<Blob|null>}
+ */
+export async function generateTaskPDFBlob(taskId) {
+  const task = state.notesData.find(t => t.id === taskId);
+  if (!task) return null;
+
+  const doc = await _buildTaskPDFDoc(task);
+  return doc.output('blob');
+}
+
+/**
+ * Build a jsPDF document for a task: title, priority, worked time, and the
+ * full timeline (notes + history) in chronological order.
+ * @param {object} task
+ * @returns {Promise<jsPDF>}
+ */
+async function _buildTaskPDFDoc(task) {
   const doc = new jsPDF();
 
   let yPos = 20;
@@ -197,7 +223,7 @@ export async function exportTaskAsPDF(taskId = null) {
         tempDiv.innerHTML = action.notesHTML;
 
         const yPosRef = { value: yPos };
-        await _walkNodesForPDF(tempDiv.childNodes, doc, id, margin, maxWidth, yPosRef);
+        await _walkNodesForPDF(tempDiv.childNodes, doc, task.id, margin, maxWidth, yPosRef);
         yPos = yPosRef.value;
 
         yPos += 5;
@@ -241,8 +267,7 @@ export async function exportTaskAsPDF(taskId = null) {
     yPos += 10;
   }
 
-  const filename = `${task.title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
-  doc.save(filename);
+  return doc;
 }
 
 /***********************
