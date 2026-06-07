@@ -4,7 +4,6 @@
  * When the cap is reached, the oldest cards are flagged for permanent
  * deletion via a blocking pop-up that offers PDF export first.
  ***********************/
-import jsPDF from 'jspdf';
 import JSZip from 'jszip';
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
