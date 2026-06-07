@@ -6,6 +6,8 @@
  ***********************/
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
+import { getMetaValue, setMetaValue } from './database.js';
+import { debugWarn } from './utils.js';
 
 export const DONE_CAP = 30;
 export const DONE_TRIM_COUNT = 15;
@@ -36,4 +38,36 @@ export function selectDoneOverflow(notesData) {
   if (needsSave) saveNotesToLocalStorage();
 
   return [...doneTasks].sort((a, b) => a.doneAt - b.doneAt).slice(0, DONE_TRIM_COUNT);
+}
+
+const DONE_AT_BACKFILL_FLAG = 'doneAtBackfillCompletedAt';
+
+/**
+ * One-time migration: stamps `doneAt = Date.now()` onto every pre-existing
+ * Done-column task that doesn't already have one, then sets a meta flag so
+ * this never runs again. Touches no other field on any task. Safe to call on
+ * every load — it's a no-op once the flag is set.
+ *
+ * Mirrors the `lastCompactedAt` one-time-flag pattern in compaction.js/database.js.
+ * Wrapped in try/catch + debugWarn: a failed backfill never blocks app load,
+ * and simply retries on the next load since the flag won't have been written.
+ */
+export async function backfillDoneTimestamps() {
+  try {
+    const alreadyDone = await getMetaValue(DONE_AT_BACKFILL_FLAG);
+    if (alreadyDone != null) return;
+
+    let changed = false;
+    for (const task of state.notesData) {
+      if (task.column === 'done' && task.doneAt == null) {
+        task.doneAt = Date.now();
+        changed = true;
+      }
+    }
+    if (changed) saveNotesToLocalStorage();
+
+    setMetaValue(DONE_AT_BACKFILL_FLAG, Date.now());
+  } catch (e) {
+    debugWarn('[done-capacity] doneAt backfill failed (will retry on next load):', e);
+  }
 }
