@@ -135,14 +135,16 @@ function positionHeaderLogo() {
 
   if (!header || !supportBtn || !logoCenter || !addClockBtn || !undoBtn) return;
 
-  const clockGroupVisible = document.body.classList.contains('clocks-collapsed');
+  const clockGroupEl = document.getElementById('headerClockGroup');
+  const clockGroupVisible = clockGroupEl && getComputedStyle(clockGroupEl).display !== 'none';
   const rightAnchorEl = clockGroupVisible ? addClockBtn : undoBtn;
 
   const headerRect = header.getBoundingClientRect();
   const leftAnchorX = supportBtn.getBoundingClientRect().right - headerRect.left;
   const rightAnchorX = rightAnchorEl.getBoundingClientRect().left - headerRect.left;
 
-  logoCenter.style.left = (leftAnchorX + rightAnchorX) / 2 + 'px';
+  const centerWidth = logoCenter.getBoundingClientRect().width;
+  logoCenter.style.left = (leftAnchorX + rightAnchorX) / 2 - centerWidth / 2 + 'px';
 }
 
 /***********************

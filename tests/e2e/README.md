@@ -6,15 +6,17 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ## Spec files
 
-| File                    | Tests | What it covers                                                                                             |
-| ----------------------- | ----- | ---------------------------------------------------------------------------------------------------------- |
-| `smoke.spec.js`         | 2     | Create task + persist; set priority + persist after reload                                                 |
-| `flows.spec.js`         | 6     | Delete, edit title, add note, undo, undo-persist, redo                                                     |
-| `accessibility.spec.js` | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav                                      |
-| `import-export.spec.js` | 7     | JSON export/import, encrypted export/import, format-version validation                                     |
-| `performance.spec.js`   | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                 |
-| `search.spec.js`        | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                      |
-| `header.spec.js`        | 15    | Support Us modal (open, ESC, backdrop, close btn), credit button, ⋮ dropdown, About modal, Shortcuts modal |
+| File                             | Tests | What it covers                                                                                                                                           |
+| -------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `smoke.spec.js`                  | 2     | Create task + persist; set priority + persist after reload                                                                                               |
+| `flows.spec.js`                  | 11    | Delete, edit title, add note, undo, undo-persist, redo; clock reset button visibility and behaviour                                                      |
+| `accessibility.spec.js`          | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav                                                                                    |
+| `import-export.spec.js`          | 7     | JSON export/import, encrypted export/import, format-version validation                                                                                   |
+| `notebook-import-export.spec.js` | 5     | Download everything button (visibility, dual-file download); notebook ZIP export content; notebook ZIP import (merge, no data loss)                      |
+| `performance.spec.js`            | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                                                               |
+| `search.spec.js`                 | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                                                                    |
+| `header.spec.js`                 | 54    | Support Us / About / Shortcuts modals; credit button; ⋮ dropdown; card size picker and persistence; header responsive scaling; clock collapsed state     |
+| `responsive.spec.js`             | 12    | Kanban column count at 800 px / 500 px; clock container no-wrap; clock font scaling; clock panel 700 px breakpoint (hide/show, header time, logo centre) |
 
 ---
 
@@ -134,23 +136,86 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ---
 
-### `header.spec.js`: header UI
+### `flows.spec.js`: user flows
 
-- **Support Us button**: clicking it opens `#supportModal`
-- **ESC** closes the Support modal
-- **Backdrop click** closes the Support modal
-- **Close button** closes the Support modal
+**Tests 1–6** (task CRUD and undo): delete, edit title, add note, undo, undo-persist across reload, redo — documented above.
+
+**Tests 7–11: Clock reset button**
+
+- Reset button is visible when multiple clocks are shown
+- Reset button is hidden when only Current Time is shown
+- Clicking Reset leaves exactly one clock labelled "Current Time"
+- The Add Clock button in the header is accessible after reset
+- `.clock-spacer` and `.clock-actions-col` layout elements are present
+
+---
+
+### `notebook-import-export.spec.js`: notebook export/import and Download everything
+
+**Download everything button**
+
+- Visible, carries the `export-btn--all` class, and is the first child of the controls row
+- Triggers two downloads: a workspace JSON and a notebook ZIP
+
+**Notebook ZIP export**
+
+- `notebook_data.json` inside the ZIP contains page content from IDB
+
+**Notebook ZIP import**
+
+- Saves imported page content to IDB
+- Does not wipe content of pages already in the notebook (safe merge)
+
+---
+
+### `header.spec.js`: header UI, responsive layout, and clock state
+
+**KanTrack header UI** (~25 tests)
+
+- **Support Us button**: opens `#supportModal`; ESC, backdrop click, and close button all dismiss it
 - **Credit button**: visible, links to the BTi website
-- **⋮ menu button**: clicking opens `#headerDropdown`
-- **Click outside**: clicking the board area closes the open dropdown
-- **Toggle**: clicking the menu button a second time closes the dropdown
-- **About modal**: "About KanTrack" item opens `#aboutModal`
-- **ESC** closes the About modal
-- **Backdrop click** closes the About modal
-- **Close button** closes the About modal
-- **Scroll position**: About modal opens scrolled to the top
-- **Shortcuts from dropdown**: "Shortcuts" item opens `#shortcutsModal`
-- **Backdrop click** closes the Shortcuts modal
+- **⋮ menu**: opens/closes `#headerDropdown`; click outside or second toggle closes it
+- **About modal**: opens via dropdown item; dismissed by ESC, backdrop click, or close button; opens scrolled to top
+- **Shortcuts modal**: opens via dropdown "Help" item; dismissed by backdrop click
+- **Card size picker**: visible in dropdown; Small/Medium/Large buttons set body class; preference persists across reloads; dropdown stays open after selection; card text scales proportionally at each size
+
+**Header responsive layout** (~20 tests)
+
+- Support button visible above 480 px, hidden at ≤ 480 px, shrinks proportionally via `clamp()`
+- BTi logo shrinks at 1280 → 900 → 768 px breakpoints
+- KanTrack logo width scales with `clamp(100px, 18vw, 210px)` and maintains aspect ratio
+- Header left/center/right sections do not overlap at 1280 / 900 / 768 px; at ≤ 700 px the logo uses `position:absolute` — checked by asserting the logo center sits between the support button and the Add Clock button
+- Header action buttons, SVG icons, notebook toggle, and gaps all scale proportionally
+- Header height is 60 px above 768 px and 54 px at ≤ 768 px
+- All essential controls remain visible at 500 px and 400 px
+
+**Clock collapsed / expanded state** (5 tests)
+
+- Clock group hidden when multiple clocks are present (expanded state)
+- Resetting clocks collapses the widget and shows the header clock group
+- Header clock time shows `HH:MM` format when collapsed
+- Add Clock button in the header opens `#addClockModal`
+- Adding a clock from the collapsed state restores the expanded widget
+
+---
+
+### `responsive.spec.js`: responsive layout
+
+**Layout persistence at narrow viewports** (4 tests)
+
+- Kanban board keeps 4 columns at 800 px and 500 px viewport width
+- Clock container does not wrap (`flex-wrap: nowrap`) at 500 px
+- Clock card font size shrinks as the viewport narrows from 1200 px to 750 px (container-query scaling; tested above 700 px where the panel is visible)
+
+**Clock panel 700 px breakpoint** (8 tests)
+
+- Clock panel (`clock-wrapper`) is hidden at 699 px when multiple clocks are present
+- Header clock group (`#headerClockGroup`) is visible at 699 px when multiple clocks are present
+- Header clock time shows `HH:MM` format at 699 px
+- Clock panel is visible at 701 px; header clock group is hidden at 701 px
+- Logo is centered between the support button and Add Clock button at 699 px (offset ≤ 2 px)
+- `header-center` is `position:absolute` at 699 px and `position:static` at 701 px
+- Resizing from 699 px → 701 px restores the clock panel and all 5 clocks without data loss
 
 ---
 
