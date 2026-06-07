@@ -26,7 +26,19 @@ Notable rules:
 
 ### `responsive.css`
 
-Media queries for small screens (≤ 768 px). Adjusts the layout from multi-column kanban to a stacked single-column view. Also handles touch-friendly spacing and font size adjustments.
+Media queries keyed by viewport width. Each breakpoint and what it governs:
+
+| Breakpoint            | Governs                                                                                                                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ≥ 1200 px (min-width) | Widens the notes container to use more horizontal space                                                                                                                                       |
+| ≤ 1024 px             | Reduces kanban column min-width so columns scale down gracefully                                                                                                                              |
+| ≤ 900 px              | Shrinks the header height and adjusts header padding                                                                                                                                          |
+| ≤ 768 px              | Notebook sidebar goes full-width; notes container, sub-kanban modal, tag filter row, trash panel, notification container all switch to stacked/auto layouts                                   |
+| ≤ 700 px              | Hides the clock widget row; shows current time in the header; makes `.header-center` `position: absolute` so `positionHeaderLogo()` can centre it between the visible left and right sections |
+| ≤ 640 px              | Reduces kanban column gap                                                                                                                                                                     |
+| ≤ 600 px              | Collapses the help feature grid to a single column                                                                                                                                            |
+| ≤ 480 px              | Hides the Support Us button; collapses sub-kanban modal action row; small-screen general adjustments                                                                                          |
+| ≤ 400 px              | Collapses the help feature grid cards to minimal layout                                                                                                                                       |
 
 ---
 
