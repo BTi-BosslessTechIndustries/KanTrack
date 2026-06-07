@@ -6,7 +6,10 @@
  ***********************/
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
-import { getMetaValue, setMetaValue } from './database.js';
+import { getMetaValue, setMetaValue, deleteTaskImages } from './database.js';
+import { updateColumnCounts } from './search.js';
+import { renderTagFilterButtons } from './tags.js';
+import { purgeUndoHistoryForTaskIds } from './undo.js';
 import { debugWarn } from './utils.js';
 
 export const DONE_CAP = 30;
@@ -71,4 +74,42 @@ export async function backfillDoneTimestamps() {
   } catch (e) {
     debugWarn('[done-capacity] doneAt backfill failed (will retry on next load):', e);
   }
+}
+
+/**
+ * Permanently deletes the given tasks: removes them from notesData, deletes
+ * their images, persists, purges undo/redo history referencing them, and
+ * notifies the UI via the existing `kantrack:taskRemoved` event so the
+ * relevant column's virtual list (or DOM node) refreshes.
+ *
+ * By design there is NO Trash entry, NO recordAction, and NO "Deleted"
+ * history line — this is irreversible, exactly like the spec requires.
+ *
+ * @param {object[]} tasks
+ */
+export async function deleteDoneOverflowTasks(tasks) {
+  if (tasks.length === 0) return;
+
+  const ids = tasks.map(t => t.id);
+  const idSet = new Set(ids);
+
+  state.setNotesData(state.notesData.filter(t => !idSet.has(t.id)));
+  saveNotesToLocalStorage();
+
+  for (const id of ids) {
+    try {
+      await deleteTaskImages(id);
+    } catch (e) {
+      debugWarn(`[done-capacity] Failed to delete images for task ${id}:`, e);
+    }
+  }
+
+  purgeUndoHistoryForTaskIds(idSet);
+
+  for (const id of ids) {
+    window.dispatchEvent(new CustomEvent('kantrack:taskRemoved', { detail: { taskId: id } }));
+  }
+
+  updateColumnCounts();
+  renderTagFilterButtons();
 }

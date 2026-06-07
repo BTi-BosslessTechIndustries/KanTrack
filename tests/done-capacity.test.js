@@ -12,8 +12,16 @@ vi.mock('../scripts/kantrack-modules/notifications.js', () => ({
 import {
   selectDoneOverflow,
   backfillDoneTimestamps,
+  deleteDoneOverflowTasks,
 } from '../scripts/kantrack-modules/done-capacity.js';
 import { getMetaValue, initIndexedDB } from '../scripts/kantrack-modules/database.js';
+import {
+  initUndo,
+  recordAction,
+  getTrashedTasks,
+  canUndo,
+  canRedo,
+} from '../scripts/kantrack-modules/undo.js';
 
 function doneTask(id, doneAt) {
   return {
@@ -163,5 +171,65 @@ describe('backfillDoneTimestamps', () => {
     const flag = await getMetaValue('doneAtBackfillCompletedAt');
     expect(flag).not.toBeNull();
     expect(typeof flag).toBe('number');
+  });
+});
+
+describe('deleteDoneOverflowTasks', () => {
+  beforeEach(async () => {
+    global.indexedDB = new IDBFactory();
+    resetLocalStorage();
+    state.setNotesData([]);
+    await initIndexedDB();
+    await initUndo();
+  });
+
+  it('permanently removes exactly the given tasks from notesData and persists', async () => {
+    const keep = doneTask('keep', 1000);
+    const gone1 = doneTask('gone1', 900);
+    const gone2 = doneTask('gone2', 901);
+    state.setNotesData([keep, gone1, gone2]);
+
+    await deleteDoneOverflowTasks([gone1, gone2]);
+
+    expect(state.notesData.map(t => t.id)).toEqual(['keep']);
+  });
+
+  it('leaves no Trash entry behind for permanently deleted tasks', async () => {
+    const gone = doneTask('gone', 900);
+    state.setNotesData([gone]);
+
+    await deleteDoneOverflowTasks([gone]);
+
+    expect(getTrashedTasks().find(t => t.id === 'gone')).toBeUndefined();
+  });
+
+  it('purges undo/redo history referencing the deleted task ids', async () => {
+    const gone = doneTask('gone', 900);
+    const other = doneTask('other', 901);
+    state.setNotesData([gone, other]);
+
+    recordAction({
+      type: 'move',
+      taskId: 'gone',
+      previousState: { ...gone, column: 'inProgress' },
+      newState: { ...gone },
+      description: 'Move "gone" to Done',
+    });
+    recordAction({
+      type: 'move',
+      taskId: 'other',
+      previousState: { ...other, column: 'inProgress' },
+      newState: { ...other },
+      description: 'Move "other" to Done',
+    });
+
+    expect(canUndo()).toBe(true);
+
+    await deleteDoneOverflowTasks([gone]);
+
+    // 'other's history entry must survive; 'gone's must be purged
+    // (canUndo/canRedo remain true because 'other' is still undoable)
+    expect(canUndo()).toBe(true);
+    expect(canRedo()).toBe(false);
   });
 });
