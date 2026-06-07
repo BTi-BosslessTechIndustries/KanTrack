@@ -276,6 +276,9 @@ export function updateNoteColumn(id, oldColumn, newColumn) {
 
     if (newColumn === 'done') {
       const capacityTriggered = checkDoneCapacity();
+      // Skip the per-move export prompt when the capacity dialog just opened —
+      // it already offers this card its own "Export PDF" button, and stacking
+      // two dialogs for one move would be confusing.
       if (!capacityTriggered) {
         // Use requestAnimationFrame to ensure we're outside the drag event context
         requestAnimationFrame(() => {
