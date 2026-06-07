@@ -29,3 +29,6 @@ npm-debug.log*
 .vite/
 .eslintcache
 .superpowers/
+
+# ─── Worktrees ─────────────────────────────────────────────────────────────────
+.worktrees/
