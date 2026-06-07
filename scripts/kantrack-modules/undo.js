@@ -566,7 +566,7 @@ export function permanentlyDelete(taskId) {
     }
 
     // Purge undo/redo history referencing this task so "permanent" is truly permanent
-    _purgeStacksForIds(new Set([taskId]));
+    purgeUndoHistoryForTaskIds(new Set([taskId]));
 
     return true;
   }
@@ -591,11 +591,11 @@ export function emptyTrash() {
     }
 
     // Purge undo/redo history referencing any permanently deleted task
-    _purgeStacksForIds(idSet);
+    purgeUndoHistoryForTaskIds(idSet);
   }
 }
 
-function _purgeStacksForIds(idSet) {
+export function purgeUndoHistoryForTaskIds(idSet) {
   const keep = action => !idSet.has(action.taskId);
   const before = undoStack.length + redoStack.length;
   undoStack.splice(0, undoStack.length, ...undoStack.filter(keep));
