@@ -118,6 +118,7 @@ import {
 } from './kantrack-modules/undo.js';
 import { debounce, createFocusTrap } from './kantrack-modules/utils.js';
 import { scheduleCompaction } from './kantrack-modules/compaction.js';
+import { checkDoneCapacity, backfillDoneTimestamps } from './kantrack-modules/done-capacity.js';
 import { registerAction, initRouter } from './kantrack-modules/router.js';
 import { dispatch, TASK_SET_ALL } from './kantrack-modules/store.js';
 
@@ -287,8 +288,14 @@ registerAction('support:close', () => closeSupportModal());
 registerAction('menu:toggle', () => toggleHeaderMenu());
 
 // History
-registerAction('history:undo', () => undo());
-registerAction('history:redo', () => redo());
+registerAction('history:undo', () => {
+  undo();
+  checkDoneCapacity();
+});
+registerAction('history:redo', () => {
+  redo();
+  checkDoneCapacity();
+});
 
 // Trash panel
 registerAction('trash:togglePanel', () => toggleTrashPanel());
@@ -447,6 +454,7 @@ function restoreFromTrashUI(taskId) {
     updateColumnCounts();
     renderTagFilterButtons();
     renderTrashList();
+    checkDoneCapacity();
     showSuccess('Task restored');
   }
 }
@@ -554,6 +562,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   registerRecordAction(recordAction);
   scheduleCompaction();
   initSearch();
+
+  // One-time backfill for pre-existing Done cards, then evaluate the cap
+  // on every load (self-correcting: re-flags the current oldest 15 if the
+  // user closed the tab without clicking Delete last time).
+  await backfillDoneTimestamps();
+  checkDoneCapacity();
 
   // Load clocks (async)
   await loadClocks();
