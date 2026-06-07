@@ -66,7 +66,7 @@ The dev server uses Vite's hot module replacement. Changes to `scripts/` and `st
 
 ```bash
 npm run build      # bundle everything → dist/
-npm run preview    # serve dist/ locally at http://localhost:4173
+npm run preview    # server dist/ locally at http://localhost:4173
 ```
 
 Use this to verify exactly what Cloudflare Pages will deploy.
