@@ -33,6 +33,7 @@ export interface Task {
   priority?: Priority;
   deleted?: boolean;
   trashedAt?: number;
+  doneAt?: number;
   actions?: TaskAction[];
   subtasks?: Subtask[];
   dueDate?: string | null;
