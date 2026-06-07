@@ -3,6 +3,7 @@
  ***********************/
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
+import { checkDoneCapacity } from './done-capacity.js';
 import { deleteTaskImages } from './database.js';
 import {
   getColumnName,
@@ -244,6 +245,11 @@ export function updateNoteColumn(id, oldColumn, newColumn) {
     const previousState = deepClone(note);
 
     note.column = newColumn;
+    if (newColumn === 'done') {
+      note.doneAt = Date.now();
+    } else {
+      delete note.doneAt;
+    }
     const timestamp = new Date().toLocaleString();
 
     // Ensure actions array exists (for imported or legacy data)
@@ -269,14 +275,19 @@ export function updateNoteColumn(id, oldColumn, newColumn) {
     saveNotesToLocalStorage();
 
     if (newColumn === 'done') {
-      // Use requestAnimationFrame to ensure we're outside the drag event context
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          if (confirm(`Task "${note.title}" moved to Done.\n\nDo you want to export it as PDF?`)) {
-            exportTaskAsPDF(id);
-          }
-        }, 100);
-      });
+      const capacityTriggered = checkDoneCapacity();
+      if (!capacityTriggered) {
+        // Use requestAnimationFrame to ensure we're outside the drag event context
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            if (
+              confirm(`Task "${note.title}" moved to Done.\n\nDo you want to export it as PDF?`)
+            ) {
+              exportTaskAsPDF(id);
+            }
+          }, 100);
+        });
+      }
     }
   }
 }
