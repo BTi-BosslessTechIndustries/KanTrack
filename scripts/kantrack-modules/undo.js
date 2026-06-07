@@ -595,6 +595,14 @@ export function emptyTrash() {
   }
 }
 
+/**
+ * Remove all undo/redo stack entries that reference any of the given task IDs.
+ * Used to make permanent deletions (trash purge, capacity-limit purge) truly
+ * permanent by also erasing related undo/redo history.
+ *
+ * @param {Set<string>} idSet - Set of task IDs whose actions should be purged
+ *                              from the undo and redo stacks.
+ */
 export function purgeUndoHistoryForTaskIds(idSet) {
   const keep = action => !idSet.has(action.taskId);
   const before = undoStack.length + redoStack.length;
