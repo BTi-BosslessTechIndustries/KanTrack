@@ -9,6 +9,17 @@ vi.mock('../scripts/kantrack-modules/notifications.js', () => ({
   showAutoSaveIndicator: vi.fn(),
 }));
 
+// done-capacity.js imports jsPDF/JSZip directly (and transitively via export.js)
+// for the dialog/export flows added in Task 7. Those flows are DOM/jsPDF/JSZip-heavy
+// and not unit tested here (see notebook-export.test.js precedent) — mock them so the
+// module can be imported in the test environment without booting the real libraries.
+vi.mock('jspdf', () => ({ default: class MockJsPDF {} }));
+vi.mock('jszip', () => ({ default: class MockJSZip {} }));
+vi.mock('../scripts/kantrack-modules/export.js', () => ({
+  exportTaskAsPDF: vi.fn(),
+  generateTaskPDFBlob: vi.fn(),
+}));
+
 import {
   selectDoneOverflow,
   backfillDoneTimestamps,
