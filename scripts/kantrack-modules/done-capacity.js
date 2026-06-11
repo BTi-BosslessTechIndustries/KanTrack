@@ -30,7 +30,7 @@ export const DONE_TRIM_COUNT = 15;
  * @returns {object[]}
  */
 export function selectDoneOverflow(notesData) {
-  const doneTasks = notesData.filter(t => !t.deleted && t.column === 'done');
+  const doneTasks = notesData.filter(t => !t.deleted && !t.hidden && t.column === 'done');
   if (doneTasks.length < DONE_CAP) return [];
 
   let needsSave = false;

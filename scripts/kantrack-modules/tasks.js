@@ -56,7 +56,7 @@ export function initVirtualLists(notes) {
     if (!colEl) continue;
     const isTodo = columnId === 'todo';
     const columnTasks = notes
-      .filter(t => !t.deleted && t.column === columnId)
+      .filter(t => !t.deleted && !t.hidden && t.column === columnId)
       .sort((a, b) => {
         const diff =
           getPrioritySortValue(a.priority, isTodo) - getPrioritySortValue(b.priority, isTodo);
@@ -81,7 +81,7 @@ export function updateColumnVirtualList(columnId) {
   const isTodo = columnId === 'todo';
   const all = state.notesData;
 
-  let columnTasks = all.filter(t => !t.deleted && t.column === columnId);
+  let columnTasks = all.filter(t => !t.deleted && !t.hidden && t.column === columnId);
 
   // Priority sort (data-level)
   columnTasks.sort((a, b) => {

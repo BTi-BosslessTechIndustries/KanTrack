@@ -270,7 +270,9 @@ export function updateColumnCounts() {
 
     if (_vlUpdaterForFilters) {
       // Data-based counting — DOM holds only a window of cards
-      const columnTasks = state.notesData.filter(t => !t.deleted && t.column === columnId);
+      const columnTasks = state.notesData.filter(
+        t => !t.deleted && !t.hidden && t.column === columnId
+      );
       totalTasks = columnTasks.length;
       visibleTasks = columnTasks.filter(t => checkTaskVisibility(t)).length;
     } else {
