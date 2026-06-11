@@ -1516,3 +1516,14 @@ body.notebook-sidebar-open.sidebar-resizing {
   padding: 24px;
   font-style: italic;
 }
+
+.hidden-search-hint {
+  text-align: center;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 6px;
+}
+
+.hidden-search-hint a {
+  color: #9cc4ff;
+}

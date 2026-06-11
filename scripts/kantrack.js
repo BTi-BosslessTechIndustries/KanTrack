@@ -119,7 +119,11 @@ import {
 import { debounce, createFocusTrap } from './kantrack-modules/utils.js';
 import { scheduleCompaction } from './kantrack-modules/compaction.js';
 import { checkDoneCapacity, backfillDoneTimestamps } from './kantrack-modules/done-capacity.js';
-import { getHiddenCount, showHiddenCardsModal } from './kantrack-modules/hidden-cards.js';
+import {
+  getHiddenCount,
+  showHiddenCardsModal,
+  countHiddenMatches,
+} from './kantrack-modules/hidden-cards.js';
 import { registerAction, initRouter } from './kantrack-modules/router.js';
 import { dispatch, TASK_SET_ALL } from './kantrack-modules/store.js';
 
@@ -397,6 +401,27 @@ function updateHiddenCountBadge() {
     countBadge.textContent = count;
     countBadge.style.display = count > 0 ? 'flex' : 'none';
   }
+}
+
+function updateHiddenSearchHint(query) {
+  const hint = document.getElementById('hiddenSearchHint');
+  if (!hint) return;
+
+  const term = (query || '').trim();
+  const count = term ? countHiddenMatches(term) : 0;
+
+  if (count === 0) {
+    hint.style.display = 'none';
+    hint.innerHTML = '';
+    return;
+  }
+
+  hint.style.display = 'block';
+  hint.innerHTML = `${count} hidden card${count === 1 ? '' : 's'} also match — <a href="#" id="hiddenSearchHintLink">View</a>`;
+  hint.querySelector('#hiddenSearchHintLink').addEventListener('click', e => {
+    e.preventDefault();
+    showHiddenCardsModal(term);
+  });
 }
 
 function renderTrashList() {
@@ -691,6 +716,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const debouncedSearch = debounce(value => {
       setSearchTerm(value);
       clearSearchBtn.style.display = value ? 'block' : 'none';
+      updateHiddenSearchHint(value);
     }, 200);
 
     searchInput.addEventListener('input', e => {
@@ -702,6 +728,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchInput.value = '';
         setSearchTerm('');
         clearSearchBtn.style.display = 'none';
+        updateHiddenSearchHint('');
         searchInput.blur();
       }
     });
@@ -712,6 +739,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       searchInput.value = '';
       setSearchTerm('');
       clearSearchBtn.style.display = 'none';
+      updateHiddenSearchHint('');
     });
   }
 
