@@ -119,6 +119,7 @@ import {
 import { debounce, createFocusTrap } from './kantrack-modules/utils.js';
 import { scheduleCompaction } from './kantrack-modules/compaction.js';
 import { checkDoneCapacity, backfillDoneTimestamps } from './kantrack-modules/done-capacity.js';
+import { getHiddenCount, showHiddenCardsModal } from './kantrack-modules/hidden-cards.js';
 import { registerAction, initRouter } from './kantrack-modules/router.js';
 import { dispatch, TASK_SET_ALL } from './kantrack-modules/store.js';
 
@@ -299,6 +300,7 @@ registerAction('history:redo', () => {
 
 // Trash panel
 registerAction('trash:togglePanel', () => toggleTrashPanel());
+registerAction('hidden:open', () => showHiddenCardsModal());
 registerAction('trash:emptyAll', () => emptyAllTrash());
 registerAction('trash:restore', param => restoreFromTrashUI(param));
 registerAction('trash:permanentDelete', param => permanentDeleteUI(param));
@@ -384,6 +386,16 @@ function updateTrashCount() {
   if (countBadge) {
     countBadge.textContent = trashed.length;
     countBadge.style.display = trashed.length > 0 ? 'flex' : 'none';
+  }
+}
+
+function updateHiddenCountBadge() {
+  const count = getHiddenCount();
+  const countBadge = document.getElementById('hiddenCount');
+
+  if (countBadge) {
+    countBadge.textContent = count;
+    countBadge.style.display = count > 0 ? 'flex' : 'none';
   }
 }
 
@@ -616,6 +628,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render trash count
   renderTrashList();
 
+  // Render hidden-cards count
+  updateHiddenCountBadge();
+
   setupDragAndDrop();
   setupClipboardPaste();
   loadPermanentNotes();
@@ -826,6 +841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateTrashCount();
     renderTrashList();
   });
+  window.addEventListener('kantrack:updateHiddenCount', () => updateHiddenCountBadge());
 
   // ── Task lifecycle events from undo system ──
 
