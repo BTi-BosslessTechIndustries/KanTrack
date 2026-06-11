@@ -281,3 +281,44 @@ export function plainTextToFragment(text) {
   });
   return fragment;
 }
+
+/**
+ * Language codes for the "card content language" setting.
+ * `system` maps to `null`, meaning "remove any lang/spellcheck override and
+ * let the browser/OS default apply" (today's behavior, unchanged).
+ */
+export const LANGUAGE_CODES = {
+  system: null,
+  'en-GB': 'en-GB',
+  es: 'es',
+  fr: 'fr',
+  'pt-PT': 'pt-PT',
+};
+
+let activeLanguageCode = 'system';
+
+/**
+ * Set the currently active card-content language code.
+ * Affects subsequent calls to applyLanguageAttrs().
+ * @param {string} code - One of the keys of LANGUAGE_CODES
+ */
+export function setActiveLanguageCode(code) {
+  activeLanguageCode = code;
+}
+
+/**
+ * Apply (or remove) the lang/spellcheck attributes for the active language
+ * code on a single element. Safe to call with null/undefined.
+ * @param {HTMLElement} el
+ */
+export function applyLanguageAttrs(el) {
+  if (!el) return;
+  const lang = LANGUAGE_CODES[activeLanguageCode];
+  if (lang) {
+    el.setAttribute('lang', lang);
+    el.setAttribute('spellcheck', 'true');
+  } else {
+    el.removeAttribute('lang');
+    el.removeAttribute('spellcheck');
+  }
+}

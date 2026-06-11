@@ -32,7 +32,7 @@ import { openImageViewer } from './images.js';
 import { initMentionHandler, setOpenPageModal } from './mentions.js';
 import { exportFolderAsZip } from './notebook-export.js';
 import { sanitizeHTML } from './sanitize.js';
-import { createFocusTrap, plainTextToFragment } from './utils.js';
+import { createFocusTrap, plainTextToFragment, applyLanguageAttrs } from './utils.js';
 
 /***********************
  * SIDEBAR UI
@@ -195,6 +195,7 @@ function renderTreeItem(container, item, level, searchTerm = '') {
   const nameEl = document.createElement('div');
   nameEl.classList.add('tree-item-name');
   nameEl.textContent = item.name;
+  applyLanguageAttrs(nameEl);
   itemEl.appendChild(nameEl);
 
   // Double-click to rename
@@ -298,6 +299,7 @@ export function startInlineRename(itemId) {
 
   nameEl.contentEditable = true;
   nameEl.classList.add('editing');
+  applyLanguageAttrs(nameEl);
   nameEl.focus();
 
   // Select all text
@@ -469,10 +471,12 @@ export async function openPageModal(pageId) {
   const editorEl = document.getElementById('pageEditor');
 
   titleEl.textContent = page.name;
+  applyLanguageAttrs(titleEl);
 
   // Lazy-load content: use in-memory content if freshly saved, otherwise fetch from IDB
   const content = page.content != null ? page.content : await getNotebookItemContent(pageId);
   editorEl.innerHTML = sanitizeHTML(content);
+  applyLanguageAttrs(editorEl);
 
   // Preload the next page we open on idle (warm the IDB cache)
   if (_lastOpenedPageId && _lastOpenedPageId !== pageId) {

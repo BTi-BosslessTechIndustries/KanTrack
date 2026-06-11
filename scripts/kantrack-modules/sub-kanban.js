@@ -3,7 +3,7 @@
  ***********************/
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
-import { getColumnName, deepClone } from './utils.js';
+import { getColumnName, deepClone, applyLanguageAttrs } from './utils.js';
 import { updateNoteCardDisplay } from './tasks.js';
 import { recordAction } from './undo.js';
 
@@ -63,6 +63,7 @@ export function createSubKanbanItem(item, parentTaskId) {
   const titleEl = document.createElement('span');
   titleEl.classList.add('sub-kanban-item-title');
   titleEl.textContent = item.title;
+  applyLanguageAttrs(titleEl);
   titleEl.ondblclick = e => {
     e.stopPropagation();
     enableSubItemTitleEdit(parentTaskId, item.id, titleEl);
@@ -266,6 +267,7 @@ export function enableSubItemTitleEdit(parentId, itemId, titleEl) {
 
   titleEl.contentEditable = true;
   titleEl.classList.add('editing');
+  applyLanguageAttrs(titleEl);
   titleEl.focus();
 
   // Select all text

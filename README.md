@@ -13,6 +13,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Sub-kanban boards**: each task contains a toggleable mini kanban board with the same four columns (To Do, In Progress, On Hold, Done); sub-tasks support drag-and-drop between states and display a live done/total counter on the parent card
 - **Card size**: three global card sizes (Small / Medium / Large) selectable from the ⋮ menu; preference persists across sessions
 - **Theme**: Light, Dark, or System Default, selectable from the ⋮ menu; System Default follows the OS colour scheme live, while an explicit Light or Dark choice is saved and overrides the OS setting on every future visit until you switch back to System Default
+- **Language**: a Language picker in the ⋮ menu controls browser spell-check on card and notebook content, independent of the OS/browser language; choices are System Default, English (UK), Español, Français, or Português (PT); System Default leaves spell-check to the OS as before, while an explicit choice sets `lang`/`spellcheck` on all editable fields and persists across sessions. Note: support varies by browser - Safari and Firefox honour the chosen language for spell-check, while Chrome and Edge may keep using their own language settings regardless of this picker
 - **Priority system**: High / Medium / Low with colour tinting and column sorting
 - **Tags**: colour-coded labels with preset palette or custom hex colour; pinned tags appear in a quick-assign panel
 - **Due dates**: visual overdue and "due today" indicators on cards
@@ -81,7 +82,7 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 750 tests across 30 files, ~1s)
+npm run test:run     # unit tests (Vitest, 757 tests across 30 files, ~1s)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
@@ -127,20 +128,20 @@ KanTrack/
 │   └── responsive.css           # Media queries (breakpoints at 400 / 480 / 600 / 640 / 700 / 768 / 900 / 1024 px; min-width 1200 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (750 tests, 30 files)
+│   ├── *.test.js                # Vitest unit tests (757 tests, 30 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (128 tests, 11 files)
+│   └── e2e/                     # Playwright end-to-end tests (140 tests, 11 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management
 │       ├── drag-drop.spec.js    # Card drag-and-drop between columns and doneAt stamping
 │       ├── import-export.spec.js# Export/import round-trips
-│       ├── notebook-import-export.spec.js # Download everything button and notebook ZIP import/export
+│       ├── notebook-import-export.spec.js # Download everything button, notebook ZIP import/export, and notebook item language attributes
 │       ├── performance.spec.js  # Virtual list DOM budget
 │       ├── search.spec.js       # Live search filtering and ESC clear
-│       ├── header.spec.js       # Header UI: dropdown, About modal, Shortcuts modal
+│       ├── header.spec.js       # Header UI: dropdown, About modal, Shortcuts modal, language picker
 │       ├── responsive.spec.js   # Controls bar, card layout, and clock panel breakpoint at multiple viewport widths
-│       └── sub-kanban.spec.js   # Per-task mini-board: add/move/delete/rename sub-tasks
+│       └── sub-kanban.spec.js   # Per-task mini-board: add/move/delete/rename sub-tasks, language attributes
 │
 ├── config/                      # Build and tool configuration
 │   ├── vite.config.js           # Vite build config

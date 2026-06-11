@@ -45,12 +45,12 @@ tests/
     ├── accessibility.spec.js           # Playwright E2E: keyboard shortcuts, ESC, arrow nav, focus
     ├── drag-drop.spec.js               # Playwright E2E: card drag-and-drop between columns, doneAt stamping
     ├── import-export.spec.js           # Playwright E2E: export/import round-trips
-    ├── notebook-import-export.spec.js  # Playwright E2E: Download everything button, notebook ZIP export/import
+    ├── notebook-import-export.spec.js  # Playwright E2E: Download everything button, notebook ZIP export/import, notebook item language attributes
     ├── performance.spec.js             # Playwright E2E: virtual list DOM node budget
     ├── search.spec.js                  # Playwright E2E: live search, case-insensitivity, ESC clear, no-match
-    ├── header.spec.js                  # Playwright E2E: header UI, responsive layout, clock collapsed state, card size
+    ├── header.spec.js                  # Playwright E2E: header UI, responsive layout, clock collapsed state, card size, language picker
     ├── responsive.spec.js              # Playwright E2E: column layout, clock panel 700px breakpoint
-    ├── sub-kanban.spec.js              # Playwright E2E: sub-task add/move/delete/rename within a task's mini-board
+    ├── sub-kanban.spec.js              # Playwright E2E: sub-task add/move/delete/rename within a task's mini-board, language attributes
     └── README.md
 ```
 
@@ -64,7 +64,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**750 tests across 30 files**: all should pass on every run.
+**757 tests across 30 files**: all should pass on every run.
 
 ### What is mocked
 

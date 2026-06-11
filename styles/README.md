@@ -12,6 +12,8 @@ Reset, typography, CSS variables (colours, spacing, font sizes), global element 
 
 Theme variables live in `:root` (dark, the default) and `body.theme-light` (light overrides); see Theming below.
 
+`.language-picker`, `.language-picker-label`, and `.language-picker-select` style the Language picker in the ⋮ menu, stacking the label above the `<select>` (`flex-direction: column`) so the fixed-width control never overlaps the label.
+
 ### `components.css`
 
 Reusable UI components: cards (`.note`), buttons, modals, the top header, inputs, badges, tags, priority indicators, context menus, and the notebook sidebar. If it appears on-screen in more than one place, it lives here.
@@ -61,3 +63,11 @@ KanTrack supports Light, Dark, and System Default themes via the theme picker in
 - `--overlay-rgb` is the key trick: it's `255, 255, 255` (white) in dark mode and `0, 0, 0` (black) in light mode. Any `rgba(var(--overlay-rgb), X)` declaration therefore lightens content on dark backgrounds and darkens it on light backgrounds at the same alpha - used throughout `components.css` and `features.css` for borders, hover states, and translucent surfaces.
 - `scripts/kantrack.js` resolves the active theme (`getEffectiveTheme()`), applies it by toggling `body.theme-light` (`applyTheme()`), and listens for OS colour-scheme changes (`initThemeSystemListener()`) when the mode is `'system'`. The chosen mode (`'light' | 'dark' | 'system'`) is persisted as `themeMode` and defaults to `'system'`.
 - Dark backdrops/scrims (e.g. `.kt-hidden-modal::backdrop`, `.modal-overlay`) intentionally stay `rgba(0, 0, 0, A)` in both themes: a dimming layer should always be dark.
+
+## Language
+
+The Language picker (`.language-picker` in `base.css`) sits in the header's "More Options" (⋮) menu, next to Theme. It is a native `<select>` (`#cardLanguageSelect`) with five options: System Default, English (UK), Español, Français, and Português (PT). Selecting a language sets `lang`/`spellcheck="true"` on all editable card and notebook fields so the browser's native spell-checker uses that language's dictionary; "System Default" removes those attributes and leaves spell-check to the OS/browser. The choice is persisted as `cardLanguage` in localStorage.
+
+**Browser support varies**: Safari and Firefox honour the `lang` attribute when choosing a spell-check dictionary, so the picker reliably changes spell-check language in those browsers. Chrome and Edge largely ignore `lang` for dictionary selection and instead use the languages enabled in their own settings, so users on Chrome/Edge may not see any change - this is a browser limitation, not a bug in KanTrack.
+
+`.language-picker` stacks the "Language" label above the `<select>` (`flex-direction: column`). `.language-picker-select` has a fixed `width: 128px` (sized to fit "System Default", the longest option) so the control doesn't resize as the selection changes; `.header-dropdown`'s `min-width` was bumped from 182px to 210px to give the picker enough room. The select uses `appearance: none` with a custom SVG chevron background - Safari ignores the CSS `width` on native `<select>` elements unless their default appearance is removed, so this is required for the fixed width to hold across browsers. See `applyLanguageAttrs()` / `setActiveLanguageCode()` in `scripts/kantrack-modules/utils.js` and `applyLanguageSettings()` in `scripts/kantrack.js`.

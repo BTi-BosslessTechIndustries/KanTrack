@@ -297,3 +297,80 @@ test.describe('Notebook ZIP import', () => {
     expect(item.content).toBe(existingContent);
   });
 });
+
+// ── Notebook item language ─────────────────────────────────────────────────
+
+test.describe('Notebook item language', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('fr');
+    await page.locator('#headerMenuBtn').click();
+
+    await clearNotebookItems(page);
+    await injectNotebookItems(page, [
+      {
+        id: 'language-test-page',
+        type: 'page',
+        name: 'Language Test Page',
+        parentId: null,
+        content: '<p>Bonjour</p>',
+        order: 0,
+      },
+    ]);
+    await page.reload({ waitUntil: 'load' });
+    await expect(page.locator('.top-header')).toBeVisible();
+  });
+
+  test('tree item name has the active language attributes on creation', async ({ page }) => {
+    await page.locator('[data-action="notebook:toggleSidebar"]').first().click();
+
+    const nameEl = page
+      .locator('.notebook-tree-item[data-id="language-test-page"] .tree-item-name')
+      .first();
+    await expect(nameEl).toHaveAttribute('lang', 'fr');
+    await expect(nameEl).toHaveAttribute('spellcheck', 'true');
+  });
+
+  test('page modal title and editor have the active language attributes on open', async ({
+    page,
+  }) => {
+    await page.locator('[data-action="notebook:toggleSidebar"]').first().click();
+
+    const itemEl = page.locator('.notebook-tree-item[data-id="language-test-page"]').first();
+    await itemEl.click();
+
+    const modal = page.locator('#pageModal');
+    await expect(modal).toBeVisible();
+
+    await expect(page.locator('#pageModalTitle')).toHaveAttribute('lang', 'fr');
+    await expect(page.locator('#pageModalTitle')).toHaveAttribute('spellcheck', 'true');
+    await expect(page.locator('#pageEditor')).toHaveAttribute('lang', 'fr');
+    await expect(page.locator('#pageEditor')).toHaveAttribute('spellcheck', 'true');
+  });
+
+  test('renaming a tree item refreshes its language attributes to the current selection', async ({
+    page,
+  }) => {
+    await page.locator('[data-action="notebook:toggleSidebar"]').first().click();
+
+    const nameEl = page
+      .locator('.notebook-tree-item[data-id="language-test-page"] .tree-item-name')
+      .first();
+    await expect(nameEl).toHaveAttribute('lang', 'fr');
+
+    // Change the language after creation.
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('es');
+    await page.locator('#headerMenuBtn').click();
+
+    // Renaming refreshes the language attributes on the name element.
+    await nameEl.dblclick();
+    await expect(nameEl).toHaveAttribute('lang', 'es');
+    await expect(nameEl).toHaveAttribute('spellcheck', 'true');
+
+    await page.keyboard.press('Escape');
+  });
+});

@@ -6,19 +6,19 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ## Spec files
 
-| File                             | Tests | What it covers                                                                                                                                                                                                                                     |
-| -------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `smoke.spec.js`                  | 2     | Create task + persist; set priority + persist after reload                                                                                                                                                                                         |
-| `flows.spec.js`                  | 16    | Delete, edit title, add note, undo, undo-persist, redo; hide/show a card, bulk-show via Select All, search hint to hidden cards, hide button restricted to To Do/On Hold; clock reset button visibility and behaviour; Done column capacity dialog |
-| `accessibility.spec.js`          | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav                                                                                                                                                                              |
-| `drag-drop.spec.js`              | 3     | Card drag-and-drop between board columns; persistence; `doneAt` stamped on entering Done and cleared on leaving                                                                                                                                    |
-| `import-export.spec.js`          | 7     | JSON export/import, encrypted export/import, format-version validation                                                                                                                                                                             |
-| `notebook-import-export.spec.js` | 5     | Download everything button (visibility, dual-file download); notebook ZIP export content; notebook ZIP import (merge, no data loss)                                                                                                                |
-| `performance.spec.js`            | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                                                                                                                                                         |
-| `search.spec.js`                 | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                                                                                                                                                              |
-| `header.spec.js`                 | 62    | Support Us / About / Shortcuts modals; credit button; ⋮ dropdown; card size picker and persistence; theme picker (Light/Dark/System, persistence, live OS sync); header responsive scaling; clock collapsed state                                  |
-| `responsive.spec.js`             | 12    | Kanban column count at 800 px / 500 px; clock container no-wrap; clock font scaling; clock panel 700 px breakpoint (hide/show, header time, logo centre)                                                                                           |
-| `sub-kanban.spec.js`             | 5     | Per-task mini-board: add a sub-task, drag it between columns, drag to Done updates the count badge, delete with confirmation, double-click rename                                                                                                  |
+| File                             | Tests | What it covers                                                                                                                                                                                                                                                                                |
+| -------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `smoke.spec.js`                  | 2     | Create task + persist; set priority + persist after reload                                                                                                                                                                                                                                    |
+| `flows.spec.js`                  | 16    | Delete, edit title, add note, undo, undo-persist, redo; hide/show a card, bulk-show via Select All, search hint to hidden cards, hide button restricted to To Do/On Hold; clock reset button visibility and behaviour; Done column capacity dialog                                            |
+| `accessibility.spec.js`          | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav                                                                                                                                                                                                                         |
+| `drag-drop.spec.js`              | 3     | Card drag-and-drop between board columns; persistence; `doneAt` stamped on entering Done and cleared on leaving                                                                                                                                                                               |
+| `import-export.spec.js`          | 7     | JSON export/import, encrypted export/import, format-version validation                                                                                                                                                                                                                        |
+| `notebook-import-export.spec.js` | 8     | Download everything button (visibility, dual-file download); notebook ZIP export content; notebook ZIP import (merge, no data loss); notebook tree item and page-modal language attributes                                                                                                    |
+| `performance.spec.js`            | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                                                                                                                                                                                                    |
+| `search.spec.js`                 | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                                                                                                                                                                                                         |
+| `header.spec.js`                 | 69    | Support Us / About / Shortcuts modals; credit button; ⋮ dropdown; card size picker and persistence; theme picker (Light/Dark/System, persistence, live OS sync); language picker (options, layout, persistence, lang/spellcheck attributes); header responsive scaling; clock collapsed state |
+| `responsive.spec.js`             | 12    | Kanban column count at 800 px / 500 px; clock container no-wrap; clock font scaling; clock panel 700 px breakpoint (hide/show, header time, logo centre)                                                                                                                                      |
+| `sub-kanban.spec.js`             | 7     | Per-task mini-board: add a sub-task, drag it between columns, drag to Done updates the count badge, delete with confirmation, double-click rename, language attributes on creation and rename                                                                                                 |
 
 ---
 
@@ -228,6 +228,12 @@ The app's drag-and-drop is **state-based**, not `DataTransfer`-based: `dragstart
 - Saves imported page content to IDB
 - Does not wipe content of pages already in the notebook (safe merge)
 
+**Notebook item language**
+
+- Tree item name has the active language's `lang`/`spellcheck` attributes on creation
+- Page modal title and editor have the active language's `lang`/`spellcheck` attributes on open
+- Renaming a tree item refreshes its `lang`/`spellcheck` attributes to whatever language is currently selected
+
 ---
 
 ### `header.spec.js`: header UI, responsive layout, and clock state
@@ -241,6 +247,7 @@ The app's drag-and-drop is **state-based**, not `DataTransfer`-based: `dragstart
 - **Shortcuts modal**: opens via dropdown "Help" item; dismissed by backdrop click
 - **Card size picker**: visible in dropdown; Small/Medium/Large buttons set body class; preference persists across reloads; dropdown stays open after selection; card text scales proportionally at each size
 - **Theme picker** (8 tests): visible in dropdown with Light/Dark/System swatches; "System" active by default; system mode resolves to dark/light per `prefers-color-scheme` (Playwright `colorScheme` emulation); clicking Light/Dark sets `body.theme-light` accordingly and persists across reload regardless of OS scheme; returning to System re-follows the OS; dropdown stays open after selecting a theme
+- **Language picker** (7 tests): visible in dropdown with 5 options (`system`, `en-GB` "English (UK)", `es` "Español", `fr` "Français", `pt-PT` "Português (PT)"); the label sits above the select with no overlap and the select keeps a fixed width across all options; "System Default" is selected by default and leaves `lang`/`spellcheck` unset; selecting a language sets `lang`/`spellcheck="true"` on every static field in `LANGUAGE_FIELD_SELECTORS` and persists across reload; selecting Français sets attributes on card fields specifically; returning to "System Default" removes the overrides from all fields
 
 **Header responsive layout** (~20 tests)
 
@@ -291,6 +298,8 @@ Covers the "Sub-Tasks" mini-board reachable from the task modal (`sub-kanban.js`
 - **Drag a sub-task to Done updates the count badge**: `dragTo(#subKanbanDone)`; assert the badge reads `(1/1)`
 - **Delete a sub-task**: click its `.delete-sub-item` ❌ button, accept the `confirm("Delete sub-task...")` dialog; assert it's removed and the badge clears
 - **Rename a sub-task**: double-click its title to enable `contenteditable`, `selectText()`, type a new title, press Enter; assert the new title replaced the old one
+- **Language on creation**: with the card language set to Français, a newly created sub-task title carries `lang="fr"` / `spellcheck="true"`
+- **Language on rename**: a sub-task created before a language change picks up the new language's `lang`/`spellcheck` attributes when its title is double-clicked for rename
 
 ---
 
