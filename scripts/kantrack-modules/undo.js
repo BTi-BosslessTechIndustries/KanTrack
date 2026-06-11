@@ -197,6 +197,9 @@ function applyUndo(action) {
             detail: { taskId: action.taskId },
           })
         );
+        if (action.previousState.hidden) {
+          window.dispatchEvent(new Event('kantrack:updateHiddenCount'));
+        }
       }
       break;
 

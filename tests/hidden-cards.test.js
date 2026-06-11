@@ -18,8 +18,9 @@ import {
   getHiddenCount,
   countHiddenMatches,
 } from '../scripts/kantrack-modules/hidden-cards.js';
-import { initUndo, undo, redo, canUndo } from '../scripts/kantrack-modules/undo.js';
+import { initUndo, undo, redo, canUndo, recordAction } from '../scripts/kantrack-modules/undo.js';
 import { initIndexedDB } from '../scripts/kantrack-modules/database.js';
+import { deepClone } from '../scripts/kantrack-modules/utils.js';
 
 function task(id, overrides = {}) {
   return {
@@ -184,5 +185,40 @@ describe('countHiddenMatches', () => {
     expect(countHiddenMatches('renew')).toBe(2);
     expect(countHiddenMatches('')).toBe(0);
     expect(countHiddenMatches('zzz')).toBe(0);
+  });
+});
+
+describe('hide then delete interaction', () => {
+  beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 0));
+    global.indexedDB = new IDBFactory();
+    resetLocalStorage();
+    state.setNotesData([]);
+    await initIndexedDB();
+    await initUndo();
+  });
+
+  it('preserves the hidden flag when undoing the deletion of a hidden task', () => {
+    state.setNotesData([task('a')]);
+    hideCard('a');
+
+    // Simulate deleteNote('a'): record a 'delete' action with a snapshot
+    // taken while the task is still hidden, then mark it deleted.
+    const t = state.notesData.find(x => x.id === 'a');
+    recordAction({
+      type: 'delete',
+      taskId: 'a',
+      previousState: deepClone(t),
+      newState: null,
+      description: 'Delete task "Task a"',
+    });
+    t.deleted = true;
+
+    // Undo the delete: the restored task should still be hidden.
+    undo();
+    const restored = state.notesData.find(x => x.id === 'a');
+    expect(restored.deleted).toBeUndefined();
+    expect(restored.hidden).toBe(true);
+    expect(getHiddenTasks().map(x => x.id)).toEqual(['a']);
   });
 });
