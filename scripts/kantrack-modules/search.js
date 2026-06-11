@@ -215,7 +215,7 @@ export function checkTaskVisibility(task) {
 /**
  * Get all searchable text from a task
  */
-function getSearchableText(task) {
+export function getSearchableText(task) {
   const parts = [];
 
   // Title
