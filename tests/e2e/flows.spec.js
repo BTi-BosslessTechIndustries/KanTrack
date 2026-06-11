@@ -237,6 +237,53 @@ test.describe('KanTrack flow tests', () => {
     await page.locator('[data-action="history:redo"]').click();
     await expect(page.locator('#todo .note').filter({ hasText: title })).toBeVisible();
   });
+
+  // ─── Hide Cards feature ────────────────────────────────────────────────────
+
+  test('hides a card, shows it from the Hidden Cards modal, and it returns to its column', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    const title = `Hide me ${Date.now()}`;
+    await createTask(page, title);
+
+    const card = page.locator('#todo .note').filter({ hasText: title });
+    await expect(card).toBeVisible();
+
+    // Hover to reveal the action buttons, then click Hide
+    await card.hover();
+    await card.locator('.hide-card-btn').click();
+
+    // Card leaves the board
+    await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
+
+    // Header badge shows 1 hidden card
+    await expect(page.locator('#hiddenCount')).toBeVisible();
+    await expect(page.locator('#hiddenCount')).toHaveText('1');
+
+    // Open the Hidden Cards modal
+    await page.locator('#hiddenToggleBtn').click();
+    const modal = page.locator('#kt-hidden-modal');
+    await expect(modal).toBeVisible();
+
+    const row = modal.locator('li').filter({ hasText: title });
+    await expect(row).toBeVisible();
+
+    // Show it
+    await row.locator('[data-show-id]').click();
+
+    // Row disappears from the modal, badge clears
+    await expect(modal.locator('li').filter({ hasText: title })).toHaveCount(0);
+    await expect(page.locator('#hiddenCount')).toBeHidden();
+
+    await modal.locator('#kt-hidden-close').click();
+    await expect(modal).toBeHidden();
+
+    // Card is back on the board, in its original column
+    await expect(page.locator('#todo .note').filter({ hasText: title })).toBeVisible();
+  });
 });
 
 // Tests for the clock reset button added in the Remove-all-clocks-keep-Current-Time feature.
