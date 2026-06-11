@@ -37,6 +37,8 @@ export interface Task {
   actions?: TaskAction[];
   subtasks?: Subtask[];
   dueDate?: string | null;
+  hidden?: boolean;
+  hiddenAt?: number | null;
 }
 
 export interface Tag {

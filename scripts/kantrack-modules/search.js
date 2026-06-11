@@ -215,7 +215,7 @@ export function checkTaskVisibility(task) {
 /**
  * Get all searchable text from a task
  */
-function getSearchableText(task) {
+export function getSearchableText(task) {
   const parts = [];
 
   // Title
@@ -270,7 +270,9 @@ export function updateColumnCounts() {
 
     if (_vlUpdaterForFilters) {
       // Data-based counting — DOM holds only a window of cards
-      const columnTasks = state.notesData.filter(t => !t.deleted && t.column === columnId);
+      const columnTasks = state.notesData.filter(
+        t => !t.deleted && !t.hidden && t.column === columnId
+      );
       totalTasks = columnTasks.length;
       visibleTasks = columnTasks.filter(t => checkTaskVisibility(t)).length;
     } else {

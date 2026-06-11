@@ -68,10 +68,16 @@ test.describe('KanTrack drag-and-drop tests', () => {
     await createTask(page, title);
 
     const card = page.locator('#todo .note').filter({ hasText: title });
+    await expect(card.locator('.hide-card-btn')).toHaveCount(1);
     await card.first().dragTo(page.locator('#inProgress'));
 
-    await expect(page.locator('#inProgress .note').filter({ hasText: title })).toBeVisible();
+    const movedCard = page.locator('#inProgress .note').filter({ hasText: title });
+    await expect(movedCard).toBeVisible();
     await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
+
+    // The hide button is removed once the card leaves To Do/On Hold
+    await movedCard.hover();
+    await expect(movedCard.locator('.hide-card-btn')).toHaveCount(0);
 
     await waitForTask(page, title, 'task => task.column === "inProgress"');
 

@@ -197,6 +197,9 @@ function applyUndo(action) {
             detail: { taskId: action.taskId },
           })
         );
+        if (action.previousState.hidden) {
+          window.dispatchEvent(new Event('kantrack:updateHiddenCount'));
+        }
       }
       break;
 
@@ -242,6 +245,7 @@ function applyUndo(action) {
     case 'dueDate':
     case 'notes':
     case 'title':
+    case 'hidden':
       // Restore previous state
       const task = state.notesData.find(t => t.id === action.taskId);
       if (task && action.previousState) {
@@ -331,6 +335,7 @@ function applyRedo(action) {
     case 'dueDate':
     case 'notes':
     case 'title':
+    case 'hidden':
       // Apply new state
       const redoTask = state.notesData.find(t => t.id === action.taskId);
       if (redoTask && action.newState) {
