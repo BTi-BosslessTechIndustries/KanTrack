@@ -51,7 +51,7 @@ const DONE_AT_BACKFILL_FLAG = 'doneAtBackfillCompletedAt';
  * One-time migration: stamps `doneAt = Date.now()` onto every pre-existing
  * Done-column task that doesn't already have one, then sets a meta flag so
  * this never runs again. Touches no other field on any task. Safe to call on
- * every load — it's a no-op once the flag is set.
+ * every load - it's a no-op once the flag is set.
  *
  * Mirrors the `lastCompactedAt` one-time-flag pattern in compaction.js/database.js.
  * Wrapped in try/catch + debugWarn: a failed backfill never blocks app load,
@@ -63,7 +63,7 @@ export async function backfillDoneTimestamps() {
     if (alreadyDone != null) return;
 
     let changed = false;
-    // Intentionally includes deleted tasks too — a stamp now means a Trash restore later won't need its own backfill.
+    // Intentionally includes deleted tasks too - a stamp now means a Trash restore later won't need its own backfill.
     for (const task of state.notesData) {
       if (task.column === 'done' && task.doneAt == null) {
         task.doneAt = Date.now();
@@ -85,7 +85,7 @@ export async function backfillDoneTimestamps() {
  * relevant column's virtual list (or DOM node) refreshes.
  *
  * By design there is NO Trash entry, NO recordAction, and NO "Deleted"
- * history line — this is irreversible, exactly like the spec requires.
+ * history line - this is irreversible, exactly like the spec requires.
  *
  * @param {object[]} tasks
  */
@@ -123,7 +123,7 @@ let _capacityDialogOpen = false;
  * or over DONE_CAP, opens the blocking pop-up listing the oldest DONE_TRIM_COUNT
  * cards (a no-op if the dialog is already open). Returns true if the dialog
  * was opened (or already open) for this check, false if the column is under
- * the cap — callers use this to decide whether to suppress other prompts that
+ * the cap - callers use this to decide whether to suppress other prompts that
  * would otherwise stack on top of the blocking dialog.
  *
  * @returns {boolean}
@@ -227,7 +227,7 @@ function _showCapacityDialog(tasks) {
     } catch (e) {
       debugWarn('[done-capacity] Export-all failed:', e);
       statusEl.textContent =
-        'Export failed — you can still export cards individually or click Delete.';
+        'Export failed - you can still export cards individually or click Delete.';
     }
   });
 

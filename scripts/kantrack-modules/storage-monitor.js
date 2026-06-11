@@ -8,7 +8,7 @@ import { debugWarn } from './utils.js';
 
 /**
  * Request durable storage permission from the browser.
- * Called once at startup — silent background operation.
+ * Called once at startup - silent background operation.
  * Persisted result is stored in the meta IDB store.
  */
 export async function requestDurableStorage() {
@@ -25,9 +25,9 @@ export async function requestDurableStorage() {
  * Check storage quota and show a calm informational message
  * in the settings panel if usage is getting high.
  * Thresholds:
- *   < 70%  — no message
- *   70–85% — "Storage is getting full. Consider exporting a backup."
- *   85%+   — "Storage is nearly full. Export a backup to avoid losing recent changes."
+ *   < 70%  - no message
+ *   70–85% - "Storage is getting full. Consider exporting a backup."
+ *   85%+   - "Storage is nearly full. Export a backup to avoid losing recent changes."
  */
 export async function initStorageMonitor() {
   try {
@@ -52,7 +52,7 @@ export async function initStorageMonitor() {
         ? 'Storage is nearly full. Export a backup to avoid losing recent changes.'
         : 'Storage is getting full. Consider exporting a backup.';
 
-    // Display in settings panel only — calm, informational
+    // Display in settings panel only - calm, informational
     const storageInfoEl = document.getElementById('storageMonitorInfo');
     if (storageInfoEl) {
       storageInfoEl.textContent = message;

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  // Cloudflare Pages serves from /, which is Vite's default — no base override needed.
+  // Cloudflare Pages serves from /, which is Vite's default - no base override needed.
 
   // jsPDF v4 bundles html2canvas and dompurify as optional deps with complex
   // ESM chunk structures that Vite's dep optimizer cannot pre-bundle correctly.

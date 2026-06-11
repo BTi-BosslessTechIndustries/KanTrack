@@ -1,4 +1,5 @@
 # KanTrack Manifesto
+
 ## Personal Workflow. Personal Control. Personal Clarity.
 
 KanTrack exists for one reason:
@@ -19,7 +20,7 @@ KanTrack restores a simple capability:
 
 It is not a management tool.  
 It is not a reporting system.  
-It is not a performance tracker.  
+It is not a performance tracker.
 
 It is a personal command center for navigating complex work.
 
@@ -28,18 +29,23 @@ It is a personal command center for navigating complex work.
 ## What KanTrack Believes
 
 ### Work should not require surrendering control of your workflow.
+
 Your plan belongs to you.
 
 ### Clarity is more valuable than features.
+
 Seeing clearly beats doing more.
 
 ### Privacy is a default, not an option.
+
 Your work is not data to be harvested.
 
 ### Independence matters.
+
 The tool should work on your terms, not the provider’s.
 
 ### Trust is earned by restraint.
+
 An app should not become a trap.
 
 ---
@@ -50,10 +56,10 @@ A focused personal work platform centered on the kanban board as a thinking surf
 
 A place to:
 
-- plan your day  
-- track your responsibilities  
-- organize context and notes  
-- regain control over fragmented tasks  
+- plan your day
+- track your responsibilities
+- organize context and notes
+- regain control over fragmented tasks
 
 It complements organizational tools without replacing them.
 
@@ -65,11 +71,11 @@ If Jira tracks projects, KanTrack tracks your day.
 
 KanTrack will never become:
 
-- a surveillance tool  
-- a productivity scoring system  
-- a management dashboard  
-- a gamified task app  
-- a platform designed for oversight  
+- a surveillance tool
+- a productivity scoring system
+- a management dashboard
+- a gamified task app
+- a platform designed for oversight
 
 If a feature exists primarily to observe the user rather than serve them, it does not belong.
 
@@ -79,9 +85,9 @@ If a feature exists primarily to observe the user rather than serve them, it doe
 
 KanTrack should feel like:
 
-- a calm workspace  
-- a clear desk  
-- a private planning surface  
+- a calm workspace
+- a clear desk
+- a private planning surface
 
 Not a corporate dashboard.
 
@@ -119,4 +125,4 @@ They exist to ensure the product remains aligned with its purpose regardless of 
 
 ---
 
-**KanTrack is an app — not a trap.**
+**KanTrack is an app - not a trap.**

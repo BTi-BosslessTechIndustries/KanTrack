@@ -222,6 +222,82 @@ test.describe('KanTrack header UI', () => {
     await expect(page.locator('#headerDropdown')).toBeVisible();
   });
 
+  // ── Theme picker ───────────────────────────────────────────────────────────
+
+  test('theme picker is visible in the dropdown with three swatches', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.theme-picker')).toBeVisible();
+    await expect(page.locator('.theme-btn[data-action-param="light"]')).toBeVisible();
+    await expect(page.locator('.theme-btn[data-action-param="dark"]')).toBeVisible();
+    await expect(page.locator('.theme-btn[data-action-param="system"]')).toBeVisible();
+  });
+
+  test('system is active by default', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.theme-btn[data-action-param="system"]')).toHaveClass(/active/);
+    await expect(page.locator('.theme-btn[data-action-param="light"]')).not.toHaveClass(/active/);
+    await expect(page.locator('.theme-btn[data-action-param="dark"]')).not.toHaveClass(/active/);
+  });
+
+  test('system mode resolves to dark when OS prefers dark', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.reload();
+    await expect(page.locator('body')).not.toHaveClass(/theme-light/);
+  });
+
+  test('system mode resolves to light when OS prefers light', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.reload();
+    await expect(page.locator('body')).toHaveClass(/theme-light/);
+  });
+
+  test('clicking Light adds theme-light class and persists across reload regardless of OS scheme', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.theme-btn[data-action-param="light"]').click();
+    await expect(page.locator('body')).toHaveClass(/theme-light/);
+    await expect(page.locator('.theme-btn[data-action-param="light"]')).toHaveClass(/active/);
+
+    await page.reload();
+    await expect(page.locator('.top-header')).toBeVisible();
+    await expect(page.locator('body')).toHaveClass(/theme-light/);
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.theme-btn[data-action-param="light"]')).toHaveClass(/active/);
+  });
+
+  test('clicking Dark removes theme-light class and persists across reload regardless of OS scheme', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.theme-btn[data-action-param="dark"]').click();
+    await expect(page.locator('body')).not.toHaveClass(/theme-light/);
+    await expect(page.locator('.theme-btn[data-action-param="dark"]')).toHaveClass(/active/);
+
+    await page.reload();
+    await expect(page.locator('.top-header')).toBeVisible();
+    await expect(page.locator('body')).not.toHaveClass(/theme-light/);
+  });
+
+  test('returning to System after an explicit choice follows the OS again', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.theme-btn[data-action-param="dark"]').click();
+    await expect(page.locator('body')).not.toHaveClass(/theme-light/);
+
+    await page.locator('.theme-btn[data-action-param="system"]').click();
+    await expect(page.locator('body')).toHaveClass(/theme-light/);
+    await expect(page.locator('.theme-btn[data-action-param="system"]')).toHaveClass(/active/);
+  });
+
+  test('dropdown stays open after selecting a theme', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.theme-btn[data-action-param="light"]').click();
+    await expect(page.locator('#headerDropdown')).toBeVisible();
+  });
+
   // ── Card size font-size proportionality ───────────────────────────────────
 
   test.describe('card text scales proportionally with card size', () => {
@@ -532,7 +608,7 @@ test.describe('header responsive layout', () => {
     // At ≤700px the logo uses position:absolute so the flex section bounding boxes
     // intentionally overlap. The logo's minimum CSS width (100px) can exceed the
     // available gap at 500px, so edge-overlap checks are too strict. Instead verify
-    // that the logo CENTER sits between the support button and the Add Clock button —
+    // that the logo CENTER sits between the support button and the Add Clock button -
     // the meaningful centering invariant at this width.
     await page.evaluate(() => new Promise(r => requestAnimationFrame(r)));
     const center = await getBox(page, '.header-center');

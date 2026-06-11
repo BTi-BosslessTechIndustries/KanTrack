@@ -1,4 +1,4 @@
-# KanTrack — Cloud Platform Roadmap
+# KanTrack - Cloud Platform Roadmap
 
 ## Phases 8–12: Account Infrastructure, E2EE Vault, Multi-Device Sync, and Long-Term Vision
 
@@ -8,7 +8,7 @@
 
 **Phases 0–7 are complete.** KanTrack is a fully working, production-deployed, local-first personal kanban board. It runs as a static site on Cloudflare Pages with no backend, no accounts, and no network requirement. Every feature works offline, permanently, for free.
 
-This document covers the phases that add an **optional** cloud layer on top of that foundation. Nothing in these phases modifies or degrades Local Mode. The existing data architecture (UUID IDs, oplog structure, IDB-first storage) was designed from the beginning to be sync-ready — no rework of the data layer is needed when cloud work begins.
+This document covers the phases that add an **optional** cloud layer on top of that foundation. Nothing in these phases modifies or degrades Local Mode. The existing data architecture (UUID IDs, oplog structure, IDB-first storage) was designed from the beginning to be sync-ready - no rework of the data layer is needed when cloud work begins.
 
 **No work in this document begins until a deliberate, documented decision is made to start it.** These phases exist to be thought through in advance, not to create pressure to build them.
 
@@ -18,11 +18,11 @@ This document covers the phases that add an **optional** cloud layer on top of t
 
 Every decision in these phases must pass this filter before implementation:
 
-- Does this serve the individual doing the work — not the organization assigning it?
+- Does this serve the individual doing the work - not the organization assigning it?
 - Does it increase personal workflow clarity, calm, and control?
 - Does it preserve full data ownership and the ability to leave freely?
 - Does it keep the board as the central thinking surface?
-- Does it make the product more like itself — or less?
+- Does it make the product more like itself - or less?
 
 If the answer to any of these is "no", reconsider before building.
 
@@ -30,10 +30,10 @@ If the answer to any of these is "no", reconsider before building.
 
 ## Red Lines (never cross these, at any phase)
 
-1. Local Mode must always work fully — offline, without an account, without network
+1. Local Mode must always work fully - offline, without an account, without network
 2. No productivity feature may ever require an account
 3. The server must never store or be able to read plaintext user data
-4. No behavioral analytics — never collect what tasks users create, how often, what they name things
+4. No behavioral analytics - never collect what tasks users create, how often, what they name things
 5. Users can always export all their data in a portable, documented format
 6. No gamification, scoring, or performance pressure
 7. No urgency-inducing design
@@ -41,27 +41,27 @@ If the answer to any of these is "no", reconsider before building.
 
 ---
 
-## Phase 8 — Account Infrastructure
+## Phase 8 - Account Infrastructure
 
 ### Goal: Backend foundation for paid services, with zero contact with user content
 
-Accounts are an enabler for the Vault (Phase 9) — nothing more. The Product Doctrine and anti-drift rule are most at risk during this phase. Every decision here must be checked against the founding lens before implementation.
+Accounts are an enabler for the Vault (Phase 9) - nothing more. The Product Doctrine and anti-drift rule are most at risk during this phase. Every decision here must be checked against the founding lens before implementation.
 
 ---
 
-### 8.1 — Backend service (minimal, content-free)
+### 8.1 - Backend service (minimal, content-free)
 
 **What to build:**
 
 - Minimal backend service (Node/Bun + PostgreSQL or equivalent):
   - `users`: id (UUID), email, created_at, subscription_status, subscription_expires_at
   - `devices`: device_id (UUID from client), user_id, registered_at, last_seen_at
-  - **No task, note, tag, clock, or any content table — ever**
-- Auth: magic link (email) or passkey (WebAuthn) — no passwords
+  - **No task, note, tag, clock, or any content table - ever**
+- Auth: magic link (email) or passkey (WebAuthn) - no passwords
 - JWT: 15-minute access tokens + 7-day refresh tokens
 - Rate limiting: 60 req/min per IP, stricter on auth endpoints
 
-**Anti-drift constraint:** The backend must have a formal rule in its codebase — no endpoint may accept or return task content. This is enforced architecturally (no content tables), not just by policy.
+**Anti-drift constraint:** The backend must have a formal rule in its codebase - no endpoint may accept or return task content. This is enforced architecturally (no content tables), not just by policy.
 
 **Acceptance criteria:**
 
@@ -71,29 +71,29 @@ Accounts are an enabler for the Vault (Phase 9) — nothing more. The Product Do
 
 ---
 
-### 8.2 — Account UI
+### 8.2 - Account UI
 
 **What to build:**
 
-- Settings panel → Account section (not the main UI — the board is the primary surface):
+- Settings panel → Account section (not the main UI - the board is the primary surface):
   - "Sign in / Create account" if signed out
   - Email, plan, device list if signed in
   - "Sign out" and "Delete account" (with confirmation)
 - No persistent account prompts inside the board workspace
-- Account badge in header only when signed in — small, unobtrusive
+- Account badge in header only when signed in - small, unobtrusive
 
 **Design constraint:** Account UI must never compete with the board for attention. A user who never signs in should never be made to feel they're missing out or using an inferior version. Local Mode is complete and first-class.
 
 ---
 
-### 8.3 — Subscription system
+### 8.3 - Subscription system
 
 **What to build:**
 
 - Stripe integration: webhooks update `subscription_status` in DB
 - Two tiers only:
-  - **Free** — Local Mode (full, permanent, no credit card)
-  - **Pro** — Encrypted Cloud Vault + multi-device sync
+  - **Free** - Local Mode (full, permanent, no credit card)
+  - **Pro** - Encrypted Cloud Vault + multi-device sync
 - Account page: tier, renewal date, manage billing link
 - No dark patterns: no "your trial ends in X days", no feature teasing, no artificial limitations on Local Mode
 
@@ -114,9 +114,9 @@ Accounts are an enabler for the Vault (Phase 9) — nothing more. The Product Do
 
 ---
 
-## Phase 9 — Encrypted Cloud Vault (E2EE)
+## Phase 9 - Encrypted Cloud Vault (E2EE)
 
-### Goal: Zero-knowledge backup and storage expansion — the server sees only ciphertext
+### Goal: Zero-knowledge backup and storage expansion - the server sees only ciphertext
 
 Prerequisite: Phase 8 complete.
 
@@ -124,11 +124,11 @@ From the Master Strategy: "Cloud acts as removable storage, not dependency." The
 
 ---
 
-### 9.1 — Crypto module
+### 9.1 - Crypto module
 
 **What to build:**
 
-Create `scripts/kantrack-modules/vault-crypto.js` using WebCrypto only — no external crypto library:
+Create `scripts/kantrack-modules/vault-crypto.js` using WebCrypto only - no external crypto library:
 
 ```javascript
 // Key derivation
@@ -147,7 +147,7 @@ decrypt(ciphertext, iv, dek);
 sha256(data); // SubtleCrypto.digest
 ```
 
-- Salt: unique per user, stored on server (not secret — just unique per account)
+- Salt: unique per user, stored on server (not secret - just unique per account)
 - DEK never leaves the device unencrypted
 - Wrapped DEK stored on server alongside ciphertext
 
@@ -155,20 +155,20 @@ sha256(data); // SubtleCrypto.digest
 
 ---
 
-### 9.2 — Vault server endpoints
+### 9.2 - Vault server endpoints
 
 **What to build:**
 
 Server accepts only opaque encrypted blobs:
 
 ```
-POST   /vault/objects       — upload encrypted blob
-GET    /vault/objects       — list objects (objectId, type, updatedAt only)
-GET    /vault/objects/:id   — download encrypted blob
+POST   /vault/objects       - upload encrypted blob
+GET    /vault/objects       - list objects (objectId, type, updatedAt only)
+GET    /vault/objects/:id   - download encrypted blob
 DELETE /vault/objects/:id
 
-GET    /vault/dek           — download wrapped DEK
-PUT    /vault/dek           — upload wrapped DEK
+GET    /vault/dek           - download wrapped DEK
+PUT    /vault/dek           - upload wrapped DEK
 ```
 
 - Server never parses blob content
@@ -176,12 +176,12 @@ PUT    /vault/dek           — upload wrapped DEK
 
 ---
 
-### 9.3 — Vault user flow
+### 9.3 - Vault user flow
 
 **First-time setup (calm, clear language):**
 
 1. User enables Vault in settings
-2. "Set a passphrase to protect your backup. We cannot read your data — not even to recover it."
+2. "Set a passphrase to protect your backup. We cannot read your data - not even to recover it."
 3. Passphrase + confirmation → DEK generated → wrapped → uploaded
 4. Recovery key shown: "Save this somewhere safe. It's the only way to recover your data if you forget your passphrase."
 5. First backup triggered automatically and silently
@@ -190,14 +190,14 @@ PUT    /vault/dek           — upload wrapped DEK
 
 - Auto-backup every 30 minutes (background, silent)
 - "Back up now" button in settings
-- Status: "Last backed up 12 minutes ago" — informational, not urgent
-- "Restore from Vault" with passphrase prompt and preview: "Backup from March 5, 2026 — 142 tasks, 8 notebook pages"
+- Status: "Last backed up 12 minutes ago" - informational, not urgent
+- "Restore from Vault" with passphrase prompt and preview: "Backup from March 5, 2026 - 142 tasks, 8 notebook pages"
 
 **Design constraint:** Vault UI must be calm. No "your data is unprotected" framing. No alarming icons next to backup status. This is a reassurance feature, not an anxiety-inducing one.
 
 ---
 
-### 9.4 — Passphrase change
+### 9.4 - Passphrase change
 
 - Old passphrase → decrypt DEK → re-encrypt with new KEK → upload
 - Server never receives either passphrase
@@ -217,17 +217,17 @@ PUT    /vault/dek           — upload wrapped DEK
 
 ---
 
-## Phase 10 — Multi-Device Sync
+## Phase 10 - Multi-Device Sync
 
 ### Goal: Seamless, invisible convergence across all a user's devices
 
 Prerequisite: Phases 8 and 9 complete.
 
-Sync should feel invisible — the board is just always current, without the user thinking about it. Conflicts are resolved silently where possible and surfaced only when a decision is genuinely needed.
+Sync should feel invisible - the board is just always current, without the user thinking about it. Conflicts are resolved silently where possible and surfaced only when a decision is genuinely needed.
 
 ---
 
-### 10.1 — Encrypted opbatch push/pull
+### 10.1 - Encrypted opbatch push/pull
 
 **What to build:**
 
@@ -241,18 +241,18 @@ Sync should feel invisible — the board is just always current, without the use
 
 ---
 
-### 10.2 — Conflict resolution
+### 10.2 - Conflict resolution
 
 **What to build:**
 
 - **Field-level LWW (Last-Write-Wins):** highest `(lamport, deviceId)` wins per field
-- **Task order:** fractional indexing via `orderKey` string — no integer re-indexing, no position conflicts
+- **Task order:** fractional indexing via `orderKey` string - no integer re-indexing, no position conflicts
 - **Delete wins:** a delete op always supersedes an update op (deletedAt takes precedence)
 - **Silent merge:** most changes merge without surfacing anything to the user
 
 **Conflict notification language (calm, non-alarming):**
 
-- "Some changes from another device were merged." — never "CONFLICT DETECTED"
+- "Some changes from another device were merged." - never "CONFLICT DETECTED"
 - If a task was deleted on one device and edited on another: "A task you edited on this device was deleted on another. It has been restored here. You can delete it if you no longer need it."
 
 **Design constraint:** Conflict messages must read like helpful information, not system errors. A conflict notification should never be alarming or demand immediate action.
@@ -261,25 +261,25 @@ Sync should feel invisible — the board is just always current, without the use
 
 ---
 
-### 10.3 — Device management UI
+### 10.3 - Device management UI
 
 **What to build:**
 
 - Settings → Devices: list with device name, last-seen date, "This device" label
-- "Remove device" — revokes sync for that device
-- Simple and clean — not a security dashboard
+- "Remove device" - revokes sync for that device
+- Simple and clean - not a security dashboard
 
 ---
 
-### 10.4 — Sync status indicator
+### 10.4 - Sync status indicator
 
 **What to build:**
 
-- Small, unobtrusive indicator in header: "Synced", "Syncing...", "Sync unavailable — will retry"
+- Small, unobtrusive indicator in header: "Synced", "Syncing...", "Sync unavailable - will retry"
 - Tap/click to force sync
-- Offline: "Offline — changes saved locally"
+- Offline: "Offline - changes saved locally"
 
-**Design constraint:** Sync status must be informational, not alarming. "Sync unavailable" is better than "Sync failed — your data may be out of date." The second creates anxiety; the first states fact.
+**Design constraint:** Sync status must be informational, not alarming. "Sync unavailable" is better than "Sync failed - your data may be out of date." The second creates anxiety; the first states fact.
 
 ---
 
@@ -296,7 +296,7 @@ Sync should feel invisible — the board is just always current, without the use
 
 ---
 
-## Phase 11 — Scale, Polish & Production Readiness
+## Phase 11 - Scale, Polish & Production Readiness
 
 ### Goal: Ready for millions of users, press coverage, and enterprise scrutiny
 
@@ -304,11 +304,11 @@ Prerequisite: All previous phases complete.
 
 ---
 
-### 11.1 — Privacy-respecting analytics (no behavioral data)
+### 11.1 - Privacy-respecting analytics (no behavioral data)
 
 **What to build:**
 
-- Self-hosted analytics (Plausible or Umami) — no Google Analytics, ever
+- Self-hosted analytics (Plausible or Umami) - no Google Analytics, ever
 - **Allowed:** page views, anonymous feature usage counts, error rates, performance metrics
 - **Never allowed:**
   - Task titles, note content, tag names, or any user-generated content
@@ -321,11 +321,11 @@ Prerequisite: All previous phases complete.
 
 ---
 
-### 11.2 — Onboarding (respecting the user's pace)
+### 11.2 - Onboarding (respecting the user's pace)
 
 **What to build:**
 
-- First-time load: the board is immediately usable — no welcome screen, no required tour, no email gate
+- First-time load: the board is immediately usable - no welcome screen, no required tour, no email gate
 - Single optional, dismissable banner (shown once): "Welcome to KanTrack. Add a task to get started."
 - No "take the tour" modal, no wizard, no productivity tips popup
 
@@ -333,9 +333,9 @@ Prerequisite: All previous phases complete.
 
 ---
 
-### 11.3 — Performance benchmarks
+### 11.3 - Performance benchmarks
 
-Targets (internal engineering thresholds — never shown to users):
+Targets (internal engineering thresholds - never shown to users):
 
 | Scenario                   | Target                    |
 | -------------------------- | ------------------------- |
@@ -347,7 +347,7 @@ Targets (internal engineering thresholds — never shown to users):
 
 ---
 
-### 11.4 — Security audit readiness
+### 11.4 - Security audit readiness
 
 **What to build:**
 
@@ -358,7 +358,7 @@ Targets (internal engineering thresholds — never shown to users):
 
 ---
 
-### 11.5 — Documentation completeness
+### 11.5 - Documentation completeness
 
 **What to build:**
 
@@ -369,7 +369,7 @@ Targets (internal engineering thresholds — never shown to users):
 
 ---
 
-### 11.6 — Release workflow
+### 11.6 - Release workflow
 
 **What to build:**
 
@@ -392,29 +392,29 @@ Targets (internal engineering thresholds — never shown to users):
 
 ---
 
-## Phase 12 — Long-Term Vision
+## Phase 12 - Long-Term Vision
 
 ### Goal: KanTrack evolves into a personal operating system for individual work
 
-These capabilities are validated by the Vision Deck as the long-term destination. They are **not** scope for current phases — they inform architectural decisions made earlier so this expansion doesn't require rewrites.
+These capabilities are validated by the Vision Deck as the long-term destination. They are **not** scope for current phases - they inform architectural decisions made earlier so this expansion doesn't require rewrites.
 
 ---
 
-### 12.1 — Local workflow analytics (private, on-device only)
+### 12.1 - Local workflow analytics (private, on-device only)
 
-**What it is:** Optional, local-only statistics about your own work patterns — "I tend to complete more tasks on Tuesdays" — visible only to you, never leaving the device.
+**What it is:** Optional, local-only statistics about your own work patterns - "I tend to complete more tasks on Tuesdays" - visible only to you, never leaving the device.
 
 **What it is not:** Reporting for managers, performance tracking, or any data sent to a server.
 
-**Foundation:** The Phase 3 oplog is the data source — every mutation is recorded with timestamps. No new infrastructure is needed.
+**Foundation:** The Phase 3 oplog is the data source - every mutation is recorded with timestamps. No new infrastructure is needed.
 
-**Design constraint:** These analytics answer "What do I notice about my own work?" — not "How productive am I?" No scoring, no benchmarks, no comparisons to others or to your past self.
+**Design constraint:** These analytics answer "What do I notice about my own work?" - not "How productive am I?" No scoring, no benchmarks, no comparisons to others or to your past self.
 
 ---
 
-### 12.2 — Local AI assistance (private, on-device)
+### 12.2 - Local AI assistance (private, on-device)
 
-**What it is:** AI features that run entirely on-device — task suggestions, due date recommendations, notebook summaries — without any content leaving the browser.
+**What it is:** AI features that run entirely on-device - task suggestions, due date recommendations, notebook summaries - without any content leaving the browser.
 
 **Technologies:** WebLLM (runs models in browser via WebGPU), or server-side within the E2EE model (model operates on decrypted content client-side; server sees only ciphertext).
 
@@ -424,9 +424,9 @@ These capabilities are validated by the Vision Deck as the long-term destination
 
 ---
 
-### 12.3 — Integration layer (read-only connectors)
+### 12.3 - Integration layer (read-only connectors)
 
-**What it is:** Pull in data from Jira, GitHub, Linear, etc. as read-only context visible in KanTrack — a personal overlay above external tools, not a replacement for them.
+**What it is:** Pull in data from Jira, GitHub, Linear, etc. as read-only context visible in KanTrack - a personal overlay above external tools, not a replacement for them.
 
 **Foundation:** The Phase 1 domain model must be flexible enough to represent tasks from external sources. IDs and entity schema need to support `source: 'jira'` metadata.
 
@@ -434,15 +434,15 @@ These capabilities are validated by the Vision Deck as the long-term destination
 
 ---
 
-### 12.4 — Advanced personal knowledge base
+### 12.4 - Advanced personal knowledge base
 
-**What it is:** Evolution of the current Notebook into a richer personal knowledge system — backlinks, templates, full-content search, structured notes.
+**What it is:** Evolution of the current Notebook into a richer personal knowledge system - backlinks, templates, full-content search, structured notes.
 
 **Foundation:** The IDB content model (Phase 0) and oplog (Phase 3) must handle richer data types. The notebook content structure should not be locked to the current flat HTML model.
 
 ---
 
-### Phase 12 — Architectural prerequisites to protect now
+### Phase 12 - Architectural prerequisites to protect now
 
 These properties of the current codebase must be preserved in all future work so Phase 12 doesn't require rewrites:
 
@@ -467,7 +467,7 @@ These properties of the current codebase must be preserved in all future work so
 
 ## Anti-Drift Safeguard
 
-The greatest risk to KanTrack is not technical failure — it is gradual drift toward what it explicitly chose not to be. Every feature request, business opportunity, or competitive pressure will contain small invitations to drift.
+The greatest risk to KanTrack is not technical failure - it is gradual drift toward what it explicitly chose not to be. Every feature request, business opportunity, or competitive pressure will contain small invitations to drift.
 
 ---
 
@@ -541,16 +541,16 @@ If any of these appear in the product or codebase, investigate immediately:
 
 These rules govern every phase and every decision. No business pressure, user request, or technical convenience overrides them:
 
-1. **Local Mode is always complete** — works offline, without an account, without network, forever
-2. **No productivity feature ever requires an account** — accounts enable Vault only
-3. **The server never stores or reads plaintext user data** — zero-knowledge, always
-4. **No behavioral analytics** — KanTrack never knows what you work on, when, or how much
-5. **Users can always export all their data** — in a portable, documented format
-6. **No gamification, scoring, or performance pressure** — the app has no opinion about your productivity
-7. **No urgency-inducing design** — no pressure, no alarms, no streaks
-8. **No drift toward team management or organizational oversight** — this is a personal tool
-9. **Minimal external runtime dependencies** — each one is a liability; justify every addition
-10. **Fail clearly and safely** — never lose data silently; always offer recovery
+1. **Local Mode is always complete** - works offline, without an account, without network, forever
+2. **No productivity feature ever requires an account** - accounts enable Vault only
+3. **The server never stores or reads plaintext user data** - zero-knowledge, always
+4. **No behavioral analytics** - KanTrack never knows what you work on, when, or how much
+5. **Users can always export all their data** - in a portable, documented format
+6. **No gamification, scoring, or performance pressure** - the app has no opinion about your productivity
+7. **No urgency-inducing design** - no pressure, no alarms, no streaks
+8. **No drift toward team management or organizational oversight** - this is a personal tool
+9. **Minimal external runtime dependencies** - each one is a liability; justify every addition
+10. **Fail clearly and safely** - never lose data silently; always offer recovery
 
 ---
 

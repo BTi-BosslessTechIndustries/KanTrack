@@ -12,18 +12,19 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Task detail modal**: rich notes editor with **Bold**, **Italic**, and **Strikethrough** formatting; images (paste-to-insert, with full-screen viewer and zoom controls); a chronological edit/delete log; a collapsible sub-kanban board; **Save** keeps the modal open for multi-step edits, **Save & Close** saves and dismisses; double-click the title to rename it inline
 - **Sub-kanban boards**: each task contains a toggleable mini kanban board with the same four columns (To Do, In Progress, On Hold, Done); sub-tasks support drag-and-drop between states and display a live done/total counter on the parent card
 - **Card size**: three global card sizes (Small / Medium / Large) selectable from the ⋮ menu; preference persists across sessions
+- **Theme**: Light, Dark, or System Default, selectable from the ⋮ menu; System Default follows the OS colour scheme live, while an explicit Light or Dark choice is saved and overrides the OS setting on every future visit until you switch back to System Default
 - **Priority system**: High / Medium / Low with colour tinting and column sorting
 - **Tags**: colour-coded labels with preset palette or custom hex colour; pinned tags appear in a quick-assign panel
 - **Due dates**: visual overdue and "due today" indicators on cards
 - **Timer**: per-task time tracking with quick-add and quick-remove
 - **Undo / Redo**: full history with durable IDB-backed undo entries
-- **Hidden cards**: manually hide any card in **To Do** or **On Hold** (e.g. long-stalled items) via the eye-off button on the card — not available on In Progress or Done cards; hidden cards leave the board, column counts, and the Done-column cap, but stay fully intact — restore one or many at once from the "Hidden Cards" header button (with a count badge), individually or via "Select All" + "Show Selected"; while searching, a hint links to any hidden cards that match your query
+- **Hidden cards**: manually hide any card in **To Do** or **On Hold** (e.g. long-stalled items) via the eye-off button on the card - not available on In Progress or Done cards; hidden cards leave the board, column counts, and the Done-column cap, but stay fully intact - restore one or many at once from the "Hidden Cards" header button (with a count badge), individually or via "Select All" + "Show Selected"; while searching, a hint links to any hidden cards that match your query
 - **Trash**: soft-delete with restore; recoverable until you empty it
-- **Done column limit**: the Done column holds at most 30 cards; once it's full, a blocking dialog flags the 15 oldest for permanent deletion and offers to export each one (or all of them bundled as a ZIP) to PDF first — this bypasses Trash entirely and cannot be undone, so the dialog cannot be dismissed except by confirming the deletion
+- **Done column limit**: the Done column holds at most 30 cards; once it's full, a blocking dialog flags the 15 oldest for permanent deletion and offers to export each one (or all of them bundled as a ZIP) to PDF first - this bypasses Trash entirely and cannot be undone, so the dialog cannot be dismissed except by confirming the deletion
 - **Notebook**: a resizable sidebar with a folder/page tree; pages support rich text, image paste, and per-page PDF export; right-click any item for a context menu (rename, delete); drag-and-drop to reorder and move pages and folders; live search to filter by name; import pages from a ZIP archive or export the whole notebook as ZIP; sidebar open/closed state and width persist across sessions
 - **Export & Import**: export individual tasks or notebook pages as PDF (cross-platform, including Mac); export the entire board as a static HTML snapshot (task data and images embedded for re-import), full JSON (with embedded images), lightweight JSON, or AES-256-GCM encrypted `.kantrack.enc`; export the entire notebook as a ZIP; import a full board (merge or replace mode) from any previously exported JSON or encrypted file (restores workspace and notes together); import a notebook from a ZIP archive (adds notebook pages only, does not affect the board)
 - **Download everything**: a single button in the bottom controls bar that downloads a full workspace backup and a complete notebook ZIP archive in one click; the two files produced are identical to what the individual export buttons generate and each can be imported separately via its own import button
-- **World clocks**: multiple timezone clocks and a chronometer displayed in a widget row above the board; Reset collapses the row and moves a live 24-hour current time display and an Add Clock icon button into the header, reclaiming the vertical space; adding any clock restores the full widget row; at viewport widths ≤ 700 px the widget row is hidden automatically and only the current time is shown in the header — the full widget reappears when the window is widened again
+- **World clocks**: multiple timezone clocks and a chronometer displayed in a widget row above the board; Reset collapses the row and moves a live 24-hour current time display and an Add Clock icon button into the header, reclaiming the vertical space; adding any clock restores the full widget row; at viewport widths ≤ 700 px the widget row is hidden automatically and only the current time is shown in the header - the full widget reappears when the window is widened again
 - **Search & filter**: full-text search with tag and column filters; the task input, Add button, and search bar form a single proportional-scaling row that never wraps on window resize; tag filters occupy a dedicated row below
 - **Column task counts**: each column header shows a live count of visible tasks; the count reflects active search and filter state
 - **Storage quota monitoring**: checks browser storage quota silently at startup; displays a calm informational message in the settings panel when usage reaches 70%, and a stronger prompt to export a backup at 85%; also requests durable storage permission from the browser so data is protected from automatic eviction
@@ -107,7 +108,7 @@ KanTrack/
 │
 ├── scripts/                     # Application source code
 │   ├── kantrack.js              # Bootstrap: registers all actions, inits router + store
-│   ├── kantrack-modules/        # Feature modules (37 files)
+│   ├── kantrack-modules/        # Feature modules (38 files)
 │   │   ├── types.ts             # Shared TypeScript types
 │   │   ├── store.ts             # Flux-like state store
 │   │   ├── router.ts            # data-action event delegation
@@ -128,7 +129,7 @@ KanTrack/
 ├── tests/                       # All automated tests
 │   ├── *.test.js                # Vitest unit tests (750 tests, 30 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (120 tests, 11 files)
+│   └── e2e/                     # Playwright end-to-end tests (128 tests, 11 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management

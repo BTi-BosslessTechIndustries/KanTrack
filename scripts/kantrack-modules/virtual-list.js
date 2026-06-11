@@ -12,7 +12,7 @@
 
 const INITIAL_RENDER = 20; // cards to render on first paint
 const BUFFER = 5; // extra cards above/below the visible area
-const CARD_HEIGHT_ESTIMATE = 120; // px — refined after first real render
+const CARD_HEIGHT_ESTIMATE = 120; // px - refined after first real render
 
 /**
  * Manages windowed rendering for a single kanban column.

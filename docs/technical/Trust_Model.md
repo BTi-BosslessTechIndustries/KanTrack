@@ -1,4 +1,4 @@
-# KanTrack — Trust Model
+# KanTrack - Trust Model
 
 > **Audience:** Engineers, security reviewers, and technically informed users.
 > **Scope:** What KanTrack protects, what it does not protect, the boundaries of trust, and the mechanisms in place.
@@ -13,7 +13,7 @@ This means the trust surface is entirely local:
 
 - The **browser** is trusted to faithfully execute the application.
 - The **operating system** is trusted to protect the user's profile directory.
-- **Other browser extensions** are partially trusted — see §5.
+- **Other browser extensions** are partially trusted - see §5.
 
 There is no KanTrack server that could be compromised to leak user data, because no such server exists and no user data ever reaches one.
 
@@ -28,7 +28,7 @@ There is no KanTrack server that could be compromised to leak user data, because
 | Malicious HTML in imported data            | Allowlist sanitiser (`sanitize.js`)                                      | §3    |
 | XSS via task content rendered to DOM       | `escapeHtml()` for all text fields; sanitise on import                   | §3    |
 | Inline script injection                    | Content Security Policy blocks `unsafe-eval` and inline scripts          | §4    |
-| External resource exfiltration             | CSP `connect-src 'self'` — no outbound fetch to third parties            | §4    |
+| External resource exfiltration             | CSP `connect-src 'self'` - no outbound fetch to third parties            | §4    |
 | Tampering with import files                | `import-validator.js` checks schema, version, required fields            | §3.3  |
 | Encrypted backup brute-force               | PBKDF2 with 600 000 iterations raises the cost per guess                 | §6    |
 | Casual local eavesdropping (shared device) | Encrypted export option provides at-rest encryption for portable backups | §6    |
@@ -129,7 +129,7 @@ base-uri     'self'
 
 - CSP does not protect against injections that execute within a permitted inline style (e.g., CSS expression injection is a historical IE-only issue and does not apply to modern browsers).
 - CSP does not protect against malicious `file://` origins or localhost bypasses if the app is served under non-standard conditions.
-- `'unsafe-inline'` for styles means a malicious script that CAN execute (e.g., via an extension bypass) could inject `<style>` to exfiltrate data via CSS timing attacks — this risk is accepted as extremely low given the no-inline-script restriction.
+- `'unsafe-inline'` for styles means a malicious script that CAN execute (e.g., via an extension bypass) could inject `<style>` to exfiltrate data via CSS timing attacks - this risk is accepted as extremely low given the no-inline-script restriction.
 
 ---
 
@@ -200,7 +200,7 @@ An encrypted `.kantrack.enc` file is unreadable without the correct passphrase. 
 
 - **Passphrase strength is the user's responsibility.** A short or guessable passphrase produces a weak key regardless of the algorithm used. PBKDF2 with 600k rounds raises the cost of brute-force attacks but does not eliminate them for weak passwords.
 - **The encryption does not protect data while it remains in `localStorage` or IDB** (the live app state is always plaintext).
-- **The encrypted file format is authenticated but not deniable** — an attacker who recovers the file and the passphrase gets the full plaintext.
+- **The encrypted file format is authenticated but not deniable** - an attacker who recovers the file and the passphrase gets the full plaintext.
 - **Key material is never cached.** The derived key exists only for the duration of the encrypt/decrypt call and is not stored anywhere.
 
 ### 6.4 No keys stored
@@ -218,7 +218,7 @@ KanTrack's runtime bundle includes two third-party libraries:
 | `jsPDF` | 4.2.0   | PDF generation | Processes task note HTML; output is a PDF file, not DOM                     |
 | `JSZip` | 3.10.1  | ZIP creation   | Compresses notebook files for ZIP export; no parsing of untrusted ZIP input |
 
-Neither library has network access (blocked by CSP). Neither library handles user-supplied input in a way that creates an execution surface — jsPDF renders sanitised HTML to a canvas and then PDF bytes; JSZip only creates archives, never reads and executes ZIP archives from users.
+Neither library has network access (blocked by CSP). Neither library handles user-supplied input in a way that creates an execution surface - jsPDF renders sanitised HTML to a canvas and then PDF bytes; JSZip only creates archives, never reads and executes ZIP archives from users.
 
 No analytics, telemetry, CDN-hosted scripts, or tracking pixels are included.
 
@@ -272,7 +272,7 @@ No analytics, telemetry, CDN-hosted scripts, or tracking pixels are included.
 
 At boot, KanTrack calls `navigator.storage.persist()` to request that the browser designate its storage as persistent. Persistent storage is not evicted under low-disk conditions (unlike best-effort storage, which the browser may clear without warning).
 
-The browser may grant or deny this request based on its own heuristics (installed PWA, user engagement score, origin policy). KanTrack uses the result only to display an advisory status indicator — it does not alter behaviour based on the outcome.
+The browser may grant or deny this request based on its own heuristics (installed PWA, user engagement score, origin policy). KanTrack uses the result only to display an advisory status indicator - it does not alter behaviour based on the outcome.
 
 ### 9.2 Dual-Write Redundancy
 
@@ -282,8 +282,8 @@ Writes go to both `localStorage` and IndexedDB. If one becomes unavailable or co
 
 For durable, portable backups:
 
-- **Encrypted export** (`.kantrack.enc`) — strongest protection, requires passphrase
-- **Full JSON export** (`.kantrack.json`) — plaintext, keep in a secure location
+- **Encrypted export** (`.kantrack.enc`) - strongest protection, requires passphrase
+- **Full JSON export** (`.kantrack.json`) - plaintext, keep in a secure location
 - **Do not rely solely on browser storage** for data you cannot afford to lose
 
 ---
@@ -298,7 +298,7 @@ For durable, portable backups:
 | XSS protection for task text in templates | **`escapeHtml()` escaping**                       |
 | Inline script execution                   | **Blocked by CSP**                                |
 | Encryption algorithm                      | **AES-256-GCM + PBKDF2 (600k rounds, SHA-256)**   |
-| Key storage                               | **None — derived per-operation, discarded after** |
+| Key storage                               | **None - derived per-operation, discarded after** |
 | Plaintext storage by default              | **Yes** (`localStorage` + IDB)                    |
 | Protection against OS-level access        | **None**                                          |
 | Protection against browser extensions     | **None**                                          |

@@ -1,5 +1,5 @@
 /**
- * Export worker — offloads JSON serialization off the main thread.
+ * Export worker - offloads JSON serialization off the main thread.
  *
  * Protocol:
  *   Main → Worker : { type: 'serialize', payload: object }

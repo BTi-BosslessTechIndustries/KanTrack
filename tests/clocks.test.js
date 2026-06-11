@@ -1,7 +1,7 @@
 /**
  * Tests for clocks.js: pure formatting logic.
  *
- * Only formatChronometer() is testable as a unit test — it's a pure
+ * Only formatChronometer() is testable as a unit test - it's a pure
  * milliseconds-to-"HH:MM:SS" formatter with no DOM or timer dependencies.
  * Everything else in this module (rendering, drag-reorder, interval-driven
  * updates, modal wiring) is DOM/setInterval-heavy orchestration that belongs
@@ -44,7 +44,7 @@ describe('formatChronometer', () => {
   });
 
   it('does not roll minutes/seconds over into the next unit', () => {
-    // 23 minutes 59 seconds — minutes must not show as 24, seconds not as 60
+    // 23 minutes 59 seconds - minutes must not show as 24, seconds not as 60
     expect(formatChronometer(23 * 60_000 + 59_000)).toBe('00:23:59');
   });
 

@@ -69,7 +69,7 @@ export function scheduleCompaction() {
 }
 
 /**
- * Run oplog compaction. Silently swallows errors — compaction is best-effort.
+ * Run oplog compaction. Silently swallows errors - compaction is best-effort.
  */
 async function runCompaction() {
   try {

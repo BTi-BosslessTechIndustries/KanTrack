@@ -57,7 +57,7 @@ async function loadTagDefinitions() {
       tagDefinitions = loaded;
       const beforeCount = tagDefinitions.length;
 
-      // Only prune if tasks are loaded — an empty notesData could mean tasks
+      // Only prune if tasks are loaded - an empty notesData could mean tasks
       // haven't been hydrated yet, and pruning would silently delete all non-pinned tags.
       if (state.notesData.length > 0) {
         const usedTagIds = getUsedTagIds();
@@ -78,7 +78,7 @@ async function loadTagDefinitions() {
         }
       }
     } else {
-      // Start with empty tags — users create their own
+      // Start with empty tags - users create their own
       tagDefinitions = [];
     }
   } catch (e) {
@@ -310,7 +310,7 @@ export function deleteTag(id) {
  * Removes tags that are not used by any task (keeps pinned tags)
  */
 export function cleanupUnusedTags() {
-  // Get all tag IDs used by any task — including soft-deleted (trashed) ones,
+  // Get all tag IDs used by any task - including soft-deleted (trashed) ones,
   // because those tasks might be restored and their tag definitions must survive.
   const usedTagIds = new Set();
   state.notesData.forEach(task => {
@@ -665,7 +665,7 @@ function setupTagSelectorEvents(taskId, container) {
     }
   });
 
-  // Close dropdown when clicking outside — stored so re-renders can remove it
+  // Close dropdown when clicking outside - stored so re-renders can remove it
   _closeDropdownListener = function (e) {
     if (!container.contains(e.target)) {
       dropdown.style.display = 'none';

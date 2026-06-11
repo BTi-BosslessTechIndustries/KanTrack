@@ -1,4 +1,4 @@
-# KanTrack — Technical Architecture
+# KanTrack - Technical Architecture
 
 > **Audience:** Engineers working on or auditing the KanTrack codebase.
 > **Scope:** Internal module design, data flow, storage model, and component interactions.
@@ -108,15 +108,15 @@ KanTrack/
                         ▼
 ┌─────────────────────────────────────────────────────┐
 │                    State Layer                      │
-│  state.js  — mutable in-memory singleton            │
-│  store.ts  — immutable snapshots / flux dispatch    │
+│  state.js  - mutable in-memory singleton            │
+│  store.ts  - immutable snapshots / flux dispatch    │
 └───────────────────────┬─────────────────────────────┘
                         │ serialise / load
                         ▼
 ┌─────────────────────────────────────────────────────┐
 │                 Repository Layer                    │
-│  storage.js  — state ↔ repo shim                   │
-│  repository.ts — persistence logic, debounce, sync  │
+│  storage.js  - state ↔ repo shim                   │
+│  repository.ts - persistence logic, debounce, sync  │
 └───────────┬───────────────────────┬─────────────────┘
             │ sync write            │ async write (300ms)
             ▼                       ▼
@@ -193,7 +193,7 @@ export function saveNotesToLocalStorage() {
 Business logic for persistence. Rules enforced here:
 
 - **Only this file and `database.js` touch `localStorage` / IDB** for business data
-- **Does not import `state.js`** — pure persistence, no circular deps
+- **Does not import `state.js`** - pure persistence, no circular deps
 - Debounced IDB writes (300 ms `setTimeout`, reset on each call)
 - Fires `onAutoSaveCallback` after every write (shows the "Saved" indicator)
 - Migrates legacy data formats on load
@@ -225,25 +225,25 @@ IndexedDB schema + all CRUD helpers.
 
 ```
 DOMContentLoaded
-  1. initRouter()                    — attach single delegated click listener
-  2. initIndexedDB()                 — open / upgrade IDB schema
-  3. runDataMigrations()             — migrate localStorage → IDB if needed
-  4. loadNotesFromLocalStorage()     — hydrate state.notesData
-  5. dispatch(TASK_SET_ALL, notes)   — bootstrap flux store
-  6. initVirtualLists(notes)         — create one VirtualList per column
-  7. initTags()                      — load tag definitions from IDB
+  1. initRouter()                    - attach single delegated click listener
+  2. initIndexedDB()                 - open / upgrade IDB schema
+  3. runDataMigrations()             - migrate localStorage → IDB if needed
+  4. loadNotesFromLocalStorage()     - hydrate state.notesData
+  5. dispatch(TASK_SET_ALL, notes)   - bootstrap flux store
+  6. initVirtualLists(notes)         - create one VirtualList per column
+  7. initTags()                      - load tag definitions from IDB
   8. renderTagFilterButtons()
-  9. initUndo()                      — reconstruct undo stacks from oplog
- 10. scheduleCompaction()            — hourly background oplog cleanup
- 11. initSearch()                    — attach search input listeners
- 12. loadClocks()                    — hydrate clocksData
+  9. initUndo()                      - reconstruct undo stacks from oplog
+ 10. scheduleCompaction()            - hourly background oplog cleanup
+ 11. initSearch()                    - attach search input listeners
+ 12. loadClocks()                    - hydrate clocksData
  13. cleanupUnusedTags()
  14. sortAllColumnsByPriority()
- 15. applyFilters()                  — apply any active search/tag filters
- 16. requestDurableStorage()         — request persistent quota
- 17. initStorageMonitor()            — background quota monitoring
+ 15. applyFilters()                  - apply any active search/tag filters
+ 16. requestDurableStorage()         - request persistent quota
+ 17. initStorageMonitor()            - background quota monitoring
  18. setupDragAndDrop()
- 19. setupClipboardPaste()           — images.js paste handler
+ 19. setupClipboardPaste()           - images.js paste handler
  20. loadNotebookFromLocalStorage() + renderNotebookTree()
      Keyboard shortcuts, custom event listeners, modal backdrop handlers
 ```
@@ -342,10 +342,10 @@ Every action is also written to IDB `oplog` store asynchronously (fire-and-forge
 
 ### Trash (Soft Delete)
 
-Deleted tasks are soft-deleted (`task.deleted = true`) in `state.notesData` and simultaneously cloned to `trashedTasks[]` (persisted in IDB `trash` store via a 300ms debounced write). Keeping the soft-deleted entry in `state.notesData` is required for `applyRedo('delete')` to function correctly after a page reload. `TRASH_SOFT_CAP = 200` — oldest entries auto-purged when limit is exceeded. Users can restore or permanently delete from the trash panel.
+Deleted tasks are soft-deleted (`task.deleted = true`) in `state.notesData` and simultaneously cloned to `trashedTasks[]` (persisted in IDB `trash` store via a 300ms debounced write). Keeping the soft-deleted entry in `state.notesData` is required for `applyRedo('delete')` to function correctly after a page reload. `TRASH_SOFT_CAP = 200` - oldest entries auto-purged when limit is exceeded. Users can restore or permanently delete from the trash panel.
 
-- **Restore** — removes `task.deleted`, pushes a "Restored from trash" history entry, replaces the soft-deleted entry in `state.notesData` in-place (preventing duplicates).
-- **Permanent delete / empty trash** — removes entries from both `trashedTasks[]` and `state.notesData`, purges matching entries from the undo/redo stacks, then calls `cleanupUnusedTags()`.
+- **Restore** - removes `task.deleted`, pushes a "Restored from trash" history entry, replaces the soft-deleted entry in `state.notesData` in-place (preventing duplicates).
+- **Permanent delete / empty trash** - removes entries from both `trashedTasks[]` and `state.notesData`, purges matching entries from the undo/redo stacks, then calls `cleanupUnusedTags()`.
 
 ### Oplog Compaction
 
@@ -360,7 +360,7 @@ Deleted tasks are soft-deleted (`task.deleted = true`) in `state.notesData` and 
 | State                 | Type             | Behaviour                                                |
 | --------------------- | ---------------- | -------------------------------------------------------- |
 | `currentSearchTerm`   | `string`         | Case-insensitive substring match on title + note preview |
-| `currentTagFilter`    | `string[]`       | AND logic — task must have ALL selected tags             |
+| `currentTagFilter`    | `string[]`       | AND logic - task must have ALL selected tags             |
 | `currentColumnFilter` | `string \| null` | Show only one column's tasks                             |
 
 ### `checkTaskVisibility(task)`
@@ -387,7 +387,7 @@ Input events are debounced 200 ms before `applyFilters()` runs, preventing per-k
   name: string;        // display name (max 20 chars)
   colorIndex: number;  // 0–9 index into TAG_COLORS[]
   pinned: boolean;     // if true, shown in the filter bar
-  customColor?: string; // optional hex (e.g. "#8b5cf6") — overrides colorIndex
+  customColor?: string; // optional hex (e.g. "#8b5cf6") - overrides colorIndex
 }
 ```
 
@@ -401,13 +401,13 @@ Stored in IDB `tags` store. Up to **5 tags per task** (`MAX_TAGS_PER_TASK`).
 
 Pinned tags appear in the board's filter bar. Clicking a pinned tag adds it to `currentTagFilter`. Filter uses AND logic for multiple selections.
 
-Inside the task modal, pinned tags are also shown in a dedicated management panel above the dropdown, with **Assign** (add to task) and **Delete** (remove tag permanently) actions — removing the need to open the dropdown to manage pinned tags.
+Inside the task modal, pinned tags are also shown in a dedicated management panel above the dropdown, with **Assign** (add to task) and **Delete** (remove tag permanently) actions - removing the need to open the dropdown to manage pinned tags.
 
-`deleteTag(id)` removes the definition, strips the tag ID from every task in `state.notesData`, persists, then walks the DOM for all affected task cards and replaces their `.task-tags` element using `renderTaskTagsHTML` — keeping board cards in sync without a full re-render.
+`deleteTag(id)` removes the definition, strips the tag ID from every task in `state.notesData`, persists, then walks the DOM for all affected task cards and replaces their `.task-tags` element using `renderTaskTagsHTML` - keeping board cards in sync without a full re-render.
 
 ### Tag Filter Matching
 
-`checkTaskVisibility()` in `search.js` compares tag IDs directly using AND semantics (`currentTagFilter.every(id => taskTagIds.includes(id))`). A task must carry **all** selected filter tags to be visible — selecting more chips narrows results. Name-based comparison was removed to prevent false matches between tags with similar names.
+`checkTaskVisibility()` in `search.js` compares tag IDs directly using AND semantics (`currentTagFilter.every(id => taskTagIds.includes(id))`). A task must carry **all** selected filter tags to be visible - selecting more chips narrows results. Name-based comparison was removed to prevent false matches between tags with similar names.
 
 ### Cleanup
 
@@ -427,7 +427,7 @@ Tasks carry an optional `dueDate: string` (ISO `YYYY-MM-DD`).
 
 `getDueDateStatus` returns `'overdue' | 'today' | 'soon' | 'normal'`. This drives the CSS class applied to the due date badge on each task card.
 
-All mutations via `setDueDate(taskId, isoDate | null)` — records an undo action and saves.
+All mutations via `setDueDate(taskId, isoDate | null)` - records an undo action and saves.
 
 **Timezone note:** ISO date strings are parsed with a local-time constructor (`new Date(y, m-1, d)`) rather than `new Date(isoString)`. The native `Date` constructor parses `YYYY-MM-DD` strings as UTC midnight, which shifts the date for users in negative-offset timezones and causes tasks to appear overdue prematurely. The local-time parser eliminates this discrepancy.
 
@@ -440,7 +440,7 @@ All mutations via `setDueDate(taskId, isoDate | null)` — records an undo actio
 | Format             | Extension        | Contents                                           | Encrypted |
 | ------------------ | ---------------- | -------------------------------------------------- | --------- |
 | Full backup        | `.kantrack.json` | Tasks, tags, notebook, clocks, images (Base64)     | No        |
-| Lightweight backup | `.kantrack.json` | Tasks, tags, notebook, clocks — **no images**      | No        |
+| Lightweight backup | `.kantrack.json` | Tasks, tags, notebook, clocks - **no images**      | No        |
 | Encrypted backup   | `.kantrack.enc`  | Full backup + AES-256-GCM                          | Yes       |
 | Board snapshot     | `.html`          | Read-only visual render of the board               | No        |
 | Task export        | `.pdf`           | Single task notes + timeline (jsPDF + html2canvas) | No        |
@@ -454,8 +454,8 @@ All mutations via `setDueDate(taskId, isoDate | null)` — records an undo actio
 
 ### Import Modes
 
-- **Merge** — appends imported tasks/items not already present (matched by `id`)
-- **Replace** — replaces all local data (auto-downloads a lightweight backup first as safety net)
+- **Merge** - appends imported tasks/items not already present (matched by `id`)
+- **Replace** - replaces all local data (auto-downloads a lightweight backup first as safety net)
 
 ### Worker Thread
 
@@ -477,8 +477,8 @@ Legacy layout (v0, produced before version byte was added):
 
 encryptWorkspace(json, passphrase) → ArrayBuffer   (always writes v2)
 decryptWorkspace(buffer, passphrase) → string (JSON)
-  — auto-detects v0 (no magic prefix) vs v1/v2 (KTENC magic)
-  — decrypts v0/v1 files with 100 000 iterations for backward compatibility
+  - auto-detects v0 (no magic prefix) vs v1/v2 (KTENC magic)
+  - decrypts v0/v1 files with 100 000 iterations for backward compatibility
 ```
 
 No keys are stored. The key is re-derived from the passphrase on every encrypt/decrypt call. The version byte makes future algorithm upgrades detectable and migratable without breaking existing files.
@@ -511,9 +511,9 @@ Notebook item metadata (name, type, parentId, order) is kept in memory. `content
 
 `getNotebookItemContent()` uses a three-tier fallback chain to survive an IDB wipe:
 
-1. **IDB** `notebook_items` store — primary, holds the most recent version
-2. **`localStorage.notebookItems`** — legacy fallback for the embedded-content format
-3. **`localStorage.notebookContent_<id>`** — per-page backup key written by `saveAndClosePage()` on every save; recovered automatically if IDB is cleared
+1. **IDB** `notebook_items` store - primary, holds the most recent version
+2. **`localStorage.notebookItems`** - legacy fallback for the embedded-content format
+3. **`localStorage.notebookContent_<id>`** - per-page backup key written by `saveAndClosePage()` on every save; recovered automatically if IDB is cleared
 
 `saveNotebookContentBackup(id, content)` is called on every page save, writing raw HTML (not JSON-wrapped) to `notebookContent_<id>`. `deleteNotebookContentBackup(id)` is called during page deletion to keep localStorage clean. Per-page keys avoid re-serialising the entire notebook on every save.
 
@@ -527,12 +527,12 @@ Images are stored in IDB under the composite key `notebook_${pageId}_${imageId}`
 
 Implemented in Phase 7. Key components:
 
-- **`createFocusTrap(containerEl)`** (`utils.js`) — returns `{ activate(), deactivate() }`. Traps keyboard focus inside a modal; wraps Tab/Shift+Tab at boundaries. Activated on modal open, deactivated on close.
-- **Focus restore** — each modal saves `document.activeElement` before opening and restores it on close.
-- **ESC chain** — single global `keydown` handler closes the topmost open modal/panel in priority order.
-- **Card keyboard nav** — task cards have `tabIndex=0`. Arrow keys navigate within a column; Enter/Space opens the modal.
-- **ARIA** — all modals carry `role="dialog"`, `aria-modal="true"`, `aria-labelledby`.
-- **`.sr-only`** — visually-hidden utility class for screen-reader-only labels (`base.css`).
+- **`createFocusTrap(containerEl)`** (`utils.js`) - returns `{ activate(), deactivate() }`. Traps keyboard focus inside a modal; wraps Tab/Shift+Tab at boundaries. Activated on modal open, deactivated on close.
+- **Focus restore** - each modal saves `document.activeElement` before opening and restores it on close.
+- **ESC chain** - single global `keydown` handler closes the topmost open modal/panel in priority order.
+- **Card keyboard nav** - task cards have `tabIndex=0`. Arrow keys navigate within a column; Enter/Space opens the modal.
+- **ARIA** - all modals carry `role="dialog"`, `aria-modal="true"`, `aria-labelledby`.
+- **`.sr-only`** - visually-hidden utility class for screen-reader-only labels (`base.css`).
 
 ---
 
@@ -572,7 +572,7 @@ Web Workers are bundled as separate chunks. `jsPDF` and `html2canvas` are exclud
 ### Unit Tests
 
 ```bash
-npm run test:run   # Vitest — 531 tests, ~1.5 s
+npm run test:run   # Vitest - 531 tests, ~1.5 s
 npm run test       # Vitest watch mode
 npm run test:ui    # Vitest browser UI
 ```
@@ -583,7 +583,7 @@ Environment: `node` (not jsdom). `tests/setup.js` installs `fake-indexeddb`, `lo
 ### E2E Tests
 
 ```bash
-npm run e2e        # Playwright headless — 43 tests, ~35 s
+npm run e2e        # Playwright headless - 43 tests, ~35 s
 npm run e2e:ui     # Playwright interactive
 ```
 

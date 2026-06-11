@@ -28,7 +28,7 @@ export function setupClipboardPaste() {
     });
   }
 
-  // Format buttons — use mousedown + preventDefault to keep editor selection intact
+  // Format buttons - use mousedown + preventDefault to keep editor selection intact
   document.getElementById('boldBtn')?.addEventListener('mousedown', e => {
     e.preventDefault();
     document.execCommand('bold');

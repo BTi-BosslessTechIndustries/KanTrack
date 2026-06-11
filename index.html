@@ -84,6 +84,14 @@
 							<button class="card-size-btn" data-action="cardSize:set" data-action-param="large" aria-label="Large cards" title="Large">L</button>
 						</div>
 					</div>
+					<div class="theme-picker" role="group" aria-label="Theme">
+						<span class="theme-picker-label">Theme</span>
+						<div class="theme-picker-btns">
+							<button class="theme-btn theme-btn-light" data-action="theme:set" data-action-param="light" aria-label="Light mode" title="Light"></button>
+							<button class="theme-btn theme-btn-dark" data-action="theme:set" data-action-param="dark" aria-label="Dark mode" title="Dark"></button>
+							<button class="theme-btn theme-btn-system" data-action="theme:set" data-action-param="system" aria-label="System default" title="System default"></button>
+						</div>
+					</div>
 					<a class="header-dropdown-item" href="privacy.html" target="_blank" rel="noopener noreferrer" role="menuitem">Privacy Policy</a>
 				</div>
 			</div>
@@ -640,12 +648,12 @@
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🗑️</div>
                         <h4>Done column limit</h4>
-                        <p>The Done column holds at most 30 cards. Once it's full, a dialog flags the 15 oldest for permanent deletion and lets you export each one — or all of them bundled as a ZIP — to PDF first. This bypasses the Trash entirely and cannot be undone, so the dialog stays open until you confirm.</p>
+                        <p>The Done column holds at most 30 cards. Once it's full, a dialog flags the 15 oldest for permanent deletion and lets you export each one - or all of them bundled as a ZIP - to PDF first. This bypasses the Trash entirely and cannot be undone, so the dialog stays open until you confirm.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">👁️</div>
                         <h4>Hidden cards</h4>
-                        <p>Hide a To Do or On Hold card with the eye-off button to tuck it off the board without deleting it — it leaves the column counts and the Done limit too (not available for In Progress or Done cards). The "Hidden Cards" header button shows a count badge; restore one card at a time or select several with "Select All" + "Show Selected". While searching, a hint links straight to any matching hidden cards.</p>
+                        <p>Hide a To Do or On Hold card with the eye-off button to tuck it off the board without deleting it - it leaves the column counts and the Done limit too (not available for In Progress or Done cards). The "Hidden Cards" header button shows a count badge; restore one card at a time or select several with "Select All" + "Show Selected". While searching, a hint links straight to any matching hidden cards.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🎯</div>
@@ -671,6 +679,11 @@
                         <div class="help-feat-icon">⚙️</div>
                         <h4>Card sizes</h4>
                         <p>Small, Medium, and Large card display sizes. Your preference persists across sessions.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">🌓</div>
+                        <h4>Theme</h4>
+                        <p>Light, Dark, or System Default, selectable from the ⋮ menu. System Default follows your OS appearance live; choosing Light or Dark explicitly overrides the OS setting and persists across every future session until you switch back to System Default.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🕐</div>
@@ -824,7 +837,7 @@
             <!-- About -->
             <div class="help-feat-section">
                 <div class="help-badge">About</div>
-                <blockquote class="help-blockquote">Built by BTi — Bossless Tech Industries, a small studio with one governing idea: software should serve the person using it.</blockquote>
+                <blockquote class="help-blockquote">Built by BTi - Bossless Tech Industries, a small studio with one governing idea: software should serve the person using it.</blockquote>
                 <p class="help-tagline">KanTrack is an app, not a trap.</p>
             </div>
         </div>

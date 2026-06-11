@@ -1,7 +1,7 @@
 /**
  * Tests for notebook-export.js: pure tree-traversal functions.
  *
- * Only getAllDescendants() and getItemPath() are testable as unit tests —
+ * Only getAllDescendants() and getItemPath() are testable as unit tests -
  * both are pure traversals over state.notebookItems with no DOM or network I/O.
  * The async export functions (exportFolderAsZip, exportAllNotebook, etc.) depend
  * on jsPDF, JSZip, and the real IDB, so they belong in E2E tests.

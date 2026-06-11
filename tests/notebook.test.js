@@ -1,7 +1,7 @@
 /**
  * Tests for notebook.js: pure tree-query functions.
  *
- * Only getChildItems() is testable as a unit test — it's a pure filter+sort
+ * Only getChildItems() is testable as a unit test - it's a pure filter+sort
  * over state.notebookItems with no DOM or async I/O. Everything else in this
  * module (tree rendering, page editor, drag-and-drop, ZIP import/export, context
  * menus) is DOM/IDB/JSZip-heavy orchestration that belongs in E2E tests (see

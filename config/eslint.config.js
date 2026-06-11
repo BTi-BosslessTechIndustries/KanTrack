@@ -7,7 +7,7 @@ import prettierConfig from 'eslint-config-prettier';
 // ../ to point back to the project root.
 
 export default [
-  // App source files — browser environment
+  // App source files - browser environment
   {
     files: ['../scripts/**/*.{js,ts}'],
     ...js.configs.recommended,
@@ -22,26 +22,26 @@ export default [
       },
     },
     rules: {
-      // Downgrade no-unused-vars to warn — existing code has intentional
+      // Downgrade no-unused-vars to warn - existing code has intentional
       // catch-all patterns; TypeScript's strict mode catches real issues.
       'no-unused-vars': 'warn',
     },
   },
-  // TypeScript files — additional overrides (tsc handles type checking)
+  // TypeScript files - additional overrides (tsc handles type checking)
   {
     files: ['../**/*.ts'],
     rules: {
       'no-unused-vars': 'off',
     },
   },
-  // Config files in this directory — Node.js globals
+  // Config files in this directory - Node.js globals
   {
     files: ['*.config.{js,ts}'],
     languageOptions: {
       globals: { ...globals.node },
     },
   },
-  // Test files — browser-like globals + Vitest test globals
+  // Test files - browser-like globals + Vitest test globals
   {
     files: ['../tests/**/*.{js,ts}'],
     ...js.configs.recommended,

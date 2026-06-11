@@ -6,7 +6,7 @@
  * and a JSDOM environment is configured in beforeAll.
  *
  * JSDOM returns height 0 from getBoundingClientRect, so the card-height
- * refinement branch in #render() never fires — the initial CARD_HEIGHT_ESTIMATE
+ * refinement branch in #render() never fires - the initial CARD_HEIGHT_ESTIMATE
  * (120px) is used throughout. This is fine for structural tests.
  *
  * Intersection-triggered scroll windowing (onIntersection) is covered via a
