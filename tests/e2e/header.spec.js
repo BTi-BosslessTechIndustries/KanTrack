@@ -787,6 +787,13 @@ test.describe('header responsive layout', () => {
     // At 768px: 0.6vw=4.6px: smaller than at 1280px
     await page.setViewportSize({ width: 768, height: 800 });
     await page.evaluate(() => void document.body.offsetHeight);
+
+    // .header-action-btn has `transition: all 0.2s ease`, so its width
+    // (clamp(28px, 3.5vw, 36px)) animates from 36px to 28px after the
+    // resize. Wait for #undoBtn to settle at its new width before reading
+    // boundingBox(), otherwise the gap is measured mid-transition.
+    await expect(page.locator('#undoBtn')).toHaveCSS('width', '28px');
+
     const gapNarrow = await getUndoRedoGap();
 
     expect(gapNarrow).toBeLessThan(gapWide);
