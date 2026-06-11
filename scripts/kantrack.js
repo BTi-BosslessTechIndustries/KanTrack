@@ -119,6 +119,11 @@ import {
 import { debounce, createFocusTrap } from './kantrack-modules/utils.js';
 import { scheduleCompaction } from './kantrack-modules/compaction.js';
 import { checkDoneCapacity, backfillDoneTimestamps } from './kantrack-modules/done-capacity.js';
+import {
+  getHiddenCount,
+  showHiddenCardsModal,
+  countHiddenMatches,
+} from './kantrack-modules/hidden-cards.js';
 import { registerAction, initRouter } from './kantrack-modules/router.js';
 import { dispatch, TASK_SET_ALL } from './kantrack-modules/store.js';
 
@@ -299,6 +304,7 @@ registerAction('history:redo', () => {
 
 // Trash panel
 registerAction('trash:togglePanel', () => toggleTrashPanel());
+registerAction('hidden:open', () => showHiddenCardsModal());
 registerAction('trash:emptyAll', () => emptyAllTrash());
 registerAction('trash:restore', param => restoreFromTrashUI(param));
 registerAction('trash:permanentDelete', param => permanentDeleteUI(param));
@@ -387,6 +393,37 @@ function updateTrashCount() {
   }
 }
 
+function updateHiddenCountBadge() {
+  const count = getHiddenCount();
+  const countBadge = document.getElementById('hiddenCount');
+
+  if (countBadge) {
+    countBadge.textContent = count;
+    countBadge.style.display = count > 0 ? 'flex' : 'none';
+  }
+}
+
+function updateHiddenSearchHint(query) {
+  const hint = document.getElementById('hiddenSearchHint');
+  if (!hint) return;
+
+  const term = (query || '').trim();
+  const count = term ? countHiddenMatches(term) : 0;
+
+  if (count === 0) {
+    hint.style.display = 'none';
+    hint.innerHTML = '';
+    return;
+  }
+
+  hint.style.display = 'block';
+  hint.innerHTML = `${count} hidden card${count === 1 ? '' : 's'} also match — <a href="#" id="hiddenSearchHintLink">View</a>`;
+  hint.querySelector('#hiddenSearchHintLink').addEventListener('click', e => {
+    e.preventDefault();
+    showHiddenCardsModal(term);
+  });
+}
+
 function renderTrashList() {
   const list = document.getElementById('trashList');
   const trashed = getTrashedTasks();
@@ -455,6 +492,9 @@ function restoreFromTrashUI(taskId) {
     renderTagFilterButtons();
     renderTrashList();
     checkDoneCapacity();
+    if (task.hidden) {
+      window.dispatchEvent(new Event('kantrack:updateHiddenCount'));
+    }
     showSuccess('Task restored');
   }
 }
@@ -616,6 +656,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render trash count
   renderTrashList();
 
+  // Render hidden-cards count
+  updateHiddenCountBadge();
+
   setupDragAndDrop();
   setupClipboardPaste();
   loadPermanentNotes();
@@ -676,6 +719,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const debouncedSearch = debounce(value => {
       setSearchTerm(value);
       clearSearchBtn.style.display = value ? 'block' : 'none';
+      updateHiddenSearchHint(value);
     }, 200);
 
     searchInput.addEventListener('input', e => {
@@ -687,6 +731,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchInput.value = '';
         setSearchTerm('');
         clearSearchBtn.style.display = 'none';
+        updateHiddenSearchHint('');
         searchInput.blur();
       }
     });
@@ -697,6 +742,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       searchInput.value = '';
       setSearchTerm('');
       clearSearchBtn.style.display = 'none';
+      updateHiddenSearchHint('');
     });
   }
 
@@ -826,6 +872,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateTrashCount();
     renderTrashList();
   });
+  window.addEventListener('kantrack:updateHiddenCount', () => updateHiddenCountBadge());
 
   // ── Task lifecycle events from undo system ──
 

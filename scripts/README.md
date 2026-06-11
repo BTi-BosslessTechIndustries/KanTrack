@@ -47,6 +47,6 @@ Workers are created with `new Worker(new URL(..., import.meta.url), { type: 'mod
 
 2. **All click handling goes through `router.ts`.** No inline `onclick` attributes. No `window.*` exports. Use `data-action` + `data-action-param` on HTML elements and `registerAction()` in `kantrack.js`.
 
-3. **Cross-module communication via custom events.** `tasks.js` and other modules dispatch `kantrack:updateColumnCounts` and `kantrack:updateTrashCount` window events instead of calling each other directly.
+3. **Cross-module communication via custom events.** `tasks.js` and other modules dispatch `kantrack:updateColumnCounts`, `kantrack:updateTrashCount`, and `kantrack:updateHiddenCount` window events instead of calling each other directly.
 
 4. **TypeScript for shared infrastructure, JavaScript for feature modules.** The four `.ts` files (types, store, router, repository) form the typed core. Feature modules (modal.js, tasks.js, etc.) remain in JavaScript for now.

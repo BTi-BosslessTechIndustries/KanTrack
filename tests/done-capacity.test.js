@@ -97,6 +97,17 @@ describe('selectDoneOverflow', () => {
     expect(selectDoneOverflow(state.notesData)).toEqual([]);
   });
 
+  it('ignores hidden tasks', () => {
+    const tasks = [
+      ...Array.from({ length: 29 }, (_, i) => doneTask(`d${i}`, 1000 + i)),
+      { ...doneTask('hidden-one', 5000), hidden: true, hiddenAt: 5001 },
+    ];
+    state.setNotesData(tasks);
+
+    // Only 29 *eligible* Done tasks — below the cap, so no overflow
+    expect(selectDoneOverflow(state.notesData)).toEqual([]);
+  });
+
   it('backfills a missing doneAt on stragglers before sorting, and persists the change', () => {
     const tasks = [
       ...Array.from({ length: 29 }, (_, i) => doneTask(`t${i}`, 1000 + i)),

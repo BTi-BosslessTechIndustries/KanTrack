@@ -20,6 +20,7 @@ import { showQuickTimeMenu, LONG_PRESS_THRESHOLD } from './timer.js';
 import { exportTaskAsPDF } from './export.js';
 import { enableTouchDrag, setDraggedItemRef } from './drag-drop.js';
 import { moveToTrash, recordAction } from './undo.js';
+import { hideCard } from './hidden-cards.js';
 import {
   renderTaskTagsHTML,
   getTaskTags,
@@ -56,7 +57,7 @@ export function initVirtualLists(notes) {
     if (!colEl) continue;
     const isTodo = columnId === 'todo';
     const columnTasks = notes
-      .filter(t => !t.deleted && t.column === columnId)
+      .filter(t => !t.deleted && !t.hidden && t.column === columnId)
       .sort((a, b) => {
         const diff =
           getPrioritySortValue(a.priority, isTodo) - getPrioritySortValue(b.priority, isTodo);
@@ -81,7 +82,7 @@ export function updateColumnVirtualList(columnId) {
   const isTodo = columnId === 'todo';
   const all = state.notesData;
 
-  let columnTasks = all.filter(t => !t.deleted && t.column === columnId);
+  let columnTasks = all.filter(t => !t.deleted && !t.hidden && t.column === columnId);
 
   // Priority sort (data-level)
   columnTasks.sort((a, b) => {
@@ -351,6 +352,29 @@ export function createNoteElement(content) {
   const editDeleteContainer = document.createElement('div');
   editDeleteContainer.classList.add('edit-delete');
 
+  const canHide = content.column === 'todo' || content.column === 'onHold';
+  let hideButton = null;
+  if (canHide) {
+    hideButton = document.createElement('button');
+    hideButton.classList.add('hide-card-btn');
+    hideButton.title = 'Hide card';
+    hideButton.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-4.5-11-4.5s1.6-3 4-5.5"></path>' +
+      '<path d="M9.9 4.24A9.97 9.97 0 0 1 12 4c7 0 11 4.5 11 4.5s-1.6 3-4 5.5"></path>' +
+      '<line x1="1" y1="1" x2="23" y2="23"></line>' +
+      '</svg>';
+    hideButton.onclick = function (e) {
+      e.stopPropagation();
+      hideCard(content.id);
+    };
+    hideButton.addEventListener('touchend', function (e) {
+      e.stopPropagation();
+      e.preventDefault();
+      hideCard(content.id);
+    });
+  }
+
   const priorityButton = document.createElement('button');
   priorityButton.textContent = '🏷️';
   priorityButton.style.color = getPriorityColor(content.priority);
@@ -464,7 +488,8 @@ export function createNoteElement(content) {
     handleDelete(e);
   });
 
-  [priorityButton, timerButton, deleteButton].forEach(btn => {
+  [hideButton, priorityButton, timerButton, deleteButton].forEach(btn => {
+    if (!btn) return;
     btn.draggable = false;
     btn.addEventListener('mousedown', e => e.stopPropagation());
     btn.addEventListener(
@@ -476,6 +501,7 @@ export function createNoteElement(content) {
     );
   });
 
+  if (hideButton) editDeleteContainer.appendChild(hideButton);
   editDeleteContainer.appendChild(priorityButton);
   editDeleteContainer.appendChild(timerButton);
   editDeleteContainer.appendChild(deleteButton);

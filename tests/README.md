@@ -17,6 +17,7 @@ tests/
 ├── due-dates.test.js             # formatDueDate, isOverdue, isDueToday, getDueDateStatus, etc.
 ├── focus-trap.test.js            # createFocusTrap(): Tab cycling and deactivation (uses JSDOM)
 ├── clocks.test.js                # formatChronometer(): ms-to-"HH:MM:SS" formatting
+├── hidden-cards.test.js          # hideCard/showCard/showCards, getHiddenTasks/getHiddenCount, countHiddenMatches, undo/redo
 ├── images.test.js                # image modal open/close and clipboard paste handler
 ├── import-validator.test.js      # .kantrack.json import validation and error cases
 ├── loading.test.js               # loading overlay show/hide and progress indicator utilities
@@ -40,7 +41,7 @@ tests/
 ├── virtual-list.test.js          # VirtualList IntersectionObserver-based card rendering
 └── e2e/
     ├── smoke.spec.js                   # Playwright E2E: create task + persist; set priority + persist
-    ├── flows.spec.js                   # Playwright E2E: delete, edit title, add note, undo/redo, clock reset
+    ├── flows.spec.js                   # Playwright E2E: delete, edit title, add note, undo/redo, clock reset, hide/show cards, Done-cap dialog
     ├── accessibility.spec.js           # Playwright E2E: keyboard shortcuts, ESC, arrow nav, focus
     ├── drag-drop.spec.js               # Playwright E2E: card drag-and-drop between columns, doneAt stamping
     ├── import-export.spec.js           # Playwright E2E: export/import round-trips
@@ -63,7 +64,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**734 tests across 29 files**: all should pass on every run.
+**750 tests across 30 files**: all should pass on every run.
 
 ### What is mocked
 

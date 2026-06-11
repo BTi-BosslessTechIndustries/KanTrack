@@ -6,19 +6,19 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 ## Spec files
 
-| File                             | Tests | What it covers                                                                                                                                           |
-| -------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `smoke.spec.js`                  | 2     | Create task + persist; set priority + persist after reload                                                                                               |
-| `flows.spec.js`                  | 11    | Delete, edit title, add note, undo, undo-persist, redo; clock reset button visibility and behaviour                                                      |
-| `accessibility.spec.js`          | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav                                                                                    |
-| `drag-drop.spec.js`              | 3     | Card drag-and-drop between board columns; persistence; `doneAt` stamped on entering Done and cleared on leaving                                          |
-| `import-export.spec.js`          | 7     | JSON export/import, encrypted export/import, format-version validation                                                                                   |
-| `notebook-import-export.spec.js` | 5     | Download everything button (visibility, dual-file download); notebook ZIP export content; notebook ZIP import (merge, no data loss)                      |
-| `performance.spec.js`            | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                                                               |
-| `search.spec.js`                 | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                                                                    |
-| `header.spec.js`                 | 54    | Support Us / About / Shortcuts modals; credit button; ⋮ dropdown; card size picker and persistence; header responsive scaling; clock collapsed state     |
-| `responsive.spec.js`             | 12    | Kanban column count at 800 px / 500 px; clock container no-wrap; clock font scaling; clock panel 700 px breakpoint (hide/show, header time, logo centre) |
-| `sub-kanban.spec.js`             | 5     | Per-task mini-board: add a sub-task, drag it between columns, drag to Done updates the count badge, delete with confirmation, double-click rename        |
+| File                             | Tests | What it covers                                                                                                                                                                                                                                     |
+| -------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `smoke.spec.js`                  | 2     | Create task + persist; set priority + persist after reload                                                                                                                                                                                         |
+| `flows.spec.js`                  | 16    | Delete, edit title, add note, undo, undo-persist, redo; hide/show a card, bulk-show via Select All, search hint to hidden cards, hide button restricted to To Do/On Hold; clock reset button visibility and behaviour; Done column capacity dialog |
+| `accessibility.spec.js`          | 9     | Keyboard shortcuts (N, /, ?), ESC closes modals, Enter/arrow card nav                                                                                                                                                                              |
+| `drag-drop.spec.js`              | 3     | Card drag-and-drop between board columns; persistence; `doneAt` stamped on entering Done and cleared on leaving                                                                                                                                    |
+| `import-export.spec.js`          | 7     | JSON export/import, encrypted export/import, format-version validation                                                                                                                                                                             |
+| `notebook-import-export.spec.js` | 5     | Download everything button (visibility, dual-file download); notebook ZIP export content; notebook ZIP import (merge, no data loss)                                                                                                                |
+| `performance.spec.js`            | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                                                                                                                                                         |
+| `search.spec.js`                 | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                                                                                                                                                              |
+| `header.spec.js`                 | 54    | Support Us / About / Shortcuts modals; credit button; ⋮ dropdown; card size picker and persistence; header responsive scaling; clock collapsed state                                                                                               |
+| `responsive.spec.js`             | 12    | Kanban column count at 800 px / 500 px; clock container no-wrap; clock font scaling; clock panel 700 px breakpoint (hide/show, header time, logo centre)                                                                                           |
+| `sub-kanban.spec.js`             | 5     | Per-task mini-board: add a sub-task, drag it between columns, drag to Done updates the count badge, delete with confirmation, double-click rename                                                                                                  |
 
 ---
 
@@ -94,6 +94,40 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 1. Create a task, undo it, redo it: assert card reappears
 
+**Test 7: Hide a card and show it again from the Hidden Cards modal**
+
+1. Create a task
+2. Hover the card to reveal `.hide-card-btn` (eye-off icon) and click it
+3. Assert the card disappears from `#todo`
+4. Assert `#hiddenCount` is visible and shows "1"
+5. Click `#hiddenToggleBtn` to open `#kt-hidden-modal`
+6. Find the row for the task, click its `[data-show-id]` "Show" button
+7. Assert the row disappears from the modal and `#hiddenCount` becomes hidden
+8. Close the modal (`#kt-hidden-close`)
+9. Assert the card is back in `#todo`
+
+**Test 8: Bulk-show multiple hidden cards via Select All / Show Selected**
+
+1. Create two tasks and hide both via `.hide-card-btn`
+2. Assert `#hiddenCount` shows "2"
+3. Open `#kt-hidden-modal`; assert both rows are visible
+4. Click `#kt-hidden-select-all`; assert its label flips to "Deselect All" and both `.kt-hidden-row-check` checkboxes become checked
+5. Click `#kt-hidden-show-selected`; assert both rows disappear, `li.kt-hidden-empty` is visible, and `#hiddenCount` is hidden
+6. Close the modal; assert both cards are back in `#todo`
+
+**Test 9: Search hint links a matching hidden card to the Hidden Cards modal, pre-filtered**
+
+1. Create a task and hide it
+2. Type its title into `#taskSearchInput`
+3. Assert `#hiddenSearchHint` is visible and contains "1 hidden card"
+4. Click `#hiddenSearchHintLink`
+5. Assert `#kt-hidden-modal` is visible, shows the matching row, and `#kt-hidden-clear-filter` is visible (modal opened pre-filtered to the search query)
+
+**Test 10: Hide button only appears on To Do and On Hold cards, not In Progress or Done**
+
+1. Seed one task per column (`todo`, `inProgress`, `onHold`, `done`) via `addInitScript`
+2. Hover each card and assert `.hide-card-btn`: present (count 1) for the `todo` and `onHold` cards, absent (count 0) for the `inProgress` and `done` cards
+
 ---
 
 ### `accessibility.spec.js`: keyboard shortcuts & focus (Phase 7)
@@ -113,7 +147,7 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 
 The app's drag-and-drop is **state-based**, not `DataTransfer`-based: `dragstart` stores a reference to the dragged note in module state (`setDraggedItemRef`), and the `drop` handler reads that reference and calls `updateNoteColumn(id, oldColumn, newColumn)`. This means Playwright's `locator.dragTo(target)` exercises the real move logic without needing to populate a `DataTransfer` payload.
 
-- **To Do → In Progress**: drag a card via `locator.dragTo(#inProgress)`; assert it lands in the target column and disappears from the source; poll IDB for `column === 'inProgress'`; reload and re-assert
+- **To Do → In Progress**: drag a card via `locator.dragTo(#inProgress)`; assert it lands in the target column and disappears from the source; assert its `.hide-card-btn` (present in To Do) is gone after the move (hide is only available in To Do/On Hold); poll IDB for `column === 'inProgress'`; reload and re-assert
 - **Drag into Done stamps `doneAt`**: drag a card to `#done`; poll IDB for `column === 'done' && typeof doneAt === 'number'`; assert the per-move `confirm("...export it as PDF?")` dialog appears (dismissed to skip the export)
 - **Drag out of Done clears `doneAt`**: move a card into Done, then to On Hold; poll IDB for `column === 'onHold' && typeof doneAt === 'undefined'`
 
@@ -152,13 +186,29 @@ The app's drag-and-drop is **state-based**, not `DataTransfer`-based: `dragstart
 
 **Tests 1–6** (task CRUD and undo): delete, edit title, add note, undo, undo-persist across reload, redo — documented above.
 
-**Tests 7–11: Clock reset button**
+**Tests 7–10** (Hidden Cards): hide/show a single card, bulk-show via Select All / Show Selected, the search hint linking to a pre-filtered Hidden Cards modal, and the hide button column restriction (To Do/On Hold only) — documented above.
+
+**Tests 11–15: Clock reset button**
 
 - Reset button is visible when multiple clocks are shown
 - Reset button is hidden when only Current Time is shown
 - Clicking Reset leaves exactly one clock labelled "Current Time"
 - The Add Clock button in the header is accessible after reset
 - `.clock-spacer` and `.clock-actions-col` layout elements are present
+
+---
+
+### `flows.spec.js`: Done column capacity (Test 16)
+
+**Test 16: Shows the limit dialog on load, exports a card, and deleting trims the column to 15**
+
+1. Seed `localStorage.kanbanNotes` (via `addInitScript`, guarded against re-seeding on reload) with 30 Done-column tasks, `doneAt` spaced one day apart, oldest first
+2. Load the app; assert `.kt-capacity-modal` is visible with the title "Done Column Limit Reached"
+3. Assert it lists exactly 15 `li.kt-hidden-row` rows (the oldest 15 by `doneAt`), starting with "Completed task #1"
+4. Click `[data-export-id]` on the first row; assert the button's text becomes "DONE" and it gains the `is-done` class
+5. Click `#kt-capacity-delete`; assert the dialog closes
+6. Read `localStorage.kanbanNotes` and assert only 15 Done-column tasks remain
+7. Reload the page; assert `.kt-capacity-modal` does not reappear (cap is no longer exceeded)
 
 ---
 

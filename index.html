@@ -88,6 +88,14 @@
 				</div>
 			</div>
 			<div class="header-divider"></div>
+			<button id="hiddenToggleBtn" class="header-action-btn header-hidden-btn" data-action="hidden:open" title="View Hidden Cards" aria-label="View Hidden Cards">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-4.5-11-4.5s1.6-3 4-5.5"></path>
+					<path d="M9.9 4.24A9.97 9.97 0 0 1 12 4c7 0 11 4.5 11 4.5s-1.6 3-4 5.5"></path>
+					<line x1="1" y1="1" x2="23" y2="23"></line>
+				</svg>
+				<span id="hiddenCount" class="hidden-count" style="display: none;">0</span>
+			</button>
 			<button id="trashToggleBtn" class="header-action-btn header-trash-btn" data-action="trash:togglePanel" title="View Trash" aria-label="View Trash">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="3 6 5 6 21 6"></polyline>
@@ -256,6 +264,7 @@
                 <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="Clear search" aria-label="Clear search">&times;</button>
             </div>
         </div>
+        <div id="hiddenSearchHint" class="hidden-search-hint" style="display:none;"></div>
         <div class="tag-filters" id="tagFilters">
             <!-- Tag filter buttons will be dynamically generated -->
         </div>
@@ -632,6 +641,11 @@
                         <div class="help-feat-icon">🗑️</div>
                         <h4>Done column limit</h4>
                         <p>The Done column holds at most 30 cards. Once it's full, a dialog flags the 15 oldest for permanent deletion and lets you export each one — or all of them bundled as a ZIP — to PDF first. This bypasses the Trash entirely and cannot be undone, so the dialog stays open until you confirm.</p>
+                    </div>
+                    <div class="help-feat-card">
+                        <div class="help-feat-icon">👁️</div>
+                        <h4>Hidden cards</h4>
+                        <p>Hide a To Do or On Hold card with the eye-off button to tuck it off the board without deleting it — it leaves the column counts and the Done limit too (not available for In Progress or Done cards). The "Hidden Cards" header button shows a count badge; restore one card at a time or select several with "Select All" + "Show Selected". While searching, a hint links straight to any matching hidden cards.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🎯</div>

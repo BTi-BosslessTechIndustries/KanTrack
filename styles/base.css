@@ -320,6 +320,23 @@ body.clocks-collapsed .header-clock-group {
   justify-content: center;
 }
 
+.header-hidden-btn .hidden-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #e74c3c;
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Notebook sidebar open state - shift header content */
 body.notebook-sidebar-open .top-header {
   left: var(--notebook-sidebar-width);
@@ -580,6 +597,12 @@ button:hover {
   border-radius: 6px;
   font-size: 1.1em;
   transition: all 0.2s ease;
+}
+
+.edit-delete button svg {
+  width: 1.1em;
+  height: 1.1em;
+  display: block;
 }
 
 .edit-delete button:hover {
