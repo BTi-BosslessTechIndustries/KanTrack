@@ -3,7 +3,7 @@
  *
  * database.js is a plain JS module. These declarations give TypeScript enough
  * information to type-check callers without requiring allowJs or ts-ignore hacks.
- * Return types use `unknown` for IDB records — callers cast to their concrete types.
+ * Return types use `unknown` for IDB records - callers cast to their concrete types.
  */
 
 // ── Core IDB helpers ──────────────────────────────────────────────────────────

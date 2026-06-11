@@ -106,7 +106,7 @@ export function getColumnVirtualList(columnId) {
   return _virtualListMap.get(columnId) ?? null;
 }
 
-/** Index of task in data array — used as stable secondary sort key. */
+/** Index of task in data array - used as stable secondary sort key. */
 function _noteIndex(id, arr) {
   return arr.findIndex(t => t.id === id);
 }
@@ -173,7 +173,7 @@ export function deleteTaskFromModal() {
 
     const shouldExport = confirm('Do you want to export this task as PDF before deleting?');
 
-    // Close modal first — deactivate focus trap before hiding
+    // Close modal first - deactivate focus trap before hiding
     state.setModalHasChanges(false); // Prevent unsaved changes warning
     _deactivateModalTrap?.();
     const modal = document.getElementById('taskModal');
@@ -229,7 +229,7 @@ export async function deleteNote(id, addToHistory = true) {
       if (domEl) domEl.remove();
     }
 
-    // Refresh filter bar — frequency changes when a task is removed
+    // Refresh filter bar - frequency changes when a task is removed
     renderTagFilterButtons();
 
     // Update column counts and trash badge
@@ -277,7 +277,7 @@ export function updateNoteColumn(id, oldColumn, newColumn) {
 
     if (newColumn === 'done') {
       const capacityTriggered = checkDoneCapacity();
-      // Skip the per-move export prompt when the capacity dialog just opened —
+      // Skip the per-move export prompt when the capacity dialog just opened -
       // it already offers this card its own "Export PDF" button, and stacking
       // two dialogs for one move would be confusing.
       if (!capacityTriggered) {

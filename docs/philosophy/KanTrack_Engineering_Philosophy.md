@@ -1,4 +1,5 @@
 # KanTrack Engineering Philosophy
+
 ## How KanTrack Is Built, Not Just What It Does
 
 ---
@@ -7,7 +8,7 @@
 
 Engineering exists to support **clarity, reliability, and independence**.
 
-Technical decisions must serve the product doctrine — not the other way around.
+Technical decisions must serve the product doctrine - not the other way around.
 
 Primary question:
 
@@ -34,7 +35,7 @@ Engineering must ensure:
 
 Prefer proven technologies over fashionable ones.
 
-KanTrack is infrastructure for a person’s work — it must be dependable.
+KanTrack is infrastructure for a person’s work - it must be dependable.
 
 Avoid adopting tools that introduce:
 

@@ -170,7 +170,7 @@ export function showHiddenCardsModal(initialQuery = '') {
       : '<li class="kt-hidden-empty">No hidden cards</li>';
 
     const filterNoticeHtml = filterQuery
-      ? `<p class="kt-hidden-filter-notice">Filtered by "${escapeHtml(filterQuery)}" — <a href="#" id="kt-hidden-clear-filter">Clear filter</a></p>`
+      ? `<p class="kt-hidden-filter-notice">Filtered by "${escapeHtml(filterQuery)}" - <a href="#" id="kt-hidden-clear-filter">Clear filter</a></p>`
       : '';
 
     dialog.innerHTML = `

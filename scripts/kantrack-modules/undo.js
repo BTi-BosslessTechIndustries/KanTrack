@@ -272,7 +272,7 @@ function applyUndo(action) {
 function applyRedo(action) {
   switch (action.type) {
     case 'delete': {
-      // Delete the task again — mark as deleted and move back to trash
+      // Delete the task again - mark as deleted and move back to trash
       const taskToDelete = state.notesData.find(t => t.id === action.taskId);
       if (taskToDelete) {
         moveToTrash(JSON.parse(JSON.stringify(taskToDelete)));
@@ -470,7 +470,7 @@ async function _loadStacksFromOplog() {
     const entries = await getAllOplogEntries(); // sorted by lamport asc
     const applied = entries.filter(e => !e.undone);
     // Any undone entry with Lamport < max(applied Lamport) is a phantom left
-    // by a crash before clearUndoneOplogEntries() completed — discard it.
+    // by a crash before clearUndoneOplogEntries() completed - discard it.
     const maxAppliedLamport = applied.length > 0 ? Math.max(...applied.map(e => e.lamport)) : -1;
     // Sort undone entries by undoneAt so the most recently undone ends up last
     // (stack.pop() must return the most recently undone action first)
@@ -525,7 +525,7 @@ export function moveToTrash(task) {
     trashedAt: Date.now(),
   });
 
-  // Soft cap at 200 items — silently trim oldest
+  // Soft cap at 200 items - silently trim oldest
   while (trashedTasks.length > TRASH_SOFT_CAP) {
     trashedTasks.pop();
   }

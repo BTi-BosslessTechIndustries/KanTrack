@@ -1,5 +1,5 @@
 /***********************
- * CRYPTO — WebCrypto-based workspace encryption
+ * CRYPTO - WebCrypto-based workspace encryption
  * No external library. Uses PBKDF2 + AES-GCM.
  *
  * Binary format for encrypted files (v1+):
@@ -83,7 +83,7 @@ export async function encryptWorkspace(jsonString, passphrase) {
  * Throws if the passphrase is wrong or the data is corrupted (AES-GCM auth fails).
  * @param {ArrayBuffer} arrayBuffer
  * @param {string} passphrase
- * @returns {Promise<string>} — the original JSON string
+ * @returns {Promise<string>} - the original JSON string
  */
 export async function decryptWorkspace(arrayBuffer, passphrase) {
   const data = new Uint8Array(arrayBuffer);
@@ -117,7 +117,7 @@ export async function decryptWorkspace(arrayBuffer, passphrase) {
  * Compute a SHA-256 hex digest of JSON.stringify(data).
  * Used to populate the integrity.tasks_hash field in exports.
  * @param {unknown} data
- * @returns {Promise<string>} — lowercase hex string
+ * @returns {Promise<string>} - lowercase hex string
  */
 export async function computeHash(data) {
   const encoded = new TextEncoder().encode(JSON.stringify(data));

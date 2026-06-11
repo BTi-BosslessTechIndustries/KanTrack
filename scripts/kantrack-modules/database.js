@@ -8,7 +8,7 @@ import { debugWarn } from './utils.js';
 
 const DB_VERSION = 3;
 
-// Data schema version — separate from IDB's structural DB_VERSION.
+// Data schema version - separate from IDB's structural DB_VERSION.
 // Increment this when the shape of stored records changes.
 // Each integer bump maps to a migrate_vN_to_vN1() function below.
 const DATA_SCHEMA_VERSION = 1;
@@ -63,7 +63,7 @@ export function initIndexedDB() {
           database.createObjectStore('prefs', { keyPath: 'key' });
         }
 
-        // v3 stores (Phase 3 — Operation Log)
+        // v3 stores (Phase 3 - Operation Log)
         if (!database.objectStoreNames.contains('oplog')) {
           database.createObjectStore('oplog', { keyPath: 'opId' });
         }
@@ -187,7 +187,7 @@ export function idbClearAndBulkPut(storeName, values) {
 
 /**
  * Migrate data from localStorage to IndexedDB.
- * Idempotent — safe to call multiple times.
+ * Idempotent - safe to call multiple times.
  * Does NOT delete localStorage keys (kept as read-only backup).
  */
 export async function migrateLocalStorageToIDB() {
@@ -265,7 +265,7 @@ export async function migrateLocalStorageToIDB() {
     debugWarn('LocalStorage → IDB migration complete');
   } catch (e) {
     debugWarn('Migration error (non-fatal, localStorage fallback active):', e);
-    // Don't throw — app can still function from localStorage fallback
+    // Don't throw - app can still function from localStorage fallback
   }
 }
 

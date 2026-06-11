@@ -16,7 +16,7 @@ Playwright end-to-end smoke tests. These run against the **production build** (n
 | `notebook-import-export.spec.js` | 5     | Download everything button (visibility, dual-file download); notebook ZIP export content; notebook ZIP import (merge, no data loss)                                                                                                                |
 | `performance.spec.js`            | 2     | Virtual list DOM node budget (200 tasks, scroll to bottom)                                                                                                                                                                                         |
 | `search.spec.js`                 | 5     | Live search filtering, case-insensitivity, clear, ESC clear, no-match                                                                                                                                                                              |
-| `header.spec.js`                 | 54    | Support Us / About / Shortcuts modals; credit button; ⋮ dropdown; card size picker and persistence; header responsive scaling; clock collapsed state                                                                                               |
+| `header.spec.js`                 | 62    | Support Us / About / Shortcuts modals; credit button; ⋮ dropdown; card size picker and persistence; theme picker (Light/Dark/System, persistence, live OS sync); header responsive scaling; clock collapsed state                                  |
 | `responsive.spec.js`             | 12    | Kanban column count at 800 px / 500 px; clock container no-wrap; clock font scaling; clock panel 700 px breakpoint (hide/show, header time, logo centre)                                                                                           |
 | `sub-kanban.spec.js`             | 5     | Per-task mini-board: add a sub-task, drag it between columns, drag to Done updates the count badge, delete with confirmation, double-click rename                                                                                                  |
 
@@ -184,9 +184,9 @@ The app's drag-and-drop is **state-based**, not `DataTransfer`-based: `dragstart
 
 ### `flows.spec.js`: user flows
 
-**Tests 1–6** (task CRUD and undo): delete, edit title, add note, undo, undo-persist across reload, redo — documented above.
+**Tests 1–6** (task CRUD and undo): delete, edit title, add note, undo, undo-persist across reload, redo - documented above.
 
-**Tests 7–10** (Hidden Cards): hide/show a single card, bulk-show via Select All / Show Selected, the search hint linking to a pre-filtered Hidden Cards modal, and the hide button column restriction (To Do/On Hold only) — documented above.
+**Tests 7–10** (Hidden Cards): hide/show a single card, bulk-show via Select All / Show Selected, the search hint linking to a pre-filtered Hidden Cards modal, and the hide button column restriction (To Do/On Hold only) - documented above.
 
 **Tests 11–15: Clock reset button**
 
@@ -240,13 +240,14 @@ The app's drag-and-drop is **state-based**, not `DataTransfer`-based: `dragstart
 - **About modal**: opens via dropdown item; dismissed by ESC, backdrop click, or close button; opens scrolled to top
 - **Shortcuts modal**: opens via dropdown "Help" item; dismissed by backdrop click
 - **Card size picker**: visible in dropdown; Small/Medium/Large buttons set body class; preference persists across reloads; dropdown stays open after selection; card text scales proportionally at each size
+- **Theme picker** (8 tests): visible in dropdown with Light/Dark/System swatches; "System" active by default; system mode resolves to dark/light per `prefers-color-scheme` (Playwright `colorScheme` emulation); clicking Light/Dark sets `body.theme-light` accordingly and persists across reload regardless of OS scheme; returning to System re-follows the OS; dropdown stays open after selecting a theme
 
 **Header responsive layout** (~20 tests)
 
 - Support button visible above 480 px, hidden at ≤ 480 px, shrinks proportionally via `clamp()`
 - BTi logo shrinks at 1280 → 900 → 768 px breakpoints
 - KanTrack logo width scales with `clamp(100px, 18vw, 210px)` and maintains aspect ratio
-- Header left/center/right sections do not overlap at 1280 / 900 / 768 px; at ≤ 700 px the logo uses `position:absolute` — checked by asserting the logo center sits between the support button and the Add Clock button
+- Header left/center/right sections do not overlap at 1280 / 900 / 768 px; at ≤ 700 px the logo uses `position:absolute` - checked by asserting the logo center sits between the support button and the Add Clock button
 - Header action buttons, SVG icons, notebook toggle, and gaps all scale proportionally
 - Header height is 60 px above 768 px and 54 px at ≤ 768 px
 - All essential controls remain visible at 500 px and 400 px

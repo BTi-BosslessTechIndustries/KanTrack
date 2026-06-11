@@ -366,8 +366,8 @@ function generatePreviewHTML(tasks) {
 
 /**
  * Build the workspace payload object.
- * mode = 'full'        — includes images embedded as base64 in noteEntries
- * mode = 'lightweight' — data only, no image data
+ * mode = 'full'        - includes images embedded as base64 in noteEntries
+ * mode = 'lightweight' - data only, no image data
  */
 async function _buildWorkspacePayload(mode) {
   const tasks = await getAllTasks();
@@ -605,14 +605,14 @@ async function _autoBackup() {
     link.download = `KanTrack_backup_${getCurrentDate()}.kantrack.json`;
     link.click();
   } catch (_) {
-    // Non-critical — backup failure should not block the import
+    // Non-critical - backup failure should not block the import
   }
 }
 
 /** Apply imported data to IDB stores. mode: 'replace' | 'merge'. */
 async function _applyImport(data, mode) {
   // Restore images FIRST (before saving) so imageData is never serialised
-  // into the IDB stores — images belong only in the images store.
+  // into the IDB stores - images belong only in the images store.
   for (const task of data.tasks ?? []) {
     for (const entry of task.noteEntries || []) {
       if (entry.imageData) {
@@ -890,7 +890,7 @@ async function importBoardFromHTML(file) {
             delete task.images;
           }
 
-          // Normalise column — handle both IDs and display names from old version
+          // Normalise column - handle both IDs and display names from old version
           const column = VALID_COLUMNS.includes(task.column)
             ? task.column
             : columnNameMap[task.column] || 'todo';

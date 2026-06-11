@@ -1,5 +1,5 @@
 /**
- * Compaction worker — filter computation for oplog compaction.
+ * Compaction worker - filter computation for oplog compaction.
  * IDB reads and deletes stay on the main thread; only the CPU-bound
  * filter step runs here.
  *

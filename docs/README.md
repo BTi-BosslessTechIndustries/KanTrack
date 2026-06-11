@@ -8,7 +8,7 @@ Project documentation. Organized by audience and purpose.
 
 | File                                                     | What it covers                                                                                 |
 | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| [`KanTrack_Cloud_Roadmap.md`](KanTrack_Cloud_Roadmap.md) | Phases 8–12 — account infrastructure, E2EE vault, multi-device sync, long-term vision (future) |
+| [`KanTrack_Cloud_Roadmap.md`](KanTrack_Cloud_Roadmap.md) | Phases 8–12 - account infrastructure, E2EE vault, multi-device sync, long-term vision (future) |
 
 ---
 
@@ -16,7 +16,7 @@ Project documentation. Organized by audience and purpose.
 
 | File                                                                                                   | What it covers                                                       |
 | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| [`product/KanTrack_Vision_Deck_Narrative.md`](product/KanTrack_Vision_Deck_Narrative.md)               | The product vision narrative — what KanTrack is trying to be and why |
+| [`product/KanTrack_Vision_Deck_Narrative.md`](product/KanTrack_Vision_Deck_Narrative.md)               | The product vision narrative - what KanTrack is trying to be and why |
 | [`product/KanTrack_Homepage_Structure_Blueprint.md`](product/KanTrack_Homepage_Structure_Blueprint.md) | Planned homepage layout and marketing structure                      |
 | [`product/KanTrack_Public_Homepage_Version.md`](product/KanTrack_Public_Homepage_Version.md)           | Public-facing homepage copy                                          |
 | [`product/KanTrack_Sponsor_Brief.md`](product/KanTrack_Sponsor_Brief.md)                               | Sponsor briefing document                                            |
@@ -61,7 +61,13 @@ These documents define the non-negotiable principles that govern every design an
 | File                                                       | What it covers                                                               |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | [`../privacy.html`](../privacy.html)                       | Live GDPR-compliant Privacy & Cookie Policy page (served at `/privacy.html`) |
-| [`PRIVACY.md`](PRIVACY.md)                                 | Internal privacy reference — no data collection, local-first by default      |
+| [`PRIVACY.md`](PRIVACY.md)                                 | Internal privacy reference - no data collection, local-first by default      |
 | [`../.github/SECURITY.md`](../.github/SECURITY.md)         | Security policy and vulnerability reporting                                  |
 | [`../.github/CONTRIBUTING.md`](../.github/CONTRIBUTING.md) | Contribution guidelines                                                      |
 | [`../LICENSE`](../LICENSE)                                 | Project license                                                              |
+
+---
+
+## Internal planning
+
+`superpowers/` holds working documents (plans and design specs) produced while developing individual features with the superpowers workflow. Not user-facing documentation.

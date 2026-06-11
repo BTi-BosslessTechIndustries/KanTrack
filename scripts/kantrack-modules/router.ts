@@ -1,8 +1,8 @@
 /***********************
- * ROUTER — centralized event delegation
+ * ROUTER - centralized event delegation
  *
  * Replaces window.* exports and inline onclick handlers.
- * Zero external dependencies — a 30-line event delegation pattern.
+ * Zero external dependencies - a 30-line event delegation pattern.
  *
  * Usage (in kantrack.js bootstrap):
  *   import { registerAction, initRouter } from './kantrack-modules/router.js';

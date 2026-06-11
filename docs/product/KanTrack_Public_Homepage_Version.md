@@ -1,13 +1,14 @@
-# KanTrack — Organize Your Work on Your Terms
+# KanTrack - Organize Your Work on Your Terms
 
-## Your work is complicated.  
+## Your work is complicated.
+
 ## Your planning system shouldn’t be.
 
-KanTrack is a personal workspace designed for individuals — not teams, not managers, not dashboards.
+KanTrack is a personal workspace designed for individuals - not teams, not managers, not dashboards.
 
 No accounts required.  
 No tracking.  
-No cloud dependency.  
+No cloud dependency.
 
 Just a clear place to organize what matters to you.
 
@@ -19,10 +20,10 @@ Most productivity tools are designed to coordinate teams and measure progress.
 
 KanTrack is designed to help you:
 
-- see everything in one place  
-- plan your day clearly  
-- keep control of your priorities  
-- stay organized without pressure  
+- see everything in one place
+- plan your day clearly
+- keep control of your priorities
+- stay organized without pressure
 
 If Jira tracks projects, KanTrack tracks your day.
 
@@ -64,7 +65,7 @@ It gives you a quiet place to think through your work and move forward with clar
 
 KanTrack doesn’t replace the systems you’re required to use.
 
-It gives you a personal layer above them — a way to manage everything on your own terms.
+It gives you a personal layer above them - a way to manage everything on your own terms.
 
 ---
 
@@ -83,11 +84,11 @@ If you choose to leave, your work goes with you.
 
 KanTrack is for professionals who want:
 
-- clarity without complexity  
-- privacy without compromise  
-- independence without friction  
+- clarity without complexity
+- privacy without compromise
+- independence without friction
 
-If you want a tool that adapts to you — not the other way around — you’re in the right place.
+If you want a tool that adapts to you - not the other way around - you’re in the right place.
 
 ---
 

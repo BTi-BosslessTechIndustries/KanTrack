@@ -100,7 +100,7 @@ export function sanitizeHTML(html) {
       }
     }
 
-    // Validate <a> href — allow http, https, and fragment (#) only
+    // Validate <a> href - allow http, https, and fragment (#) only
     if (tag === 'a') {
       const href = (el.getAttribute('href') || '').trim();
       if (href) {
@@ -116,7 +116,7 @@ export function sanitizeHTML(html) {
       el.setAttribute('rel', 'noopener noreferrer');
     }
 
-    // Validate <img> src — allow blob: and data:image/ only (our stored images)
+    // Validate <img> src - allow blob: and data:image/ only (our stored images)
     if (tag === 'img') {
       const src = el.getAttribute('src') || '';
       if (!src.startsWith('blob:') && !src.startsWith('data:image/')) {

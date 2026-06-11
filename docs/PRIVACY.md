@@ -10,7 +10,7 @@ By default, all data is stored locally on the user's device. No network connecti
 
 ## Current Deployment
 
-KanTrack is deployed as a fully static site (Cloudflare Pages). There is no backend, no server, and no database outside the user's own browser. The app itself is served as static files — it cannot send or receive user data.
+KanTrack is deployed as a fully static site (Cloudflare Pages). There is no backend, no server, and no database outside the user's own browser. The app itself is served as static files - it cannot send or receive user data.
 
 ---
 
@@ -26,7 +26,7 @@ In local mode:
 
 ---
 
-## Optional Cloud Mode (Future — Not Yet Available)
+## Optional Cloud Mode (Future - Not Yet Available)
 
 A future version may offer an optional, explicit cloud backup feature. If and when implemented:
 

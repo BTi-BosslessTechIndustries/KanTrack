@@ -1,5 +1,5 @@
 /***********************
- * STORAGE — thin compatibility shim
+ * STORAGE - thin compatibility shim
  * All persistence logic lives in repository.js.
  * This shim adds state.js interaction for backwards compatibility.
  ***********************/
@@ -28,7 +28,7 @@ export {
 };
 
 // ---------------------------------------------------------------------------
-// Tasks — wrap with state interaction
+// Tasks - wrap with state interaction
 // ---------------------------------------------------------------------------
 
 export async function loadNotesFromLocalStorage() {
@@ -43,12 +43,12 @@ export function saveNotesToLocalStorage() {
 }
 
 // ---------------------------------------------------------------------------
-// Notebook items — wrap with state interaction
+// Notebook items - wrap with state interaction
 // ---------------------------------------------------------------------------
 
 export async function loadNotebookFromLocalStorage() {
   const items = await getAllNotebookItems();
-  // Strip page content from in-memory items — loaded lazily in openPageModal()
+  // Strip page content from in-memory items - loaded lazily in openPageModal()
   setNotebookItems(items.map(({ content: _c, ...meta }) => meta));
   return notebookItems;
 }

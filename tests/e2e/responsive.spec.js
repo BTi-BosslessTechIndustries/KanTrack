@@ -67,7 +67,7 @@ test.describe('Layout persistence at narrow viewports', () => {
     expect(wideFontSize).toBeGreaterThan(14);
 
     // Narrow viewport above 700px: clock panel is still visible, container queries apply.
-    // Must stay above 700px — below that the panel is hidden and the container has no size.
+    // Must stay above 700px - below that the panel is hidden and the container has no size.
     await page.setViewportSize({ width: 750, height: 900 });
     // Force layout recalculation before reading computed style
     await page.evaluate(() => void document.body.offsetHeight);
@@ -147,7 +147,7 @@ test.describe('Clock panel 700px breakpoint', () => {
 
   test('logo is centered between left and right header content at 699px', async ({ page }) => {
     await page.setViewportSize({ width: 699, height: 800 });
-    // positionHeaderLogo runs inside a requestAnimationFrame — tick one frame so
+    // positionHeaderLogo runs inside a requestAnimationFrame - tick one frame so
     // style.left is updated before we read positions.
     await page.evaluate(() => new Promise(r => requestAnimationFrame(r)));
 
@@ -186,12 +186,12 @@ test.describe('Clock panel 700px breakpoint', () => {
   test('clock panel reappears and header clock group hides when resizing above 700px', async ({
     page,
   }) => {
-    // Start narrow — panel hidden
+    // Start narrow - panel hidden
     await page.setViewportSize({ width: 699, height: 800 });
     await page.evaluate(() => void document.body.offsetHeight);
     await expect(page.locator('.clock-wrapper')).toBeHidden();
 
-    // Resize above breakpoint — panel should reappear, no data lost
+    // Resize above breakpoint - panel should reappear, no data lost
     await page.setViewportSize({ width: 701, height: 800 });
     await page.evaluate(() => void document.body.offsetHeight);
     await expect(page.locator('.clock-wrapper')).toBeVisible();
