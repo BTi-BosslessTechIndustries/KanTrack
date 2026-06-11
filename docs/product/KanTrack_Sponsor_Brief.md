@@ -1,4 +1,4 @@
-# KanTrack — Sponsor & Funding Brief (Expanded)
+# KanTrack - Sponsor & Funding Brief (Expanded)
 
 ## Privacy‑First • Local‑First • Individual‑First Productivity
 
@@ -6,9 +6,9 @@
 
 # Executive Summary
 
-KanTrack is a next‑generation productivity platform built for the modern knowledge worker — not for corporations, not for managers, but for the individual inside complex organizational systems.
+KanTrack is a next‑generation productivity platform built for the modern knowledge worker - not for corporations, not for managers, but for the individual inside complex organizational systems.
 
-Traditional tools like Jira, Asana, Trello, and Notion are designed to optimize teams, reporting, and oversight. They measure productivity — but they are not built to support the day‑to‑day cognitive workflow of a single human being.
+Traditional tools like Jira, Asana, Trello, and Notion are designed to optimize teams, reporting, and oversight. They measure productivity - but they are not built to support the day‑to‑day cognitive workflow of a single human being.
 
 KanTrack introduces a new category:
 
@@ -16,7 +16,7 @@ KanTrack introduces a new category:
 
 A private, local‑first command center where professionals can organize their work on their own terms, without surveillance, vendor lock‑in, or dependence on cloud services.
 
-By default, KanTrack stores data locally on the user’s device, requires no account, and works offline. Optional paid services provide encrypted backup and sync — without compromising privacy.
+By default, KanTrack stores data locally on the user’s device, requires no account, and works offline. Optional paid services provide encrypted backup and sync - without compromising privacy.
 
 KanTrack positions itself at the intersection of:
 
@@ -29,7 +29,7 @@ KanTrack positions itself at the intersection of:
 
 # The Problem
 
-## Enterprise tools optimize organizations — not individuals
+## Enterprise tools optimize organizations - not individuals
 
 Modern workplaces rely on complex software ecosystems designed for visibility, metrics, and coordination across teams. These systems introduce friction for individual workers who must navigate multiple tools, workflows, and priorities simultaneously.
 
@@ -101,7 +101,7 @@ KanTrack creates a new category:
 
 # Ideal KanTrack User
 
-## Primary Persona — The Overloaded Knowledge Worker
+## Primary Persona - The Overloaded Knowledge Worker
 
 A professional working inside structured environments who must manage tasks across multiple systems and responsibilities.
 
@@ -191,7 +191,7 @@ KanTrack follows an adoption‑first strategy:
 
 ## Free Tier
 
-Local Mode — unlimited individual use without account.
+Local Mode - unlimited individual use without account.
 
 ## Paid Tier
 
@@ -207,19 +207,19 @@ Revenue grows organically as individual users adopt the platform.
 
 # Development Roadmap
 
-### Phase 1 — Stabilize Local Mode
+### Phase 1 - Stabilize Local Mode
 
 Storage reliability, performance, data integrity.
 
-### Phase 2 — Backup & Export
+### Phase 2 - Backup & Export
 
 Workspace export, encrypted backups.
 
-### Phase 3 — Encrypted Cloud Vault
+### Phase 3 - Encrypted Cloud Vault
 
 Storage expansion and sync.
 
-### Phase 4 — Multi‑Device Sync
+### Phase 4 - Multi‑Device Sync
 
 Seamless experience across devices.
 
@@ -241,7 +241,7 @@ Funding will accelerate development of encrypted infrastructure, security valida
 
 # Vision
 
-KanTrack aims to become the personal operating system for work — a private layer that helps individuals navigate complex professional environments while maintaining autonomy, clarity, and ownership of their data.
+KanTrack aims to become the personal operating system for work - a private layer that helps individuals navigate complex professional environments while maintaining autonomy, clarity, and ownership of their data.
 
 ---
 

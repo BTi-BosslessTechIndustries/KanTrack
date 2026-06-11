@@ -192,7 +192,7 @@ export function checkTaskVisibility(task) {
     return false;
   }
 
-  // Check tag filter — task must have ALL selected tags (AND semantics)
+  // Check tag filter - task must have ALL selected tags (AND semantics)
   if (currentTagFilter.length > 0) {
     const taskTagIds = task.tags || [];
     const hasAllTags = currentTagFilter.every(filterId => taskTagIds.includes(filterId));
@@ -269,7 +269,7 @@ export function updateColumnCounts() {
     let visibleTasks, totalTasks;
 
     if (_vlUpdaterForFilters) {
-      // Data-based counting — DOM holds only a window of cards
+      // Data-based counting - DOM holds only a window of cards
       const columnTasks = state.notesData.filter(
         t => !t.deleted && !t.hidden && t.column === columnId
       );

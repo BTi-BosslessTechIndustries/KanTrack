@@ -7,7 +7,7 @@
  *
  * setup.js provides a global.window stub without innerWidth/innerHeight, so the
  * rAF position-adjustment code evaluates NaN comparisons that short-circuit to
- * false — no errors, no position changes. That is fine for these behavioural tests.
+ * false - no errors, no position changes. That is fine for these behavioural tests.
  */
 import { JSDOM } from 'jsdom';
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';

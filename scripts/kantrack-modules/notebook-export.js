@@ -130,7 +130,7 @@ export async function generatePagePDFBlob(pageId) {
   doc.setFontSize(11);
   doc.setFont(undefined, 'normal');
 
-  // Process content — load from IDB since state has content stripped for lazy loading
+  // Process content - load from IDB since state has content stripped for lazy loading
   const content = (await getNotebookItemContent(pageId)) || '';
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = content;

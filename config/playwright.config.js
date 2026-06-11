@@ -5,7 +5,7 @@ export default defineConfig({
   // tests/e2e/ is one level up and then into tests/e2e/.
   testDir: '../tests/e2e',
 
-  // Run tests sequentially — the app is a single-user local-first app
+  // Run tests sequentially - the app is a single-user local-first app
   fullyParallel: false,
   // Retry once on CI to handle flakiness from IDB timing
   retries: process.env.CI ? 1 : 0,

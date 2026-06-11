@@ -1,9 +1,9 @@
 /***********************
- * STORE — minimal flux-like state management
+ * STORE - minimal flux-like state management
  *
  * No external dependencies. ~30 lines of core logic.
  * Side effects (IDB writes, DOM events) must be triggered by middleware
- * or store subscribers — never inside reducers.
+ * or store subscribers - never inside reducers.
  *
  * Reducers are pure functions: (state, action) => newState
  * State is frozen on read to prevent accidental mutation.

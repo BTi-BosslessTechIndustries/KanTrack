@@ -166,6 +166,34 @@ function applyCardSize(size) {
 }
 
 /***********************
+ * THEME (Light / Dark / System)
+ ***********************/
+const THEME_MEDIA_QUERY = '(prefers-color-scheme: dark)';
+
+function getEffectiveTheme(mode) {
+  if (mode === 'system') {
+    return window.matchMedia(THEME_MEDIA_QUERY).matches ? 'dark' : 'light';
+  }
+  return mode;
+}
+
+function applyTheme(mode) {
+  const effective = getEffectiveTheme(mode);
+  document.body.classList.toggle('theme-light', effective === 'light');
+  document.querySelectorAll('[data-action="theme:set"]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.actionParam === mode);
+  });
+}
+
+function initThemeSystemListener() {
+  window.matchMedia(THEME_MEDIA_QUERY).addEventListener('change', () => {
+    if (safeGetItem('themeMode', 'system') === 'system') {
+      applyTheme('system');
+    }
+  });
+}
+
+/***********************
  * ABOUT MODAL
  ***********************/
 let _aboutTrap = null;
@@ -277,6 +305,12 @@ registerAction('cardSize:set', param => {
   safeSetItem('cardSize', param);
 });
 
+// Theme (Light / Dark / System)
+registerAction('theme:set', mode => {
+  applyTheme(mode);
+  safeSetItem('themeMode', mode);
+});
+
 // Shortcuts dialog
 registerAction('shortcuts:close', () => closeShortcutsDialog());
 registerAction('shortcuts:open', () => openShortcutsDialog());
@@ -365,7 +399,7 @@ registerAction('image:closeModal', () => closeImageModal());
 registerAction('image:zoom', param => zoomImage(Number(param)));
 registerAction('image:resetZoom', () => resetZoom());
 
-// Storage diagnostics (console-access helpers — not in router, kept on window for dev tooling)
+// Storage diagnostics (console-access helpers - not in router, kept on window for dev tooling)
 window.checkStorageQuota = checkStorageQuota;
 window.getStorageBreakdown = getStorageBreakdown;
 window.logStorageDiagnostics = logStorageDiagnostics;
@@ -417,7 +451,7 @@ function updateHiddenSearchHint(query) {
   }
 
   hint.style.display = 'block';
-  hint.innerHTML = `${count} hidden card${count === 1 ? '' : 's'} also match — <a href="#" id="hiddenSearchHintLink">View</a>`;
+  hint.innerHTML = `${count} hidden card${count === 1 ? '' : 's'} also match - <a href="#" id="hiddenSearchHintLink">View</a>`;
   hint.querySelector('#hiddenSearchHintLink').addEventListener('click', e => {
     e.preventDefault();
     showHiddenCardsModal(term);
@@ -469,7 +503,7 @@ function restoreFromTrashUI(taskId) {
     });
 
     // Replace the soft-deleted entry in state.notesData rather than pushing a
-    // second copy — the original entry (with deleted:true) is still in the array.
+    // second copy - the original entry (with deleted:true) is still in the array.
     const existingIndex = state.notesData.findIndex(t => t.id === task.id);
     if (existingIndex !== -1) {
       state.notesData.splice(existingIndex, 1, task);
@@ -580,6 +614,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Apply saved card size before first render
   applyCardSize(safeGetItem('cardSize', 'medium'));
 
+  // Apply saved theme (default: follow OS) before first render
+  applyTheme(safeGetItem('themeMode', 'system'));
+  initThemeSystemListener();
+
   await initIndexedDB();
   await runDataMigrations();
 
@@ -649,7 +687,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Apply any active filters (this also updates column counts)
   applyFilters();
 
-  // Storage monitoring — background, fire-and-forget
+  // Storage monitoring - background, fire-and-forget
   requestDurableStorage();
   initStorageMonitor();
 
@@ -764,7 +802,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // ESC — close whatever is open, in priority order
+  // ESC - close whatever is open, in priority order
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     const taskModal = document.getElementById('taskModal');
@@ -825,7 +863,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Arrow key card navigation — delegated on the board container
+  // Arrow key card navigation - delegated on the board container
   const board = document.querySelector('.kanban-board');
   if (board) {
     board.addEventListener('keydown', e => {
@@ -896,7 +934,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Task may have been spliced from notesData (undo of create) or marked deleted (redo of delete)
     const task = state.notesData.find(t => t.id === taskId);
     if (getColumnVirtualList(task?.column ?? 'todo')) {
-      // Update all columns — we may not know the exact column if task was spliced out
+      // Update all columns - we may not know the exact column if task was spliced out
       const COLUMN_IDS = ['todo', 'inProgress', 'onHold', 'done'];
       COLUMN_IDS.forEach(col => updateColumnVirtualList(col));
     } else {
@@ -1035,7 +1073,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── iOS Safari touch support ──
 
-  // Clock add button (div, not button — needs touchend for iOS)
+  // Clock add button (div, not button - needs touchend for iOS)
   const clockAddButton = document.querySelector('.clock-add-button');
   if (clockAddButton) {
     clockAddButton.addEventListener('touchend', e => {
@@ -1108,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Initialize notebook (must be last — depends on other modules being ready)
+  // Initialize notebook (must be last - depends on other modules being ready)
   await loadNotebookFromLocalStorage();
   renderNotebookTree();
   setupNotebookEventListeners();

@@ -1,4 +1,5 @@
-# KanTrack — Vision Deck Narrative
+# KanTrack - Vision Deck Narrative
+
 ## The Individual‑First Productivity Platform
 
 ---
@@ -6,6 +7,7 @@
 # 1. The Big Idea
 
 ## Work software was built for organizations.
+
 ## KanTrack is built for humans.
 
 For the past two decades, productivity software has optimized for:
@@ -13,7 +15,7 @@ For the past two decades, productivity software has optimized for:
 • Visibility  
 • Reporting  
 • Coordination  
-• Management oversight  
+• Management oversight
 
 But not for the individual knowledge worker doing the work.
 
@@ -30,31 +32,34 @@ A private, local‑first command center that restores autonomy, clarity, and con
 ## Three macro shifts make KanTrack inevitable
 
 ### 1) SaaS Fatigue & Trust Erosion
+
 Users increasingly distrust centralized cloud platforms due to:
 
 • Data breaches  
 • Surveillance concerns  
 • Vendor lock‑in  
 • Price escalation  
-• Sudden shutdowns  
+• Sudden shutdowns
 
 ### 2) Cognitive Overload in Knowledge Work
+
 Modern professionals juggle:
 
 • Multiple task systems  
 • Meetings across time zones  
 • Cross‑team responsibilities  
-• Constant interruptions  
+• Constant interruptions
 
 Existing tools amplify complexity instead of reducing it.
 
 ### 3) Rise of Local‑First Computing
+
 A new wave of software prioritizes:
 
 • Offline capability  
 • Data ownership  
 • User control  
-• Privacy  
+• Privacy
 
 KanTrack sits at the center of this movement.
 
@@ -62,7 +67,7 @@ KanTrack sits at the center of this movement.
 
 # 3. The Problem
 
-## Enterprise tools optimize organizations — not individuals
+## Enterprise tools optimize organizations - not individuals
 
 Jira, Asana, Notion, and similar platforms are designed to answer:
 
@@ -78,7 +83,7 @@ Workers compensate by maintaining hidden systems:
 • Private todo apps  
 • Sticky notes  
 • Spreadsheets  
-• Text files  
+• Text files
 
 KanTrack formalizes this survival mechanism into a purpose‑built tool.
 
@@ -98,7 +103,7 @@ KanTrack provides:
 • A unified personal view across responsibilities  
 • Independence from organizational tooling  
 • Offline capability  
-• Local data ownership  
+• Local data ownership
 
 ---
 
@@ -111,12 +116,15 @@ KanTrack is not cloud‑first.
 Users choose where their data lives:
 
 ### Local Mode (Free)
+
 Runs entirely on the user’s device.
 
 ### Encrypted Vault (Paid)
+
 Optional backup and sync with end‑to‑end encryption.
 
 ### Future Desktop Mode
+
 Unlimited local storage for power users.
 
 This architecture preserves trust while enabling scale.
@@ -136,7 +144,7 @@ Primary segments:
 • Product managers  
 • Researchers  
 • Remote workers  
-• Freelancers embedded in teams  
+• Freelancers embedded in teams
 
 Global addressable market:
 Hundreds of millions of professionals.
@@ -170,10 +178,10 @@ This creates a complementary relationship rather than direct competition.
 
 ## Why KanTrack Can Spread Organically
 
-1. Individual discovers KanTrack  
-2. Uses it privately alongside corporate tools  
-3. Shares with peers experiencing the same friction  
-4. Adoption spreads within teams  
+1. Individual discovers KanTrack
+2. Uses it privately alongside corporate tools
+3. Shares with peers experiencing the same friction
+4. Adoption spreads within teams
 5. Organization awareness emerges later
 
 No top‑down sales required.
@@ -185,12 +193,15 @@ No top‑down sales required.
 Adoption‑first strategy:
 
 ### Free Tier
-Local Mode — unlimited personal use.
+
+Local Mode - unlimited personal use.
 
 ### Pro Tier
+
 Encrypted Vault for sync and backup.
 
 ### Future Enterprise Tier
+
 Privacy‑preserving collaboration.
 
 Revenue scales with usage, not barriers to entry.
@@ -207,7 +218,7 @@ Future possibilities:
 • AI assistance running locally  
 • Integration layer across external tools  
 • Secure personal knowledge base  
-• Individual performance optimization  
+• Individual performance optimization
 
 KanTrack becomes the personal layer beneath corporate software.
 
@@ -220,7 +231,7 @@ KanTrack sits at the intersection of:
 • Privacy  
 • Productivity  
 • Digital sovereignty  
-• Mental health in knowledge work  
+• Mental health in knowledge work
 
 It addresses structural problems that existing tools cannot solve because they serve different stakeholders.
 
@@ -229,7 +240,7 @@ Funding accelerates:
 • Encrypted infrastructure  
 • Security validation  
 • Global distribution  
-• Category leadership  
+• Category leadership
 
 ---
 

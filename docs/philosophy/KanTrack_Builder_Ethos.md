@@ -1,4 +1,5 @@
 # KanTrack Builder Ethos
+
 ## How the Creator Operates While Building KanTrack
 
 ---
@@ -9,10 +10,10 @@ KanTrack is built on independent terms.
 
 Decisions are guided by the product’s philosophy, not by:
 
-- external pressure  
-- trends  
-- competitors  
-- public expectations  
+- external pressure
+- trends
+- competitors
+- public expectations
 
 Independence preserves coherence.
 
@@ -32,7 +33,7 @@ The vision filters the noise.
 
 Progress does not require urgency.
 
-KanTrack is built through steady, deliberate work — not bursts of panic-driven activity.
+KanTrack is built through steady, deliberate work - not bursts of panic-driven activity.
 
 Consistency beats intensity.
 
@@ -44,9 +45,9 @@ Treat the product as a long-term craft, not a quick project.
 
 Care about:
 
-- quality of implementation  
-- clarity of design  
-- coherence of philosophy  
+- quality of implementation
+- clarity of design
+- coherence of philosophy
 
 Shortcuts that compromise integrity are rejected.
 
@@ -96,10 +97,10 @@ KanTrack is built for longevity.
 
 Avoid making product decisions when:
 
-- frustrated  
-- exhausted  
-- pressured  
-- overly excited  
+- frustrated
+- exhausted
+- pressured
+- overly excited
 
 Clarity of mind produces clarity of product.
 
@@ -111,9 +112,9 @@ Attention is the most limited resource.
 
 Guard it carefully:
 
-- minimize distractions  
-- avoid unnecessary commitments  
-- limit context switching  
+- minimize distractions
+- avoid unnecessary commitments
+- limit context switching
 
 Deep work builds durable systems.
 

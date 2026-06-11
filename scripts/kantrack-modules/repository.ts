@@ -1,11 +1,11 @@
 /***********************
- * REPOSITORY — persistence abstraction
+ * REPOSITORY - persistence abstraction
  * Single source of truth for all localStorage / IDB business-data access.
  *
  * Rules:
  *  - This file and database.js are the ONLY places that touch localStorage
  *    or IndexedDB for business data.
- *  - This file does NOT import from state.js — it is a pure persistence layer.
+ *  - This file does NOT import from state.js - it is a pure persistence layer.
  *
  * Exception: storage-monitor.js imports idbPut from database.js directly
  *   for the `meta` store (infrastructure monitoring, not business data).
@@ -22,10 +22,10 @@ import {
   idbDeleteAllUndoneOplog,
 } from './database.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore — utils.js is not yet typed
+// @ts-ignore - utils.js is not yet typed
 import { debugWarn } from './utils.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore — notifications.js is not yet typed
+// @ts-ignore - notifications.js is not yet typed
 import { showError } from './notifications.js';
 
 import type { Task, Tag, NotebookItem, Clock, UndoEntry, OplogEntry } from './types.js';
@@ -33,7 +33,7 @@ import type { Task, Tag, NotebookItem, Clock, UndoEntry, OplogEntry } from './ty
 // Auto-save indicator callback (registered by kantrack.js)
 let onAutoSaveCallback: (() => void) | null = null;
 
-// Debounce timers + pending snapshots for IDB writes (300ms — batches rapid sequential saves)
+// Debounce timers + pending snapshots for IDB writes (300ms - batches rapid sequential saves)
 let _saveTasksTimer: ReturnType<typeof setTimeout> | null = null;
 let _saveTasksSnapshot: Task[] | null = null;
 let _saveNotebookTimer: ReturnType<typeof setTimeout> | null = null;
@@ -98,7 +98,7 @@ export async function getAllTasks(): Promise<Task[]> {
     if (saved) {
       tasks = JSON.parse(saved) as Task[];
     } else {
-      // localStorage empty — fall back to IDB (handles first load / privacy-cleared LS)
+      // localStorage empty - fall back to IDB (handles first load / privacy-cleared LS)
       const idbTasks = (await idbGetAll('tasks')) as Task[];
       if (idbTasks && idbTasks.length > 0) {
         tasks = idbTasks;
@@ -147,7 +147,7 @@ function _cleanupTasks(tasks: Task[]): Task[] {
     seenIds.add(task.id);
     if (!task.title || task.title.trim() === '') return false;
     if (!task.column || !validColumns.includes(task.column)) return false;
-    // Keep soft-deleted tasks — the undo system needs them to apply redo('delete')
+    // Keep soft-deleted tasks - the undo system needs them to apply redo('delete')
     return true;
   });
 
@@ -301,7 +301,7 @@ export async function getNotebookItemContent(id: string): Promise<string> {
 /**
  * Write a per-page localStorage backup of notebook page HTML content.
  * Called on every page save so content survives an IDB wipe.
- * Key: `notebookContent_<id>` — raw HTML, not JSON-wrapped.
+ * Key: `notebookContent_<id>` - raw HTML, not JSON-wrapped.
  */
 export function saveNotebookContentBackup(id: string, content: string): void {
   try {
@@ -366,7 +366,7 @@ export function saveTags(tags: Tag[]): void {
 
 /**
  * Load all clocks. IDB primary (sorted by order), localStorage fallback.
- * Returns null if no clocks found — caller should initialise defaults.
+ * Returns null if no clocks found - caller should initialise defaults.
  */
 export async function getAllClocks(): Promise<Clock[] | null> {
   try {
@@ -545,7 +545,7 @@ export async function deleteOplogEntriesOlderThan(cutoffMs: number): Promise<voi
 
 /**
  * Load permanent notes textarea from localStorage.
- * DOM-coupled — only call from browser context.
+ * DOM-coupled - only call from browser context.
  */
 export function loadPermanentNotes(): void {
   try {
@@ -559,7 +559,7 @@ export function loadPermanentNotes(): void {
 
 /**
  * Save permanent notes textarea to localStorage.
- * DOM-coupled — only call from browser context.
+ * DOM-coupled - only call from browser context.
  */
 export function savePermanentNotes(): boolean {
   try {

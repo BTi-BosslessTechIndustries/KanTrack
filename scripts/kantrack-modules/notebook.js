@@ -266,7 +266,7 @@ export function createNotebookItem(type, parentId) {
 
   pushToNotebookItems(newItem);
 
-  // Expand parent folder if creating inside one (before saving — one write)
+  // Expand parent folder if creating inside one (before saving - one write)
   if (parentId !== null) {
     const parent = notebookItems.find(i => i.id === parentId);
     if (parent && parent.type === 'folder') {
@@ -436,7 +436,7 @@ export function expandToItem(itemId) {
   // Walk up the tree and expand all parent folders
   while (item.parentId !== null) {
     const parent = notebookItems.find(i => i.id === item.parentId);
-    if (!parent) break; // orphaned item — stop rather than throw
+    if (!parent) break; // orphaned item - stop rather than throw
     if (parent.type === 'folder') {
       parent.expanded = true;
     }
@@ -1053,7 +1053,7 @@ async function importFromNotebookData(dataFile) {
     newItems.push(newItem);
   }
 
-  // Fetch current IDB items WITH content before writing — state has content
+  // Fetch current IDB items WITH content before writing - state has content
   // stripped for lazy loading, so using state directly would wipe existing content
   const existingItems = await getAllNotebookItems();
   const saved = saveNotebookItems([...existingItems, ...newItems]);

@@ -1,6 +1,6 @@
 /***********************
  * IMPORT VALIDATOR
- * Pure functions — no IDB, no DOM.
+ * Pure functions - no IDB, no DOM.
  * Validates a parsed .kantrack.json payload before applying it.
  ***********************/
 
@@ -12,9 +12,9 @@ const VALID_COLUMNS = ['todo', 'inProgress', 'onHold', 'done'];
 /**
  * Validate a parsed .kantrack.json object.
  * Returns { valid: boolean, errors: string[], warnings: string[] }
- *   valid  — false if any hard error exists; warnings never block import
- *   errors — structural problems that prevent safe import
- *   warnings — integrity issues the user should know about (import proceeds)
+ *   valid  - false if any hard error exists; warnings never block import
+ *   errors - structural problems that prevent safe import
+ *   warnings - integrity issues the user should know about (import proceeds)
  */
 export function validateImportFile(parsed) {
   const errors = [];
@@ -81,7 +81,7 @@ export function validateImportFile(parsed) {
 
 /**
  * Extract a human-readable summary of entity counts from a parsed payload.
- * Returns { tasks, tags, pages, clocks } — all numbers, zero if absent.
+ * Returns { tasks, tags, pages, clocks } - all numbers, zero if absent.
  */
 export function extractImportSummary(parsed) {
   return {

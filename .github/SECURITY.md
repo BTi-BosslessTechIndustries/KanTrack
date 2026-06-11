@@ -36,7 +36,7 @@ KanTrack is a local-first, privacy-focused Kanban application. All data stays on
 | Tasks (titles, notes, tags, priority, history) | `localStorage` + IndexedDB (`KanbanDB`)                                                                       |
 | Notebook pages (HTML content, images)          | IndexedDB (`KanbanDB`)                                                                                        |
 | UI preferences (sidebar width, etc.)           | `localStorage`                                                                                                |
-| Encryption keys                                | **Never stored** — derived per-operation from your password using PBKDF2 (600k rounds, SHA-256) + AES-256-GCM |
+| Encryption keys                                | **Never stored** - derived per-operation from your password using PBKDF2 (600k rounds, SHA-256) + AES-256-GCM |
 
 All storage is local to your browser. Nothing is sent to any server.
 

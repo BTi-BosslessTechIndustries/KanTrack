@@ -412,7 +412,7 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
   const saveBtn = document.createElement('button');
   saveBtn.textContent = 'Save Changes';
   saveBtn.onclick = async () => {
-    // saveNoteEntryEdit calls renderHistory which rebuilds the list — no need to remove manually
+    // saveNoteEntryEdit calls renderHistory which rebuilds the list - no need to remove manually
     await saveNoteEntryEdit(taskId, noteEntryIndex, actionIndex, editor);
   };
 

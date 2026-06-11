@@ -8,7 +8,9 @@ CSS stylesheets split by concern. All four files are imported by `index.html`.
 
 ### `base.css`
 
-Reset, typography, CSS variables (colours, spacing, font sizes), global element defaults, and the `.sr-only` utility class (visually hidden but accessible to screen readers). This is the foundation — everything else builds on it.
+Reset, typography, CSS variables (colours, spacing, font sizes), global element defaults, and the `.sr-only` utility class (visually hidden but accessible to screen readers). This is the foundation - everything else builds on it.
+
+Theme variables live in `:root` (dark, the default) and `body.theme-light` (light overrides); see Theming below.
 
 ### `components.css`
 
@@ -20,10 +22,10 @@ Feature-specific styles that are large or isolated enough to need their own sect
 
 Notable rules:
 
-- `.kt-hidden-modal` / `.kt-hidden-*` — shared "KanTrack look" for native `<dialog>` pop-ups (dark gradient background, teal `#43ffd2` accent, pill badges/buttons), matching the Help modal aesthetic; used by both the Hidden Cards modal (`hidden-cards.js`) and the Done column limit dialog (`done-capacity.js`, via the additional `.kt-capacity-*` accent classes)
-- `.tag-color-input-hidden` — collapses the `<input type="color">` to zero size with `pointer-events: none`; the picker is opened programmatically to prevent its browser-enforced minimum dimensions from overlapping adjacent elements (e.g. the Pin checkbox)
-- `.tag-pin-checkbox input[type='checkbox']` — explicitly resets `flex: none` and `min-width: unset` to cancel the broad `.tag-dropdown-create input` rule that would otherwise stretch the checkbox across the row
-- `.tree-item-expand` — includes `cursor: pointer` so click events fire reliably on the folder expand arrow across all platforms
+- `.kt-hidden-modal` / `.kt-hidden-*` - shared "KanTrack look" for native `<dialog>` pop-ups (dark gradient background, teal `#43ffd2` accent, pill badges/buttons), matching the Help modal aesthetic; used by both the Hidden Cards modal (`hidden-cards.js`) and the Done column limit dialog (`done-capacity.js`, via the additional `.kt-capacity-*` accent classes)
+- `.tag-color-input-hidden` - collapses the `<input type="color">` to zero size with `pointer-events: none`; the picker is opened programmatically to prevent its browser-enforced minimum dimensions from overlapping adjacent elements (e.g. the Pin checkbox)
+- `.tag-pin-checkbox input[type='checkbox']` - explicitly resets `flex: none` and `min-width: unset` to cancel the broad `.tag-dropdown-create input` rule that would otherwise stretch the checkbox across the row
+- `.tree-item-expand` - includes `cursor: pointer` so click events fire reliably on the folder expand arrow across all platforms
 
 ### `responsive.css`
 
@@ -47,5 +49,15 @@ Media queries keyed by viewport width. Each breakpoint and what it governs:
 
 - CSS custom properties (variables) are declared in `base.css` under `:root`
 - Priority colours: `.priority-high` / `.priority-medium` / `.priority-low` are in `components.css`
-- No CSS-in-JS, no Tailwind, no CSS modules — plain CSS that any browser can read
+- No CSS-in-JS, no Tailwind, no CSS modules - plain CSS that any browser can read
 - All styles are globally scoped (no shadow DOM); class names act as the namespace
+
+## Theming
+
+KanTrack supports Light, Dark, and System Default themes via the theme picker in the header's "More Options" (⋮) menu, next to Card Size.
+
+- `:root` in `base.css` defines the dark theme's colours as the default values for a set of semantic variables: `--overlay-rgb`, `--page-bg-start`, `--page-bg-mid`, `--text-primary`, `--text-muted`, `--input-bg-solid`, `--panel-bg-rgb` / `--panel-bg-rgb-alt` (header, dropdowns, modals), and `--card-bg-rgb` / `--card-bg-rgb-alt` (note cards).
+- `body.theme-light` overrides each of these with the light-theme equivalents.
+- `--overlay-rgb` is the key trick: it's `255, 255, 255` (white) in dark mode and `0, 0, 0` (black) in light mode. Any `rgba(var(--overlay-rgb), X)` declaration therefore lightens content on dark backgrounds and darkens it on light backgrounds at the same alpha - used throughout `components.css` and `features.css` for borders, hover states, and translucent surfaces.
+- `scripts/kantrack.js` resolves the active theme (`getEffectiveTheme()`), applies it by toggling `body.theme-light` (`applyTheme()`), and listens for OS colour-scheme changes (`initThemeSystemListener()`) when the mode is `'system'`. The chosen mode (`'light' | 'dark' | 'system'`) is persisted as `themeMode` and defaults to `'system'`.
+- Dark backdrops/scrims (e.g. `.kt-hidden-modal::backdrop`, `.modal-overlay`) intentionally stay `rgba(0, 0, 0, A)` in both themes: a dimming layer should always be dark.

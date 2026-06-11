@@ -11,7 +11,7 @@ vi.mock('../scripts/kantrack-modules/notifications.js', () => ({
 
 // done-capacity.js imports JSZip directly (and jsPDF transitively via export.js)
 // for the dialog/export flows added in Task 7. Those flows are DOM/jsPDF/JSZip-heavy
-// and not unit tested here (see notebook-export.test.js precedent) — mock them so the
+// and not unit tested here (see notebook-export.test.js precedent) - mock them so the
 // module can be imported in the test environment without booting the real libraries.
 vi.mock('jszip', () => ({ default: class MockJSZip {} }));
 vi.mock('../scripts/kantrack-modules/export.js', () => ({
@@ -93,7 +93,7 @@ describe('selectDoneOverflow', () => {
     ];
     state.setNotesData(tasks);
 
-    // Only 28 *eligible* Done tasks — below the cap, so no overflow
+    // Only 28 *eligible* Done tasks - below the cap, so no overflow
     expect(selectDoneOverflow(state.notesData)).toEqual([]);
   });
 
@@ -104,7 +104,7 @@ describe('selectDoneOverflow', () => {
     ];
     state.setNotesData(tasks);
 
-    // Only 29 *eligible* Done tasks — below the cap, so no overflow
+    // Only 29 *eligible* Done tasks - below the cap, so no overflow
     expect(selectDoneOverflow(state.notesData)).toEqual([]);
   });
 
