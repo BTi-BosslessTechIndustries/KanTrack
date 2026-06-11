@@ -65,6 +65,10 @@ body {
   padding: 0 20px;
   background: linear-gradient(135deg, rgba(25, 25, 25, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
   backdrop-filter: blur(20px);
+  /* Forces a stable GPU compositor layer; without it, Windows Chromium/Edge
+     leaves stale-painted (visually "cut") icons on child buttons after the
+     `left` transition below runs (e.g. toggling the Notebook sidebar). */
+  transform: translateZ(0);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
