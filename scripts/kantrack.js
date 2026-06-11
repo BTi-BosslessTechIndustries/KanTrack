@@ -492,6 +492,9 @@ function restoreFromTrashUI(taskId) {
     renderTagFilterButtons();
     renderTrashList();
     checkDoneCapacity();
+    if (task.hidden) {
+      window.dispatchEvent(new Event('kantrack:updateHiddenCount'));
+    }
     showSuccess('Task restored');
   }
 }
