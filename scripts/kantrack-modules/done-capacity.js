@@ -162,33 +162,43 @@ function _formatTimeInDone(task) {
  */
 function _showCapacityDialog(tasks) {
   const dialog = document.createElement('dialog');
-  dialog.style.cssText =
-    'background:#2c2c2c;color:#e0e0e0;border:1px solid #555;border-radius:8px;padding:24px;max-width:480px;width:90%;font-family:inherit';
+  dialog.className = 'kt-hidden-modal kt-capacity-modal';
 
   dialog.addEventListener('cancel', e => e.preventDefault());
 
   const rowsHtml = tasks
     .map(
       t => `
-        <li style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #444">
-          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(t.title)}</span>
-          <span style="flex-shrink:0;display:flex;align-items:center;gap:8px">
-            <span style="color:#aaa;font-size:0.85em">${escapeHtml(_formatTimeInDone(t))}</span>
-            <button data-export-id="${escapeHtml(t.id)}" style="padding:4px 10px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer;font-size:0.85em">Export PDF</button>
+        <li class="kt-hidden-row">
+          <span class="kt-hidden-row-title">${escapeHtml(t.title)}</span>
+          <span class="kt-hidden-row-meta">
+            <span class="kt-hidden-column-badge">${escapeHtml(_formatTimeInDone(t))}</span>
+            <button data-export-id="${escapeHtml(t.id)}" class="kt-capacity-btn">Export PDF</button>
           </span>
         </li>`
     )
     .join('');
 
   dialog.innerHTML = `
-    <h3 style="margin:0 0 12px;color:#f44336">Done column limit reached</h3>
-    <p style="margin:0 0 12px">The Done column has reached ${DONE_CAP} cards. The ${DONE_TRIM_COUNT} oldest will be permanently deleted.</p>
-    <ul style="list-style:none;margin:0 0 16px;padding:0;max-height:240px;overflow-y:auto">${rowsHtml}</ul>
-    <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
-      <button id="kt-capacity-export-all" style="padding:8px 14px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer">Export All (.zip)</button>
-      <button id="kt-capacity-delete" style="padding:8px 14px;background:#f44336;color:#fff;border:none;border-radius:4px;cursor:pointer">Delete</button>
+    <div class="kt-hidden-header">
+      <div class="kt-hidden-title">
+        <span class="kt-hidden-icon kt-capacity-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </span>
+        <h3>Done Column Limit Reached</h3>
+      </div>
     </div>
-    <p id="kt-capacity-status" style="margin:12px 0 0;font-size:0.85em;color:#aaa;min-height:1em"></p>
+    <p class="kt-capacity-desc">The Done column has reached <strong>${DONE_CAP}</strong> cards. The <strong>${DONE_TRIM_COUNT}</strong> oldest will be permanently deleted.</p>
+    <ul class="kt-hidden-list kt-capacity-list">${rowsHtml}</ul>
+    <div class="kt-capacity-actions">
+      <button id="kt-capacity-export-all" class="kt-hidden-btn">Export All (.zip)</button>
+      <button id="kt-capacity-delete" class="kt-capacity-btn-danger">Delete</button>
+    </div>
+    <p id="kt-capacity-status" class="kt-capacity-status"></p>
   `;
 
   document.body.appendChild(dialog);
@@ -201,8 +211,7 @@ function _showCapacityDialog(tasks) {
       exportTaskAsPDF(btn.getAttribute('data-export-id'));
       btn.textContent = 'DONE';
       btn.disabled = true;
-      btn.style.cssText =
-        'padding:4px 10px;background:#1e3a2f;color:var(--success-color);border:1px solid var(--success-color);border-radius:4px;font-weight:600;font-size:0.85em;cursor:default';
+      btn.classList.add('is-done');
     });
   });
 
@@ -214,8 +223,7 @@ function _showCapacityDialog(tasks) {
       statusEl.textContent = 'Zip downloaded.';
       exportAllBtn.textContent = 'DONE';
       exportAllBtn.disabled = true;
-      exportAllBtn.style.cssText =
-        'padding:8px 14px;background:#1e3a2f;color:var(--success-color);border:1px solid var(--success-color);border-radius:4px;font-weight:600;cursor:default';
+      exportAllBtn.classList.add('is-done');
     } catch (e) {
       debugWarn('[done-capacity] Export-all failed:', e);
       statusEl.textContent =

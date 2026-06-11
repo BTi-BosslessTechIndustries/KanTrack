@@ -61,6 +61,26 @@ describe('hideCard / showCard', () => {
     expect(state.notesData[0].hiddenAt).toBe(123);
   });
 
+  it('is a no-op for a task in the In Progress column', () => {
+    state.setNotesData([task('a', { column: 'inProgress' })]);
+    hideCard('a');
+    expect(state.notesData[0].hidden).toBeFalsy();
+    expect(canUndo()).toBe(false);
+  });
+
+  it('is a no-op for a task in the Done column', () => {
+    state.setNotesData([task('a', { column: 'done' })]);
+    hideCard('a');
+    expect(state.notesData[0].hidden).toBeFalsy();
+    expect(canUndo()).toBe(false);
+  });
+
+  it('hides a task in the To Do column', () => {
+    state.setNotesData([task('a', { column: 'todo' })]);
+    hideCard('a');
+    expect(state.notesData[0].hidden).toBe(true);
+  });
+
   it('records an undo entry that restores the task to visible', () => {
     state.setNotesData([task('a')]);
     hideCard('a');

@@ -284,6 +284,124 @@ test.describe('KanTrack flow tests', () => {
     // Card is back on the board, in its original column
     await expect(page.locator('#todo .note').filter({ hasText: title })).toBeVisible();
   });
+
+  test('bulk-shows multiple hidden cards via Select All / Show Selected', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    const ts = Date.now();
+    const titleA = `Bulk hide A ${ts}`;
+    const titleB = `Bulk hide B ${ts}`;
+    await createTask(page, titleA);
+    await createTask(page, titleB);
+
+    for (const title of [titleA, titleB]) {
+      const card = page.locator('#todo .note').filter({ hasText: title });
+      await card.hover();
+      await card.locator('.hide-card-btn').click();
+      await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
+    }
+
+    await expect(page.locator('#hiddenCount')).toHaveText('2');
+
+    await page.locator('#hiddenToggleBtn').click();
+    const modal = page.locator('#kt-hidden-modal');
+    await expect(modal).toBeVisible();
+    await expect(modal.locator('li').filter({ hasText: titleA })).toBeVisible();
+    await expect(modal.locator('li').filter({ hasText: titleB })).toBeVisible();
+
+    // Select All checks every row and flips the label to Deselect All
+    await modal.locator('#kt-hidden-select-all').click();
+    await expect(modal.locator('#kt-hidden-select-all')).toHaveText('Deselect All');
+    const checkboxes = modal.locator('.kt-hidden-row-check');
+    await expect(checkboxes).toHaveCount(2);
+    for (let i = 0; i < (await checkboxes.count()); i++) {
+      await expect(checkboxes.nth(i)).toBeChecked();
+    }
+
+    // Show Selected restores both cards in one action
+    await modal.locator('#kt-hidden-show-selected').click();
+    await expect(modal.locator('li').filter({ hasText: titleA })).toHaveCount(0);
+    await expect(modal.locator('li').filter({ hasText: titleB })).toHaveCount(0);
+    await expect(modal.locator('li.kt-hidden-empty')).toBeVisible();
+    await expect(page.locator('#hiddenCount')).toBeHidden();
+
+    await modal.locator('#kt-hidden-close').click();
+    await expect(page.locator('#todo .note').filter({ hasText: titleA })).toBeVisible();
+    await expect(page.locator('#todo .note').filter({ hasText: titleB })).toBeVisible();
+  });
+
+  test('search hint links a matching hidden card to the Hidden Cards modal, pre-filtered', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    const title = `Hidden searchable ${Date.now()}`;
+    await createTask(page, title);
+
+    const card = page.locator('#todo .note').filter({ hasText: title });
+    await card.hover();
+    await card.locator('.hide-card-btn').click();
+    await expect(page.locator('#todo .note').filter({ hasText: title })).toHaveCount(0);
+
+    // Searching for the hidden card's title surfaces the inline hint
+    await page.locator('#taskSearchInput').fill(title);
+    const hint = page.locator('#hiddenSearchHint');
+    await expect(hint).toBeVisible();
+    await expect(hint).toContainText('1 hidden card');
+
+    // Clicking "View" opens the Hidden Cards modal pre-filtered to the query
+    await hint.locator('#hiddenSearchHintLink').click();
+    const modal = page.locator('#kt-hidden-modal');
+    await expect(modal).toBeVisible();
+    await expect(modal.locator('li').filter({ hasText: title })).toBeVisible();
+    await expect(modal.locator('#kt-hidden-clear-filter')).toBeVisible();
+  });
+
+  test('hide button only appears on To Do and On Hold cards, not In Progress or Done', async ({
+    page,
+  }) => {
+    const ts = Date.now();
+    await page.addInitScript(ts => {
+      if (localStorage.getItem('kanbanNotes')) return;
+      const tasks = [
+        { id: 'todo-1', title: `Hide-check todo ${ts}`, column: 'todo' },
+        { id: 'inprogress-1', title: `Hide-check inprogress ${ts}`, column: 'inProgress' },
+        { id: 'onhold-1', title: `Hide-check onhold ${ts}`, column: 'onHold' },
+        { id: 'done-1', title: `Hide-check done ${ts}`, column: 'done' },
+      ].map(t => ({
+        ...t,
+        noteEntries: [],
+        tags: [],
+        timer: 0,
+        actions: [],
+      }));
+      localStorage.setItem('kanbanNotes', JSON.stringify(tasks));
+    }, ts);
+
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    const todoCard = page.locator('#todo .note').filter({ hasText: `Hide-check todo ${ts}` });
+    const onHoldCard = page.locator('#onHold .note').filter({ hasText: `Hide-check onhold ${ts}` });
+    const inProgressCard = page
+      .locator('#inProgress .note')
+      .filter({ hasText: `Hide-check inprogress ${ts}` });
+    const doneCard = page.locator('#done .note').filter({ hasText: `Hide-check done ${ts}` });
+
+    await todoCard.hover();
+    await expect(todoCard.locator('.hide-card-btn')).toHaveCount(1);
+
+    await onHoldCard.hover();
+    await expect(onHoldCard.locator('.hide-card-btn')).toHaveCount(1);
+
+    await inProgressCard.hover();
+    await expect(inProgressCard.locator('.hide-card-btn')).toHaveCount(0);
+
+    await doneCard.hover();
+    await expect(doneCard.locator('.hide-card-btn')).toHaveCount(0);
+  });
 });
 
 // Tests for the clock reset button added in the Remove-all-clocks-keep-Current-Time feature.
@@ -337,5 +455,68 @@ test.describe('Clock reset button', () => {
 
     await expect(page.locator('.clock-spacer')).toBeAttached();
     await expect(page.locator('.clock-actions-col')).toBeAttached();
+  });
+});
+
+// Tests for the "Done column limit reached" pop-up (30-card cap on Done).
+test.describe('Done column capacity', () => {
+  test('shows the limit dialog on load, exports a card, and deleting trims the column to 15', async ({
+    page,
+  }) => {
+    // Seed 30 Done-column tasks directly into localStorage before the app boots,
+    // so checkDoneCapacity() trips on the very first load.
+    await page.addInitScript(() => {
+      // addInitScript runs on every navigation (including the reload below),
+      // so only seed when localStorage is still empty.
+      if (localStorage.getItem('kanbanNotes')) return;
+      const now = Date.now();
+      const tasks = [];
+      for (let i = 0; i < 30; i++) {
+        tasks.push({
+          id: `done-${i}`,
+          title: `Completed task #${i + 1}`,
+          column: 'done',
+          noteEntries: [],
+          tags: [],
+          timer: 0,
+          actions: [],
+          doneAt: now - (30 - i) * 86400000,
+        });
+      }
+      localStorage.setItem('kanbanNotes', JSON.stringify(tasks));
+    });
+
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    const dialog = page.locator('.kt-capacity-modal');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('.kt-hidden-title h3')).toHaveText('Done Column Limit Reached');
+
+    // The 15 oldest cards are listed, each with an Export PDF action
+    const rows = dialog.locator('li.kt-hidden-row');
+    await expect(rows).toHaveCount(15);
+    await expect(rows.first()).toContainText('Completed task #1');
+
+    // Exporting a single card flips its button to the "DONE" state
+    const firstExportBtn = rows.first().locator('[data-export-id]');
+    await firstExportBtn.click();
+    await expect(firstExportBtn).toHaveText('DONE');
+    await expect(firstExportBtn).toHaveClass(/is-done/);
+
+    // Clicking Delete permanently removes the 15 oldest, closing the dialog
+    await dialog.locator('#kt-capacity-delete').click();
+    await expect(dialog).toBeHidden();
+
+    const remaining = await page.evaluate(() => {
+      const stored = JSON.parse(localStorage.getItem('kanbanNotes') || '[]');
+      return stored.filter(t => t.column === 'done').length;
+    });
+    expect(remaining).toBe(15);
+
+    // Reloading does not re-trigger the dialog (column is now under the cap)
+    await page.reload();
+    await expect(page.locator('.top-header')).toBeVisible();
+    await expect(page.locator('.kt-capacity-modal')).toHaveCount(0);
   });
 });

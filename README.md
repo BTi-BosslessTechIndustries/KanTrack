@@ -17,6 +17,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Due dates**: visual overdue and "due today" indicators on cards
 - **Timer**: per-task time tracking with quick-add and quick-remove
 - **Undo / Redo**: full history with durable IDB-backed undo entries
+- **Hidden cards**: manually hide any card in **To Do** or **On Hold** (e.g. long-stalled items) via the eye-off button on the card — not available on In Progress or Done cards; hidden cards leave the board, column counts, and the Done-column cap, but stay fully intact — restore one or many at once from the "Hidden Cards" header button (with a count badge), individually or via "Select All" + "Show Selected"; while searching, a hint links to any hidden cards that match your query
 - **Trash**: soft-delete with restore; recoverable until you empty it
 - **Done column limit**: the Done column holds at most 30 cards; once it's full, a blocking dialog flags the 15 oldest for permanent deletion and offers to export each one (or all of them bundled as a ZIP) to PDF first — this bypasses Trash entirely and cannot be undone, so the dialog cannot be dismissed except by confirming the deletion
 - **Notebook**: a resizable sidebar with a folder/page tree; pages support rich text, image paste, and per-page PDF export; right-click any item for a context menu (rename, delete); drag-and-drop to reorder and move pages and folders; live search to filter by name; import pages from a ZIP archive or export the whole notebook as ZIP; sidebar open/closed state and width persist across sessions
@@ -79,7 +80,7 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 734 tests across 29 files, ~1s)
+npm run test:run     # unit tests (Vitest, 750 tests across 30 files, ~1s)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
@@ -125,9 +126,9 @@ KanTrack/
 │   └── responsive.css           # Media queries (breakpoints at 400 / 480 / 600 / 640 / 700 / 768 / 900 / 1024 px; min-width 1200 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (734 tests, 29 files)
+│   ├── *.test.js                # Vitest unit tests (750 tests, 30 files)
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (115 tests, 11 files)
+│   └── e2e/                     # Playwright end-to-end tests (120 tests, 11 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management

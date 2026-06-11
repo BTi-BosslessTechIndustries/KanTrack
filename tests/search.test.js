@@ -314,4 +314,17 @@ describe('updateColumnCounts', () => {
     updateColumnCounts();
     expect(countSpan.textContent).toBe('(3)');
   });
+
+  it('excludes hidden tasks from the total count', () => {
+    setNotesData([
+      makeTask({ id: 't1', title: 'Fix bug', column: 'todo', deleted: false }),
+      makeTask({ id: 't2', title: 'Write docs', column: 'todo', deleted: false }),
+      makeTask({ id: 't3', title: 'Fix login', column: 'todo', deleted: false }),
+      makeTask({ id: 't4', title: 'Stale item', column: 'todo', hidden: true, hiddenAt: 1 }),
+    ]);
+
+    updateColumnCounts();
+
+    expect(countSpan.textContent).toBe('(3)');
+  });
 });

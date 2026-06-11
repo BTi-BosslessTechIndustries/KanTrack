@@ -20,10 +20,14 @@ import { getSearchableText } from './search.js';
  * functions only assign keys present in the snapshot, so a key that's
  * *added* by this action (rather than changed) would never be reverted on
  * undo otherwise.
+ *
+ * Hiding is only allowed from the "To Do" and "On Hold" columns; cards in
+ * "In Progress" or "Done" cannot be hidden.
  */
 export function hideCard(taskId) {
   const task = state.notesData.find(t => t.id === taskId);
   if (!task || task.hidden) return;
+  if (task.column !== 'todo' && task.column !== 'onHold') return;
 
   if (task.hidden === undefined) task.hidden = false;
   if (task.hiddenAt === undefined) task.hiddenAt = null;
@@ -134,8 +138,7 @@ export function showHiddenCardsModal(initialQuery = '') {
 
   const dialog = document.createElement('dialog');
   dialog.id = 'kt-hidden-modal';
-  dialog.style.cssText =
-    'background:#2c2c2c;color:#e0e0e0;border:1px solid #555;border-radius:8px;padding:24px;max-width:480px;width:90%;font-family:inherit';
+  dialog.className = 'kt-hidden-modal';
 
   dialog.addEventListener('close', () => {
     _hiddenModalOpen = false;
@@ -152,34 +155,44 @@ export function showHiddenCardsModal(initialQuery = '') {
       ? rows
           .map(
             t => `
-        <li data-row-id="${escapeHtml(t.id)}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #444">
-          <label style="display:flex;align-items:center;gap:8px;overflow:hidden;flex:1;cursor:pointer">
+        <li class="kt-hidden-row" data-row-id="${escapeHtml(t.id)}">
+          <label>
             <input type="checkbox" class="kt-hidden-row-check" data-id="${escapeHtml(t.id)}">
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(t.title)}</span>
+            <span class="kt-hidden-row-title">${escapeHtml(t.title)}</span>
           </label>
-          <span style="flex-shrink:0;display:flex;align-items:center;gap:8px">
-            <span style="color:#aaa;font-size:0.85em">${escapeHtml(getColumnName(t.column))}</span>
-            <button data-show-id="${escapeHtml(t.id)}" style="padding:4px 10px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer;font-size:0.85em">Show</button>
+          <span class="kt-hidden-row-meta">
+            <span class="kt-hidden-column-badge">${escapeHtml(getColumnName(t.column))}</span>
+            <button data-show-id="${escapeHtml(t.id)}" class="kt-hidden-show-btn">Show</button>
           </span>
         </li>`
           )
           .join('')
-      : '<li style="padding:12px 0;color:#aaa;text-align:center">No hidden cards</li>';
+      : '<li class="kt-hidden-empty">No hidden cards</li>';
 
     const filterNoticeHtml = filterQuery
-      ? `<p style="margin:0 0 8px;font-size:0.85em;color:#aaa">Filtered by "${escapeHtml(filterQuery)}" — <a href="#" id="kt-hidden-clear-filter" style="color:#9cc4ff">Clear filter</a></p>`
+      ? `<p class="kt-hidden-filter-notice">Filtered by "${escapeHtml(filterQuery)}" — <a href="#" id="kt-hidden-clear-filter">Clear filter</a></p>`
       : '';
 
     dialog.innerHTML = `
-      <h3 style="margin:0 0 12px">Hidden Cards (${all.length})</h3>
-      ${filterNoticeHtml}
-      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-        <button id="kt-hidden-select-all" style="padding:4px 10px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer;font-size:0.85em">Select All</button>
-        <button id="kt-hidden-show-selected" style="padding:4px 10px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer;font-size:0.85em">Show Selected</button>
-        <span style="flex:1"></span>
-        <button id="kt-hidden-close" style="padding:4px 10px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer;font-size:0.85em">Close</button>
+      <div class="kt-hidden-header">
+        <div class="kt-hidden-title">
+          <span class="kt-hidden-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-4.5-11-4.5s1.6-3 4-5.5"></path>
+              <path d="M9.9 4.24A9.97 9.97 0 0 1 12 4c7 0 11 4.5 11 4.5s-1.6 3-4 5.5"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </span>
+          <h3>Hidden Cards <span class="kt-hidden-count-badge">${all.length}</span></h3>
+        </div>
+        <span class="kt-hidden-close-x" id="kt-hidden-close">&times;</span>
       </div>
-      <ul style="list-style:none;margin:0;padding:0;max-height:240px;overflow-y:auto">${rowsHtml}</ul>
+      ${filterNoticeHtml}
+      <div class="kt-hidden-toolbar">
+        <button id="kt-hidden-select-all" class="kt-hidden-btn">Select All</button>
+        <button id="kt-hidden-show-selected" class="kt-hidden-btn kt-hidden-btn-primary">Show Selected</button>
+      </div>
+      <ul class="kt-hidden-list">${rowsHtml}</ul>
     `;
 
     dialog.querySelector('#kt-hidden-close').addEventListener('click', () => dialog.close());
