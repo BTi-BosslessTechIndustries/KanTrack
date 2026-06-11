@@ -158,4 +158,70 @@ test.describe('KanTrack sub-kanban tests', () => {
       modal.locator('#subKanbanTodo .sub-kanban-item').filter({ hasText: originalSubTitle })
     ).toHaveCount(0);
   });
+
+  test('sub-kanban item title picks up the active card language', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('fr');
+    await page.locator('#headerMenuBtn').click();
+
+    const title = `Sub-kanban language ${Date.now()}`;
+    await createTask(page, title);
+
+    const modal = await openSubKanban(page, title);
+    const subTitle = 'Sub-task with language';
+    await addSubTask(modal, subTitle);
+
+    const titleEl = modal
+      .locator('#subKanbanTodo .sub-kanban-item .sub-kanban-item-title')
+      .filter({ hasText: subTitle });
+    await expect(titleEl).toHaveAttribute('lang', 'fr');
+    await expect(titleEl).toHaveAttribute('spellcheck', 'true');
+  });
+
+  test('sub-kanban item title picks up a language selected after creation when renamed', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(page.locator('.top-header')).toBeVisible();
+
+    const title = `Sub-kanban rename language ${Date.now()}`;
+    await createTask(page, title);
+
+    const modal = await openSubKanban(page, title);
+    const subTitle = 'Sub-task created before language change';
+    await addSubTask(modal, subTitle);
+
+    const titleElBefore = modal
+      .locator('#subKanbanTodo .sub-kanban-item .sub-kanban-item-title')
+      .filter({ hasText: subTitle });
+    await expect(titleElBefore).not.toHaveAttribute('lang');
+
+    // Close the task modal so the header dropdown is reachable.
+    await modal.locator('[data-action="task:closeModal"]').click();
+    await expect(modal).not.toBeVisible();
+
+    // Select a language after the sub-task was created.
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('es');
+    await page.locator('#headerMenuBtn').click();
+
+    // Reopen the task modal; the sub-kanban panel stays expanded from before.
+    const card = page.locator('#todo .note').filter({ hasText: title });
+    await card.first().locator('strong').click();
+    const reopenedModal = page.locator('#taskModal');
+    await expect(reopenedModal).toBeVisible();
+    await expect(reopenedModal.locator('#subKanbanContent')).toBeVisible();
+
+    const titleEl = reopenedModal
+      .locator('#subKanbanTodo .sub-kanban-item .sub-kanban-item-title')
+      .filter({ hasText: subTitle });
+    await titleEl.dblclick();
+    await expect(titleEl).toHaveAttribute('lang', 'es');
+    await expect(titleEl).toHaveAttribute('spellcheck', 'true');
+
+    await page.keyboard.press('Escape');
+  });
 });

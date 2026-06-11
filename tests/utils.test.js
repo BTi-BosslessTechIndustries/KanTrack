@@ -15,6 +15,8 @@ import {
   plainTextToFragment,
   getFirstLine,
   getTextPreview,
+  applyLanguageAttrs,
+  setActiveLanguageCode,
 } from '../scripts/kantrack-modules/utils.js';
 
 // ─── getColumnName ────────────────────────────────────────────────────────────
@@ -467,5 +469,80 @@ describe('getFirstLine / getTextPreview (JSDOM)', () => {
     it('returns empty string for HTML with no text (e.g. only an image)', () => {
       expect(getTextPreview('<img src="blob:x">')).toBe('');
     });
+  });
+});
+
+// ─── applyLanguageAttrs / setActiveLanguageCode ──────────────────────────────
+// Uses a real JSDOM document so setAttribute/removeAttribute/getAttribute work
+// (the global document stub in setup.js doesn't implement these).
+
+describe('applyLanguageAttrs', () => {
+  let div;
+
+  beforeAll(() => {
+    const { window } = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+    vi.stubGlobal('document', window.document);
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
+  });
+
+  beforeEach(() => {
+    div = document.createElement('div');
+    setActiveLanguageCode('system');
+  });
+
+  it('does nothing when called with a falsy element', () => {
+    expect(() => applyLanguageAttrs(null)).not.toThrow();
+    expect(() => applyLanguageAttrs(undefined)).not.toThrow();
+  });
+
+  it('removes lang/spellcheck attributes when active code is "system"', () => {
+    div.setAttribute('lang', 'fr');
+    div.setAttribute('spellcheck', 'true');
+    setActiveLanguageCode('system');
+    applyLanguageAttrs(div);
+    expect(div.hasAttribute('lang')).toBe(false);
+    expect(div.hasAttribute('spellcheck')).toBe(false);
+  });
+
+  it('sets lang="en-GB" and spellcheck="true" for "en-GB"', () => {
+    setActiveLanguageCode('en-GB');
+    applyLanguageAttrs(div);
+    expect(div.getAttribute('lang')).toBe('en-GB');
+    expect(div.getAttribute('spellcheck')).toBe('true');
+  });
+
+  it('sets lang="es" and spellcheck="true" for "es"', () => {
+    setActiveLanguageCode('es');
+    applyLanguageAttrs(div);
+    expect(div.getAttribute('lang')).toBe('es');
+    expect(div.getAttribute('spellcheck')).toBe('true');
+  });
+
+  it('sets lang="fr" and spellcheck="true" for "fr"', () => {
+    setActiveLanguageCode('fr');
+    applyLanguageAttrs(div);
+    expect(div.getAttribute('lang')).toBe('fr');
+    expect(div.getAttribute('spellcheck')).toBe('true');
+  });
+
+  it('sets lang="pt-PT" and spellcheck="true" for "pt-PT"', () => {
+    setActiveLanguageCode('pt-PT');
+    applyLanguageAttrs(div);
+    expect(div.getAttribute('lang')).toBe('pt-PT');
+    expect(div.getAttribute('spellcheck')).toBe('true');
+  });
+
+  it('switching back to "system" after an explicit code removes the overrides', () => {
+    setActiveLanguageCode('pt-PT');
+    applyLanguageAttrs(div);
+    expect(div.getAttribute('lang')).toBe('pt-PT');
+
+    setActiveLanguageCode('system');
+    applyLanguageAttrs(div);
+    expect(div.hasAttribute('lang')).toBe(false);
+    expect(div.hasAttribute('spellcheck')).toBe(false);
   });
 });

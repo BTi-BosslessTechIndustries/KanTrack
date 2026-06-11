@@ -116,7 +116,12 @@ import {
   emptyTrash,
   getTrashCount,
 } from './kantrack-modules/undo.js';
-import { debounce, createFocusTrap } from './kantrack-modules/utils.js';
+import {
+  debounce,
+  createFocusTrap,
+  applyLanguageAttrs,
+  setActiveLanguageCode,
+} from './kantrack-modules/utils.js';
 import { scheduleCompaction } from './kantrack-modules/compaction.js';
 import { checkDoneCapacity, backfillDoneTimestamps } from './kantrack-modules/done-capacity.js';
 import {
@@ -191,6 +196,25 @@ function initThemeSystemListener() {
       applyTheme('system');
     }
   });
+}
+
+const LANGUAGE_FIELD_SELECTORS = [
+  '#newNote',
+  '#modalTitle',
+  '#modalNotesEditor',
+  '#newSubTaskInput',
+  '#permanentNotes',
+  '#temporaryNotes',
+  '#pageModalTitle',
+  '#pageEditor',
+];
+
+function applyLanguageSettings(code) {
+  setActiveLanguageCode(code);
+  LANGUAGE_FIELD_SELECTORS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(applyLanguageAttrs);
+  });
+  document.querySelectorAll('.sub-kanban-item-title, .tree-item-name').forEach(applyLanguageAttrs);
 }
 
 /***********************
@@ -617,6 +641,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Apply saved theme (default: follow OS) before first render
   applyTheme(safeGetItem('themeMode', 'system'));
   initThemeSystemListener();
+
+  // Apply saved card content language (default: system, no override)
+  const savedLanguage = safeGetItem('cardLanguage', 'system');
+  applyLanguageSettings(savedLanguage);
+  const cardLanguageSelect = document.getElementById('cardLanguageSelect');
+  if (cardLanguageSelect) {
+    cardLanguageSelect.value = savedLanguage;
+    cardLanguageSelect.addEventListener('change', e => {
+      applyLanguageSettings(e.target.value);
+      safeSetItem('cardLanguage', e.target.value);
+    });
+  }
 
   await initIndexedDB();
   await runDataMigrations();

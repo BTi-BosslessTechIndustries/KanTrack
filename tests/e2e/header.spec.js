@@ -298,6 +298,115 @@ test.describe('KanTrack header UI', () => {
     await expect(page.locator('#headerDropdown')).toBeVisible();
   });
 
+  // ── Language picker ────────────────────────────────────────────────────────
+
+  test('language picker is visible in the dropdown with five options', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    const select = page.locator('#cardLanguageSelect');
+    await expect(select).toBeVisible();
+    await expect(select.locator('option')).toHaveCount(5);
+    await expect(select).toHaveValue('system');
+  });
+
+  test('language picker options match the expected locale codes and labels', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    const options = page.locator('#cardLanguageSelect option');
+    await expect(options.nth(0)).toHaveAttribute('value', 'system');
+    await expect(options.nth(0)).toHaveText('System Default');
+    await expect(options.nth(1)).toHaveAttribute('value', 'en-GB');
+    await expect(options.nth(1)).toHaveText('English (UK)');
+    await expect(options.nth(2)).toHaveAttribute('value', 'es');
+    await expect(options.nth(2)).toHaveText('Español');
+    await expect(options.nth(3)).toHaveAttribute('value', 'fr');
+    await expect(options.nth(3)).toHaveText('Français');
+    await expect(options.nth(4)).toHaveAttribute('value', 'pt-PT');
+    await expect(options.nth(4)).toHaveText('Português (PT)');
+  });
+
+  test('language picker label sits above the select with no overlap, and the select keeps a fixed width across options', async ({
+    page,
+  }) => {
+    await page.locator('#headerMenuBtn').click();
+    const label = page.locator('.language-picker-label');
+    const select = page.locator('#cardLanguageSelect');
+
+    const labelBox = await label.boundingBox();
+    const selectBox = await select.boundingBox();
+    expect(labelBox.y + labelBox.height).toBeLessThanOrEqual(selectBox.y);
+    expect(labelBox.x).toBeLessThan(selectBox.x + selectBox.width);
+
+    const initialWidth = selectBox.width;
+    for (const value of ['en-GB', 'es', 'fr', 'pt-PT', 'system']) {
+      await select.selectOption(value);
+      const box = await select.boundingBox();
+      expect(box.width).toBe(initialWidth);
+    }
+  });
+
+  const LANGUAGE_FIELD_SELECTORS = [
+    '#newNote',
+    '#modalTitle',
+    '#modalNotesEditor',
+    '#newSubTaskInput',
+    '#permanentNotes',
+    '#temporaryNotes',
+    '#pageModalTitle',
+    '#pageEditor',
+  ];
+
+  test('selecting a language applies lang/spellcheck to every static language field', async ({
+    page,
+  }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('pt-PT');
+
+    for (const selector of LANGUAGE_FIELD_SELECTORS) {
+      await expect(page.locator(selector)).toHaveAttribute('lang', 'pt-PT');
+      await expect(page.locator(selector)).toHaveAttribute('spellcheck', 'true');
+    }
+
+    await page.locator('#cardLanguageSelect').selectOption('system');
+    for (const selector of LANGUAGE_FIELD_SELECTORS) {
+      await expect(page.locator(selector)).not.toHaveAttribute('lang');
+      await expect(page.locator(selector)).not.toHaveAttribute('spellcheck');
+    }
+  });
+
+  test('system default does not set lang/spellcheck attributes on card fields', async ({
+    page,
+  }) => {
+    await expect(page.locator('#modalNotesEditor')).not.toHaveAttribute('lang');
+    await expect(page.locator('#modalNotesEditor')).not.toHaveAttribute('spellcheck');
+    await expect(page.locator('#newNote')).not.toHaveAttribute('lang');
+  });
+
+  test('selecting Français sets lang and spellcheck on card fields and persists across reload', async ({
+    page,
+  }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('fr');
+    await expect(page.locator('#modalNotesEditor')).toHaveAttribute('lang', 'fr');
+    await expect(page.locator('#modalNotesEditor')).toHaveAttribute('spellcheck', 'true');
+    await expect(page.locator('#newNote')).toHaveAttribute('lang', 'fr');
+    await expect(page.locator('#newNote')).toHaveAttribute('spellcheck', 'true');
+
+    await page.reload();
+    await expect(page.locator('.top-header')).toBeVisible();
+    await expect(page.locator('#modalNotesEditor')).toHaveAttribute('lang', 'fr');
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('#cardLanguageSelect')).toHaveValue('fr');
+  });
+
+  test('returning to System Default removes the lang/spellcheck overrides', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('fr');
+    await expect(page.locator('#modalNotesEditor')).toHaveAttribute('lang', 'fr');
+
+    await page.locator('#cardLanguageSelect').selectOption('system');
+    await expect(page.locator('#modalNotesEditor')).not.toHaveAttribute('lang');
+    await expect(page.locator('#modalNotesEditor')).not.toHaveAttribute('spellcheck');
+  });
+
   // ── Card size font-size proportionality ───────────────────────────────────
 
   test.describe('card text scales proportionally with card size', () => {
