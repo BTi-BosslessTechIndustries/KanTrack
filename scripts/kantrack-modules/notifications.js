@@ -2,13 +2,14 @@
  * NOTIFICATIONS SYSTEM
  * User-friendly error and status notifications
  ***********************/
+import { t } from './i18n.js';
 
 // Notification types and their styles
 const NOTIFICATION_TYPES = {
   success: { icon: '✓', className: 'notification-success' },
   error: { icon: '✕', className: 'notification-error' },
   warning: { icon: '⚠', className: 'notification-warning' },
-  info: { icon: 'ℹ', className: 'notification-info' }
+  info: { icon: 'ℹ', className: 'notification-info' },
 };
 
 // Create notification container if it doesn't exist
@@ -108,9 +109,17 @@ export function showInfo(message, duration = 4000) {
 
 // Helper function (duplicated here to avoid circular dependency)
 function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, s => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-  }[s]));
+  return String(str).replace(
+    /[&<>"']/g,
+    s =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+      })[s]
+  );
 }
 
 // KanTrack's localStorage keys
@@ -122,7 +131,7 @@ const KANTRACK_STORAGE_KEYS = [
   'kanban-tags',
   'kantrackTrash',
   'notebookSidebarOpen',
-  'notebookSidebarWidth'
+  'notebookSidebarWidth',
 ];
 
 /**
@@ -153,7 +162,7 @@ export function checkStorageQuota() {
     usedBytes: totalBytes,
     usedMB: parseFloat(totalMB),
     limitMB: limitMB,
-    percentage: parseFloat(percentage)
+    percentage: parseFloat(percentage),
   };
 }
 
@@ -164,9 +173,9 @@ export function warnIfStorageHigh() {
   const quota = checkStorageQuota();
 
   if (quota.percentage >= 90) {
-    showWarning(`Storage almost full (${quota.percentage}%). Consider exporting and deleting old tasks.`, 6000);
+    showWarning(t('storage.notify.almostFull', { percentage: quota.percentage }), 6000);
   } else if (quota.percentage >= 75) {
-    showInfo(`Storage usage: ${quota.percentage}%`, 3000);
+    showInfo(t('storage.notify.usage', { percentage: quota.percentage }), 3000);
   }
 }
 
@@ -185,7 +194,7 @@ export function getStorageBreakdown() {
       breakdown[key] = {
         bytes: bytes,
         kb: (bytes / 1024).toFixed(2),
-        mb: (bytes / (1024 * 1024)).toFixed(3)
+        mb: (bytes / (1024 * 1024)).toFixed(3),
       };
       total += bytes;
     }
@@ -194,7 +203,7 @@ export function getStorageBreakdown() {
   breakdown._total = {
     bytes: total,
     kb: (total / 1024).toFixed(2),
-    mb: (total / (1024 * 1024)).toFixed(2)
+    mb: (total / (1024 * 1024)).toFixed(2),
   };
 
   return breakdown;

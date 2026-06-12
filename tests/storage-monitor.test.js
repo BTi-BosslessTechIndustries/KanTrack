@@ -4,6 +4,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import { resetLocalStorage } from './setup.js';
+import enGB from '../scripts/i18n/en-GB.json' with { type: 'json' };
 
 vi.mock('../scripts/kantrack-modules/notifications.js', () => ({
   showError: vi.fn(),
@@ -174,7 +175,7 @@ describe('initStorageMonitor: threshold behaviour', () => {
 
     await initStorageMonitor();
 
-    expect(fakeEl.textContent).toBe('Storage is getting full. Consider exporting a backup.');
+    expect(fakeEl.textContent).toBe(enGB['storage.gettingFull']);
     expect(fakeEl.style.display).toBe('block');
   });
 
@@ -189,7 +190,7 @@ describe('initStorageMonitor: threshold behaviour', () => {
 
     await initStorageMonitor();
 
-    expect(fakeEl.textContent).toBe('Storage is getting full. Consider exporting a backup.');
+    expect(fakeEl.textContent).toBe(enGB['storage.gettingFull']);
   });
 
   it('shows "nearly full" message at exactly 85%', async () => {
@@ -203,9 +204,7 @@ describe('initStorageMonitor: threshold behaviour', () => {
 
     await initStorageMonitor();
 
-    expect(fakeEl.textContent).toBe(
-      'Storage is nearly full. Export a backup to avoid losing recent changes.'
-    );
+    expect(fakeEl.textContent).toBe(enGB['storage.nearlyFull']);
     expect(fakeEl.style.display).toBe('block');
   });
 
@@ -220,9 +219,7 @@ describe('initStorageMonitor: threshold behaviour', () => {
 
     await initStorageMonitor();
 
-    expect(fakeEl.textContent).toBe(
-      'Storage is nearly full. Export a backup to avoid losing recent changes.'
-    );
+    expect(fakeEl.textContent).toBe(enGB['storage.nearlyFull']);
   });
 
   it('does not touch the DOM when the storageMonitorInfo element is absent', async () => {

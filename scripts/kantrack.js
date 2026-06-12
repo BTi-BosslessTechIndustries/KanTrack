@@ -27,6 +27,7 @@ import {
   addTimezoneClock,
   addChronometer,
   resetToCurrentTime,
+  renderClocks,
 } from './kantrack-modules/clocks.js';
 import {
   openTaskModal,
@@ -122,6 +123,7 @@ import {
   applyLanguageAttrs,
   setActiveLanguageCode,
 } from './kantrack-modules/utils.js';
+import { setLanguage, applyTranslations, t } from './kantrack-modules/i18n.js';
 import { scheduleCompaction } from './kantrack-modules/compaction.js';
 import { checkDoneCapacity, backfillDoneTimestamps } from './kantrack-modules/done-capacity.js';
 import {
@@ -489,7 +491,7 @@ function renderTrashList() {
   updateTrashCount();
 
   if (trashed.length === 0) {
-    list.innerHTML = '<div class="trash-empty-message">Trash is empty</div>';
+    list.innerHTML = `<div class="trash-empty-message">${escapeHtmlLocal(t('trashPanel.empty'))}</div>`;
     return;
   }
 
@@ -499,11 +501,11 @@ function renderTrashList() {
     <div class="trash-item" data-id="${task.id}">
       <div class="trash-item-info">
         <div class="trash-item-title">${escapeHtmlLocal(task.title)}</div>
-        <div class="trash-item-date">Deleted: ${formatTrashDate(task.trashedAt)}</div>
+        <div class="trash-item-date">${escapeHtmlLocal(t('trashPanel.deletedOn', { date: formatTrashDate(task.trashedAt) }))}</div>
       </div>
       <div class="trash-item-actions">
-        <button class="restore-btn" data-action="trash:restore" data-action-param="${task.id}">Restore</button>
-        <button class="permanent-delete-btn" data-action="trash:permanentDelete" data-action-param="${task.id}">Delete</button>
+        <button class="restore-btn" data-action="trash:restore" data-action-param="${task.id}">${escapeHtmlLocal(t('trashPanel.restore'))}</button>
+        <button class="permanent-delete-btn" data-action="trash:permanentDelete" data-action-param="${task.id}">${escapeHtmlLocal(t('trashPanel.delete'))}</button>
       </div>
     </div>
   `
@@ -553,19 +555,19 @@ function restoreFromTrashUI(taskId) {
     if (task.hidden) {
       window.dispatchEvent(new Event('kantrack:updateHiddenCount'));
     }
-    showSuccess('Task restored');
+    showSuccess(t('trashPanel.taskRestored'));
   }
 }
 
 function permanentDeleteUI(taskId) {
   // Handle both old numeric IDs (timestamp strings) and new UUID string IDs
   const id = /^\d+$/.test(String(taskId)) ? parseInt(taskId, 10) : taskId;
-  if (confirm('Permanently delete this task? This cannot be undone.')) {
+  if (confirm(t('trashPanel.confirmDeleteOne'))) {
     permanentlyDelete(id);
     cleanupUnusedTags();
     renderTagFilterButtons();
     renderTrashList();
-    showSuccess('Task permanently deleted');
+    showSuccess(t('trashPanel.taskDeleted'));
   }
 }
 
@@ -573,12 +575,12 @@ function emptyAllTrash() {
   const count = getTrashCount();
   if (count === 0) return;
 
-  if (confirm(`Permanently delete all ${count} item(s) in trash? This cannot be undone.`)) {
+  if (confirm(t('trashPanel.confirmEmptyAll', { count }))) {
     emptyTrash();
     cleanupUnusedTags();
     renderTagFilterButtons();
     renderTrashList();
-    showSuccess('Trash emptied');
+    showSuccess(t('trashPanel.emptied'));
   }
 }
 
@@ -645,12 +647,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Apply saved card content language (default: system, no override)
   const savedLanguage = safeGetItem('cardLanguage', 'system');
   applyLanguageSettings(savedLanguage);
+  setLanguage(savedLanguage);
+  applyTranslations(document);
   const cardLanguageSelect = document.getElementById('cardLanguageSelect');
   if (cardLanguageSelect) {
     cardLanguageSelect.value = savedLanguage;
     cardLanguageSelect.addEventListener('change', e => {
       applyLanguageSettings(e.target.value);
+      setLanguage(e.target.value);
       safeSetItem('cardLanguage', e.target.value);
+      renderClocks();
     });
   }
 

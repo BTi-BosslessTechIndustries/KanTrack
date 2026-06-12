@@ -14,7 +14,7 @@ The bootstrap file loaded by `index.html`. It:
 2. Registers every `data-action` handler with the router (`registerAction()`)
 3. Calls `initRouter()` to attach the single delegated click listener
 4. Calls `dispatch({ type: TASK_SET_ALL, payload: tasks })` to seed the store after loading from IDB
-5. Sets up column count listeners, the auto-save indicator, the storage monitor, and the card content language setting (`applyLanguageSettings()`, persisted as `cardLanguage`)
+5. Sets up column count listeners, the auto-save indicator, the storage monitor, and the card content language setting (`applyLanguageSettings()`, persisted as `cardLanguage`); also calls `setLanguage()` and `applyTranslations()` (i18n.js) to translate the whole UI to the saved language on load, and re-runs both whenever the language picker changes
 6. Registers a `beforeunload` handler that calls `flushPendingIDBWrites()` to flush any in-flight debounced IDB writes before the page unloads
 7. Registers global keyboard shortcuts: **N** (new task), **/** (search), **?** (shortcuts dialog), **ESC** (close any open modal), and arrow-key card navigation
 

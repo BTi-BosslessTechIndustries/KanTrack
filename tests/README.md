@@ -17,7 +17,8 @@ tests/
 ├── due-dates.test.js             # formatDueDate, isOverdue, isDueToday, getDueDateStatus, etc.
 ├── focus-trap.test.js            # createFocusTrap(): Tab cycling and deactivation (uses JSDOM)
 ├── clocks.test.js                # formatChronometer(): ms-to-"HH:MM:SS" formatting
-├── hidden-cards.test.js          # hideCard/showCard/showCards, getHiddenTasks/getHiddenCount, countHiddenMatches, undo/redo
+├── hidden-cards.test.js          # hideCard/showCard/showCards, getHiddenTasks/getHiddenCount, countHiddenMatches, undo/redo, translated notifications
+├── i18n.test.js                   # t(), interpolate(), getLanguage(), setLanguage(), applyTranslations(), dictionary completeness, translation key-usage scan
 ├── images.test.js                # image modal open/close and clipboard paste handler
 ├── import-validator.test.js      # .kantrack.json import validation and error cases
 ├── loading.test.js               # loading overlay show/hide and progress indicator utilities
@@ -34,6 +35,7 @@ tests/
 ├── storage-monitor.test.js       # quota monitoring and durable storage request
 ├── storage.test.js               # loadNotesFromLocalStorage, saveNotesToLocalStorage
 ├── store.test.js                 # Redux-like store: dispatch, subscribe, getState, reducer
+├── sub-kanban.test.js            # add/move/rename/delete sub-tasks, undo entries, language attributes
 ├── tags.test.js                  # tag CRUD, pinning, assignment, cleanupUnusedTags
 ├── timer.test.js                 # addTime(), quickAddTime(), LONG_PRESS_THRESHOLD
 ├── undo.test.js                  # recordAction, undo, redo, trash
@@ -48,7 +50,8 @@ tests/
     ├── notebook-import-export.spec.js  # Playwright E2E: Download everything button, notebook ZIP export/import, notebook item language attributes
     ├── performance.spec.js             # Playwright E2E: virtual list DOM node budget
     ├── search.spec.js                  # Playwright E2E: live search, case-insensitivity, ESC clear, no-match
-    ├── header.spec.js                  # Playwright E2E: header UI, responsive layout, clock collapsed state, card size, language picker
+    ├── header.spec.js                  # Playwright E2E: header UI, responsive layout, clock collapsed state, card size, language picker, UI translation
+    ├── privacy.spec.js                 # Playwright E2E: privacy.html renders in the language set via cardLanguage
     ├── responsive.spec.js              # Playwright E2E: column layout, clock panel 700px breakpoint
     ├── sub-kanban.spec.js              # Playwright E2E: sub-task add/move/delete/rename within a task's mini-board, language attributes
     └── README.md
@@ -64,7 +67,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**757 tests across 30 files**: all should pass on every run.
+**790 tests across 32 files**: all should pass on every run.
 
 ### What is mocked
 

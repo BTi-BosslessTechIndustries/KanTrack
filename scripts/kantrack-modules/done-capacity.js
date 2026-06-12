@@ -13,6 +13,7 @@ import { renderTagFilterButtons } from './tags.js';
 import { purgeUndoHistoryForTaskIds } from './undo.js';
 import { exportTaskAsPDF, generateTaskPDFBlob } from './export.js';
 import { escapeHtml, debugWarn } from './utils.js';
+import { t } from './i18n.js';
 
 export const DONE_CAP = 30;
 export const DONE_TRIM_COUNT = 15;
@@ -149,9 +150,9 @@ const ONE_DAY_MS = 24 * 60 * 60 * 1000;
  */
 function _formatTimeInDone(task) {
   const days = Math.floor((Date.now() - (task.doneAt ?? Date.now())) / ONE_DAY_MS);
-  if (days <= 0) return 'less than a day';
-  if (days === 1) return '1 day';
-  return `${days} days`;
+  if (days <= 0) return t('capacity.timeInDone.lessThanDay');
+  if (days === 1) return t('capacity.timeInDone.oneDay');
+  return t('capacity.timeInDone.days', { count: days });
 }
 
 /**
@@ -168,12 +169,12 @@ function _showCapacityDialog(tasks) {
 
   const rowsHtml = tasks
     .map(
-      t => `
+      task => `
         <li class="kt-hidden-row">
-          <span class="kt-hidden-row-title">${escapeHtml(t.title)}</span>
+          <span class="kt-hidden-row-title">${escapeHtml(task.title)}</span>
           <span class="kt-hidden-row-meta">
-            <span class="kt-hidden-column-badge">${escapeHtml(_formatTimeInDone(t))}</span>
-            <button data-export-id="${escapeHtml(t.id)}" class="kt-capacity-btn">Export PDF</button>
+            <span class="kt-hidden-column-badge">${escapeHtml(_formatTimeInDone(task))}</span>
+            <button data-export-id="${escapeHtml(task.id)}" class="kt-capacity-btn">${escapeHtml(t('capacity.exportPdf'))}</button>
           </span>
         </li>`
     )
@@ -189,14 +190,14 @@ function _showCapacityDialog(tasks) {
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
         </span>
-        <h3>Done Column Limit Reached</h3>
+        <h3>${escapeHtml(t('capacity.title'))}</h3>
       </div>
     </div>
-    <p class="kt-capacity-desc">The Done column has reached <strong>${DONE_CAP}</strong> cards. The <strong>${DONE_TRIM_COUNT}</strong> oldest will be permanently deleted.</p>
+    <p class="kt-capacity-desc">${t('capacity.description', { cap: `<strong>${DONE_CAP}</strong>`, trimCount: `<strong>${DONE_TRIM_COUNT}</strong>` })}</p>
     <ul class="kt-hidden-list kt-capacity-list">${rowsHtml}</ul>
     <div class="kt-capacity-actions">
-      <button id="kt-capacity-export-all" class="kt-hidden-btn">Export All (.zip)</button>
-      <button id="kt-capacity-delete" class="kt-capacity-btn-danger">Delete</button>
+      <button id="kt-capacity-export-all" class="kt-hidden-btn">${escapeHtml(t('capacity.exportAllZip'))}</button>
+      <button id="kt-capacity-delete" class="kt-capacity-btn-danger">${escapeHtml(t('capacity.deleteBtn'))}</button>
     </div>
     <p id="kt-capacity-status" class="kt-capacity-status"></p>
   `;
@@ -209,7 +210,7 @@ function _showCapacityDialog(tasks) {
   dialog.querySelectorAll('[data-export-id]').forEach(btn => {
     btn.addEventListener('click', () => {
       exportTaskAsPDF(btn.getAttribute('data-export-id'));
-      btn.textContent = 'DONE';
+      btn.textContent = t('capacity.done');
       btn.disabled = true;
       btn.classList.add('is-done');
     });
@@ -217,17 +218,16 @@ function _showCapacityDialog(tasks) {
 
   const exportAllBtn = dialog.querySelector('#kt-capacity-export-all');
   exportAllBtn.addEventListener('click', async () => {
-    statusEl.textContent = 'Building zip…';
+    statusEl.textContent = t('capacity.buildingZip');
     try {
       await _exportTasksAsZip(tasks);
-      statusEl.textContent = 'Zip downloaded.';
-      exportAllBtn.textContent = 'DONE';
+      statusEl.textContent = t('capacity.zipDownloaded');
+      exportAllBtn.textContent = t('capacity.done');
       exportAllBtn.disabled = true;
       exportAllBtn.classList.add('is-done');
     } catch (e) {
       debugWarn('[done-capacity] Export-all failed:', e);
-      statusEl.textContent =
-        'Export failed - you can still export cards individually or click Delete.';
+      statusEl.textContent = t('capacity.exportAllFailed');
     }
   });
 
