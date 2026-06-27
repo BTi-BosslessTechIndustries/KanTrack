@@ -6,6 +6,7 @@ import { saveNotesToLocalStorage } from './storage.js';
 import { getColumnName, deepClone, applyLanguageAttrs } from './utils.js';
 import { updateNoteCardDisplay } from './tasks.js';
 import { recordAction } from './undo.js';
+import { t } from './i18n.js';
 
 export function toggleSubKanban() {
   const content = document.getElementById('subKanbanContent');
@@ -77,7 +78,7 @@ export function createSubKanbanItem(item, parentTaskId) {
   // Delete button only
   const deleteBtn = document.createElement('button');
   deleteBtn.classList.add('delete-sub-item');
-  deleteBtn.title = 'Delete';
+  deleteBtn.title = t('subKanban.deleteItem');
   deleteBtn.textContent = '❌';
   deleteBtn.onclick = e => {
     e.stopPropagation();
@@ -231,7 +232,7 @@ export function deleteSubKanbanItem(parentId, itemId) {
   const item = task.subKanban.items.find(i => i.id === itemId);
   if (!item) return;
 
-  if (!confirm(`Delete sub-task "${item.title}"?`)) return;
+  if (!confirm(t('subKanban.confirmDelete', { title: item.title }))) return;
 
   const previousState = deepClone(task);
 

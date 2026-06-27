@@ -5,6 +5,7 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { escapeHtml, deepClone } from './utils.js';
+import { t } from './i18n.js';
 import { recordAction } from './undo.js';
 
 /**
@@ -148,10 +149,10 @@ export function formatDueDate(dateString) {
 
   // Check for today/tomorrow
   if (date.toDateString() === today.toDateString()) {
-    return 'Today';
+    return t('dueDate.relative.today');
   }
   if (date.toDateString() === tomorrow.toDateString()) {
-    return 'Tomorrow';
+    return t('dueDate.relative.tomorrow');
   }
 
   // Format as readable date
@@ -176,11 +177,11 @@ export function formatRelativeDueDate(dateString) {
   const diffTime = date - today;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Tomorrow';
-  if (diffDays === -1) return 'Yesterday';
-  if (diffDays > 0) return `in ${diffDays} days`;
-  return `${Math.abs(diffDays)} days ago`;
+  if (diffDays === 0) return t('dueDate.relative.today');
+  if (diffDays === 1) return t('dueDate.relative.tomorrow');
+  if (diffDays === -1) return t('dueDate.relative.yesterday');
+  if (diffDays > 0) return t('dueDate.relative.inDays', { count: diffDays });
+  return t('dueDate.relative.daysAgo', { count: Math.abs(diffDays) });
 }
 
 /**

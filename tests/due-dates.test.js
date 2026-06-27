@@ -4,6 +4,7 @@
 // push tasks in and clear them in beforeEach.
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { setLanguage } from '../scripts/kantrack-modules/i18n.js';
 
 vi.mock('../scripts/kantrack-modules/state.js', () => ({ notesData: [] }));
 vi.mock('../scripts/kantrack-modules/storage.js', () => ({
@@ -141,6 +142,47 @@ describe('formatRelativeDueDate', () => {
     const today = new Date();
     const past = offsetDate(today, -3);
     expect(formatRelativeDueDate(toLocalDateStr(past))).toBe('3 days ago');
+  });
+});
+
+// ─── formatDueDate / formatRelativeDueDate i18n ──────────────────────────────
+
+describe('formatDueDate / formatRelativeDueDate respect the active card language', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    setLanguage('en-GB');
+  });
+
+  it('formatDueDate returns "Hoy" / "Mañana" in Spanish', () => {
+    vi.setSystemTime(new Date('2024-06-15T12:00:00Z'));
+    setLanguage('es');
+    const today = new Date();
+    const tomorrow = offsetDate(today, 1);
+    expect(formatDueDate(toLocalDateStr(today))).toBe('Hoy');
+    expect(formatDueDate(toLocalDateStr(tomorrow))).toBe('Mañana');
+  });
+
+  it('formatRelativeDueDate returns translated "Today"/"Yesterday"/"in N days"/"N days ago" in French', () => {
+    vi.setSystemTime(new Date('2024-06-15T12:00:00Z'));
+    setLanguage('fr');
+    const today = new Date();
+
+    expect(formatRelativeDueDate(toLocalDateStr(today))).toBe("Aujourd'hui");
+    expect(formatRelativeDueDate(toLocalDateStr(offsetDate(today, -1)))).toBe('Hier');
+    expect(formatRelativeDueDate(toLocalDateStr(offsetDate(today, 5)))).toBe('dans 5 jours');
+    expect(formatRelativeDueDate(toLocalDateStr(offsetDate(today, -3)))).toBe('il y a 3 jours');
+  });
+
+  it('formatRelativeDueDate returns translated values in Portuguese (PT)', () => {
+    vi.setSystemTime(new Date('2024-06-15T12:00:00Z'));
+    setLanguage('pt-PT');
+    const today = new Date();
+
+    expect(formatRelativeDueDate(toLocalDateStr(today))).toBe('Hoje');
+    expect(formatRelativeDueDate(toLocalDateStr(offsetDate(today, 1)))).toBe('Amanhã');
+    expect(formatRelativeDueDate(toLocalDateStr(offsetDate(today, 5)))).toBe('dentro de 5 dias');
+    expect(formatRelativeDueDate(toLocalDateStr(offsetDate(today, -3)))).toBe('há 3 dias');
   });
 });
 

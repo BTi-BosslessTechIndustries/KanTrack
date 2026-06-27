@@ -300,11 +300,11 @@ test.describe('KanTrack header UI', () => {
 
   // ── Language picker ────────────────────────────────────────────────────────
 
-  test('language picker is visible in the dropdown with five options', async ({ page }) => {
+  test('language picker is visible in the dropdown with six options', async ({ page }) => {
     await page.locator('#headerMenuBtn').click();
     const select = page.locator('#cardLanguageSelect');
     await expect(select).toBeVisible();
-    await expect(select.locator('option')).toHaveCount(5);
+    await expect(select.locator('option')).toHaveCount(6);
     await expect(select).toHaveValue('system');
   });
 
@@ -321,6 +321,8 @@ test.describe('KanTrack header UI', () => {
     await expect(options.nth(3)).toHaveText('Français');
     await expect(options.nth(4)).toHaveAttribute('value', 'pt-PT');
     await expect(options.nth(4)).toHaveText('Português (PT)');
+    await expect(options.nth(5)).toHaveAttribute('value', 'de-DE');
+    await expect(options.nth(5)).toHaveText('Deutsch (DE)');
   });
 
   test('language picker label sits above the select with no overlap, and the select keeps a fixed width across options', async ({
@@ -336,7 +338,7 @@ test.describe('KanTrack header UI', () => {
     expect(labelBox.x).toBeLessThan(selectBox.x + selectBox.width);
 
     const initialWidth = selectBox.width;
-    for (const value of ['en-GB', 'es', 'fr', 'pt-PT', 'system']) {
+    for (const value of ['en-GB', 'es', 'fr', 'pt-PT', 'de-DE', 'system']) {
       await select.selectOption(value);
       const box = await select.boundingBox();
       expect(box.width).toBe(initialWidth);
@@ -370,6 +372,142 @@ test.describe('KanTrack header UI', () => {
       await expect(page.locator(selector)).not.toHaveAttribute('lang');
       await expect(page.locator(selector)).not.toHaveAttribute('spellcheck');
     }
+  });
+
+  test('selecting a language translates header, menu, and column header text', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+
+    // Spanish
+    await page.locator('#cardLanguageSelect').selectOption('es');
+    await expect(page.locator('#todo h2 span[data-i18n="column.todo"]')).toHaveText('Por hacer');
+    await expect(page.locator('#done h2 span[data-i18n="column.done"]')).toHaveText('Hecho');
+    await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Ayuda');
+    await expect(page.locator('.theme-picker-label')).toHaveText('Tema');
+    await expect(page.locator('#undoBtn')).toHaveAttribute('title', 'Deshacer (Ctrl+Z)');
+
+    // French
+    await page.locator('#cardLanguageSelect').selectOption('fr');
+    await expect(page.locator('#todo h2 span[data-i18n="column.todo"]')).toHaveText('À faire');
+    await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Aide');
+
+    // Português (PT)
+    await page.locator('#cardLanguageSelect').selectOption('pt-PT');
+    await expect(page.locator('#done h2 span[data-i18n="column.done"]')).toHaveText('Concluído');
+    await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Ajuda');
+
+    // Deutsch (DE)
+    await page.locator('#cardLanguageSelect').selectOption('de-DE');
+    await expect(page.locator('#todo h2 span[data-i18n="column.todo"]')).toHaveText('Zu erledigen');
+    await expect(page.locator('#done h2 span[data-i18n="column.done"]')).toHaveText('Erledigt');
+    await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Hilfe');
+    await expect(page.locator('.theme-picker-label')).toHaveText('Design');
+    await expect(page.locator('#undoBtn')).toHaveAttribute('title', 'Rückgängig (Ctrl+Z)');
+
+    // Back to System Default -> English (UK)
+    await page.locator('#cardLanguageSelect').selectOption('system');
+    await expect(page.locator('#todo h2 span[data-i18n="column.todo"]')).toHaveText('To Do');
+    await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Help');
+    await expect(page.locator('.theme-picker-label')).toHaveText('Theme');
+  });
+
+  test('translated language persists across reload', async ({ page }) => {
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('fr');
+    await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Aide');
+
+    await page.reload();
+
+    await expect(page.locator('#todo h2 span[data-i18n="column.todo"]')).toHaveText('À faire');
+    await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Aide');
+  });
+
+  test('selecting a language translates the task modal, notebook, clock modal, and trash panel', async ({
+    page,
+  }) => {
+    // Create a task to open the Task Details modal with later
+    const title = `Phase 2 i18n test task ${Date.now()}`;
+    await page.locator('#newNote').fill(title);
+    await page.locator('[data-action="task:add"]').click();
+    const card = page.locator('#todo .note').filter({ hasText: title });
+    await expect(card).toBeVisible();
+
+    // Switch to Spanish (open dropdown, select, close dropdown)
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('es');
+    await page.locator('#headerMenuBtn').click();
+
+    // Task Details modal
+    await card.locator('strong').click();
+    await expect(page.locator('#taskModal')).toBeVisible();
+    await expect(page.locator('[data-i18n="modal.task.notes"]')).toHaveText('Notas');
+    await expect(page.locator('[data-i18n="modal.task.dueDate"]')).toHaveText('Fecha límite');
+    await expect(page.locator('[data-i18n="modal.task.tags"]')).toHaveText('Etiquetas');
+    await expect(page.locator('[data-action="task:saveModal"]')).toHaveText('Guardar y cerrar');
+    await expect(page.locator('[data-i18n="subKanban.inProgress"]')).toHaveText('En curso');
+    await page.locator('[data-action="task:closeModal"]').click();
+    await expect(page.locator('#taskModal')).toBeHidden();
+
+    // Notebook sidebar
+    await page.locator('.notebook-toggle-btn').click();
+    await expect(page.locator('.notebook-sidebar-header h3')).toHaveText('Cuaderno');
+    await expect(page.locator('#notebookSearchInput')).toHaveAttribute(
+      'placeholder',
+      'Buscar páginas...'
+    );
+    await page.locator('.notebook-close-btn').click();
+
+    // Trash panel
+    await page.locator('#trashToggleBtn').click();
+    await expect(page.locator('.trash-panel-header h3')).toHaveText('Papelera');
+    await expect(page.locator('.empty-trash-btn')).toHaveText('Vaciar todo');
+    await page.locator('#trashToggleBtn').click();
+
+    // Clock delete button (dynamic t() usage, Spanish)
+    await expect(page.locator('.clock-delete').first()).toHaveAttribute('title', 'Eliminar');
+
+    // French
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('fr');
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.clock-delete').first()).toHaveAttribute('title', 'Supprimer');
+
+    // Português (PT)
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('pt-PT');
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('.notebook-toggle-btn').click();
+    await expect(page.locator('.notebook-sidebar-header h3')).toHaveText('Caderno');
+    await page.locator('.notebook-close-btn').click();
+
+    // Deutsch (DE)
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('de-DE');
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.clock-delete').first()).toHaveAttribute('title', 'Löschen');
+    await page.locator('.notebook-toggle-btn').click();
+    await expect(page.locator('.notebook-sidebar-header h3')).toHaveText('Notizbuch');
+    await expect(page.locator('#notebookSearchInput')).toHaveAttribute(
+      'placeholder',
+      'Seiten durchsuchen…'
+    );
+    await page.locator('.notebook-close-btn').click();
+    await page.locator('#trashToggleBtn').click();
+    await expect(page.locator('.trash-panel-header h3')).toHaveText('Papierkorb');
+    await expect(page.locator('.empty-trash-btn')).toHaveText('Alles leeren');
+    await page.locator('#trashToggleBtn').click();
+
+    // Back to System Default -> English (UK)
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('system');
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.clock-delete').first()).toHaveAttribute('title', 'Delete');
+
+    // Cleanup: delete the test task
+    await card.locator('strong').click();
+    await expect(page.locator('#taskModal')).toBeVisible();
+    page.on('dialog', dialog => dialog.accept());
+    await page.locator('[data-action="task:deleteModal"]').click();
+    await expect(page.locator('#taskModal')).toBeHidden();
   });
 
   test('system default does not set lang/spellcheck attributes on card fields', async ({

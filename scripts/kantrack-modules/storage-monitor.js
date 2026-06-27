@@ -5,6 +5,7 @@
  ***********************/
 import { idbPut } from './database.js';
 import { debugWarn } from './utils.js';
+import { t } from './i18n.js';
 
 /**
  * Request durable storage permission from the browser.
@@ -47,10 +48,7 @@ export async function initStorageMonitor() {
     // Only show messages at 70%+
     if (percentage < 70) return;
 
-    const message =
-      percentage >= 85
-        ? 'Storage is nearly full. Export a backup to avoid losing recent changes.'
-        : 'Storage is getting full. Consider exporting a backup.';
+    const message = percentage >= 85 ? t('storage.nearlyFull') : t('storage.gettingFull');
 
     // Display in settings panel only - calm, informational
     const storageInfoEl = document.getElementById('storageMonitorInfo');

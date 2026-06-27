@@ -5,6 +5,7 @@
 import * as state from './state.js';
 import { saveNotesToLocalStorage } from './storage.js';
 import { showNotification } from './notifications.js';
+import { t } from './i18n.js';
 import {
   cleanupUnusedTags,
   renderTagFilterButtons,
@@ -125,7 +126,7 @@ export function recordAction(action) {
  */
 export function undo() {
   if (undoStack.length === 0) {
-    showNotification('Nothing to undo', 'info', 2000);
+    showNotification(t('undo.nothingToUndo'), 'info', 2000);
     return false;
   }
 
@@ -134,7 +135,7 @@ export function undo() {
 
   try {
     applyUndo(action);
-    showNotification(`Undone: ${action.description}`, 'info', 2000);
+    showNotification(t('undo.undone', { description: action.description }), 'info', 2000);
     // Mark as undone in oplog with timestamp so redo order survives reload
     if (action.opId) {
       updateOplogEntry(action.opId, { undone: true, undoneAt: Date.now() });
@@ -142,7 +143,7 @@ export function undo() {
     return true;
   } catch (e) {
     console.error('Undo failed:', e);
-    showNotification('Undo failed', 'error', 3000);
+    showNotification(t('undo.undoFailed'), 'error', 3000);
     return false;
   }
 }
@@ -152,7 +153,7 @@ export function undo() {
  */
 export function redo() {
   if (redoStack.length === 0) {
-    showNotification('Nothing to redo', 'info', 2000);
+    showNotification(t('undo.nothingToRedo'), 'info', 2000);
     return false;
   }
 
@@ -161,7 +162,7 @@ export function redo() {
 
   try {
     applyRedo(action);
-    showNotification(`Redone: ${action.description}`, 'info', 2000);
+    showNotification(t('undo.redone', { description: action.description }), 'info', 2000);
     // Mark as not undone in oplog (fire-and-forget)
     if (action.opId) {
       updateOplogEntry(action.opId, { undone: false });
@@ -169,7 +170,7 @@ export function redo() {
     return true;
   } catch (e) {
     console.error('Redo failed:', e);
-    showNotification('Redo failed', 'error', 3000);
+    showNotification(t('undo.redoFailed'), 'error', 3000);
     return false;
   }
 }

@@ -9,6 +9,7 @@ import { saveNotesToLocalStorage } from './storage.js';
 import { recordAction } from './undo.js';
 import { deepClone, escapeHtml, getColumnName } from './utils.js';
 import { getSearchableText } from './search.js';
+import { t } from './i18n.js';
 
 /**
  * Hide a task: marks it hidden, records an undoable action, and notifies the
@@ -154,23 +155,23 @@ export function showHiddenCardsModal(initialQuery = '') {
     const rowsHtml = rows.length
       ? rows
           .map(
-            t => `
-        <li class="kt-hidden-row" data-row-id="${escapeHtml(t.id)}">
+            task => `
+        <li class="kt-hidden-row" data-row-id="${escapeHtml(task.id)}">
           <label>
-            <input type="checkbox" class="kt-hidden-row-check" data-id="${escapeHtml(t.id)}">
-            <span class="kt-hidden-row-title">${escapeHtml(t.title)}</span>
+            <input type="checkbox" class="kt-hidden-row-check" data-id="${escapeHtml(task.id)}">
+            <span class="kt-hidden-row-title">${escapeHtml(task.title)}</span>
           </label>
           <span class="kt-hidden-row-meta">
-            <span class="kt-hidden-column-badge">${escapeHtml(getColumnName(t.column))}</span>
-            <button data-show-id="${escapeHtml(t.id)}" class="kt-hidden-show-btn">Show</button>
+            <span class="kt-hidden-column-badge">${escapeHtml(getColumnName(task.column))}</span>
+            <button data-show-id="${escapeHtml(task.id)}" class="kt-hidden-show-btn">${escapeHtml(t('hiddenCards.showBtn'))}</button>
           </span>
         </li>`
           )
           .join('')
-      : '<li class="kt-hidden-empty">No hidden cards</li>';
+      : `<li class="kt-hidden-empty">${escapeHtml(t('hiddenCards.empty'))}</li>`;
 
     const filterNoticeHtml = filterQuery
-      ? `<p class="kt-hidden-filter-notice">Filtered by "${escapeHtml(filterQuery)}" - <a href="#" id="kt-hidden-clear-filter">Clear filter</a></p>`
+      ? `<p class="kt-hidden-filter-notice">${escapeHtml(t('hiddenCards.filteredBy', { query: filterQuery }))} <a href="#" id="kt-hidden-clear-filter">${escapeHtml(t('hiddenCards.clearFilter'))}</a></p>`
       : '';
 
     dialog.innerHTML = `
@@ -183,14 +184,14 @@ export function showHiddenCardsModal(initialQuery = '') {
               <line x1="1" y1="1" x2="23" y2="23"></line>
             </svg>
           </span>
-          <h3>Hidden Cards <span class="kt-hidden-count-badge">${all.length}</span></h3>
+          <h3>${escapeHtml(t('hiddenCards.title'))} <span class="kt-hidden-count-badge">${all.length}</span></h3>
         </div>
         <span class="kt-hidden-close-x" id="kt-hidden-close">&times;</span>
       </div>
       ${filterNoticeHtml}
       <div class="kt-hidden-toolbar">
-        <button id="kt-hidden-select-all" class="kt-hidden-btn">Select All</button>
-        <button id="kt-hidden-show-selected" class="kt-hidden-btn kt-hidden-btn-primary">Show Selected</button>
+        <button id="kt-hidden-select-all" class="kt-hidden-btn">${escapeHtml(t('hiddenCards.selectAll'))}</button>
+        <button id="kt-hidden-show-selected" class="kt-hidden-btn kt-hidden-btn-primary">${escapeHtml(t('hiddenCards.showSelected'))}</button>
       </div>
       <ul class="kt-hidden-list">${rowsHtml}</ul>
     `;
@@ -218,7 +219,9 @@ export function showHiddenCardsModal(initialQuery = '') {
       const checks = dialog.querySelectorAll('.kt-hidden-row-check');
       const allChecked = checks.length > 0 && Array.from(checks).every(c => c.checked);
       checks.forEach(c => (c.checked = !allChecked));
-      selectAllBtn.textContent = allChecked ? 'Select All' : 'Deselect All';
+      selectAllBtn.textContent = allChecked
+        ? t('hiddenCards.selectAll')
+        : t('hiddenCards.deselectAll');
     });
 
     dialog.querySelector('#kt-hidden-show-selected').addEventListener('click', () => {

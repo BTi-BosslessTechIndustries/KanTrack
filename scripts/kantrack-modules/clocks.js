@@ -5,6 +5,7 @@ import * as state from './state.js';
 import { timezones } from './timezones.js';
 import { getAllClocks, saveClocks as _saveClocks } from './repository.js';
 import { debugWarn, createFocusTrap } from './utils.js';
+import { t } from './i18n.js';
 
 let _updateClocksInterval = null;
 
@@ -91,6 +92,8 @@ export function createClockElement(clock) {
     const deleteBtn = document.createElement('button');
     deleteBtn.classList.add('clock-delete');
     deleteBtn.innerHTML = '&times;';
+    deleteBtn.title = t('clock.delete');
+    deleteBtn.setAttribute('aria-label', t('clock.delete'));
     deleteBtn.onclick = e => {
       e.stopPropagation();
       deleteClock(clock.id);
@@ -129,7 +132,7 @@ export function createClockElement(clock) {
     controlsEl.classList.add('chronometer-controls');
 
     const startBtn = document.createElement('button');
-    startBtn.textContent = 'Start';
+    startBtn.textContent = t('clock.start');
     startBtn.classList.add('start-btn');
     startBtn.onclick = e => {
       e.stopPropagation();
@@ -137,7 +140,7 @@ export function createClockElement(clock) {
     };
 
     const pauseBtn = document.createElement('button');
-    pauseBtn.textContent = 'Pause';
+    pauseBtn.textContent = t('clock.pause');
     pauseBtn.classList.add('pause-btn');
     pauseBtn.onclick = e => {
       e.stopPropagation();
@@ -145,7 +148,7 @@ export function createClockElement(clock) {
     };
 
     const resetBtn = document.createElement('button');
-    resetBtn.textContent = 'Reset';
+    resetBtn.textContent = t('clock.reset');
     resetBtn.classList.add('reset-btn');
     resetBtn.onclick = e => {
       e.stopPropagation();
@@ -450,7 +453,7 @@ export function filterTimezones() {
 export function addTimezoneClock() {
   const selected = document.querySelector('.timezone-item.selected');
   if (!selected) {
-    alert('Please select a timezone');
+    alert(t('clockDialog.selectTimezone'));
     return;
   }
 
