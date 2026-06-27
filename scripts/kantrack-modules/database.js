@@ -5,6 +5,7 @@
 import { db, setDb, notesData, notebookItems } from './state.js';
 import { showError, showWarning } from './notifications.js';
 import { debugWarn } from './utils.js';
+import { t } from './i18n.js';
 
 const DB_VERSION = 3;
 
@@ -20,7 +21,7 @@ export function initIndexedDB() {
 
       request.onerror = () => {
         debugWarn('IndexedDB error:', request.error);
-        showError('Failed to open image database. Images may not persist.');
+        showError(t('importExport.imageDbFailed'));
         reject(request.error);
       };
 
@@ -70,7 +71,7 @@ export function initIndexedDB() {
       };
     } catch (e) {
       debugWarn('IndexedDB initialization error:', e);
-      showError('Image storage is not available in this browser.');
+      showError(t('importExport.imageStorageUnavailable'));
       reject(e);
     }
   });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import * as state from '../scripts/kantrack-modules/state.js';
 import { resetLocalStorage } from './setup.js';
@@ -21,6 +21,8 @@ import {
 import { initUndo, undo, redo, canUndo, recordAction } from '../scripts/kantrack-modules/undo.js';
 import { initIndexedDB } from '../scripts/kantrack-modules/database.js';
 import { deepClone } from '../scripts/kantrack-modules/utils.js';
+import { showNotification } from '../scripts/kantrack-modules/notifications.js';
+import { setLanguage } from '../scripts/kantrack-modules/i18n.js';
 
 function task(id, overrides = {}) {
   return {
@@ -240,5 +242,44 @@ describe('hide then delete interaction', () => {
     expect(restored.deleted).toBeUndefined();
     expect(restored.hidden).toBe(true);
     expect(getHiddenTasks().map(x => x.id)).toEqual(['a']);
+  });
+});
+
+describe('undo/redo notifications respect the active card language', () => {
+  beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 0));
+    global.indexedDB = new IDBFactory();
+    resetLocalStorage();
+    state.setNotesData([]);
+    await initIndexedDB();
+    await initUndo();
+    showNotification.mockClear();
+  });
+
+  afterEach(() => {
+    setLanguage('en-GB');
+  });
+
+  it('shows "Nothing to undo" / "Nothing to redo" in French when the history is empty', () => {
+    setLanguage('fr');
+
+    undo();
+    expect(showNotification).toHaveBeenCalledWith('Rien à annuler', 'info', 2000);
+
+    redo();
+    expect(showNotification).toHaveBeenCalledWith('Rien à rétablir', 'info', 2000);
+  });
+
+  it('shows "Undone: ..." / "Redone: ..." in Portuguese (PT) with the action description', () => {
+    setLanguage('pt-PT');
+
+    state.setNotesData([task('a', { column: 'todo' })]);
+    hideCard('a');
+
+    undo();
+    expect(showNotification).toHaveBeenCalledWith('Desfeito: Hide "Task a"', 'info', 2000);
+
+    redo();
+    expect(showNotification).toHaveBeenCalledWith('Refeito: Hide "Task a"', 'info', 2000);
   });
 });

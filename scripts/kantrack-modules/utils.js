@@ -293,6 +293,7 @@ export const LANGUAGE_CODES = {
   es: 'es',
   fr: 'fr',
   'pt-PT': 'pt-PT',
+  'de-DE': 'de-DE',
 };
 
 let activeLanguageCode = 'system';

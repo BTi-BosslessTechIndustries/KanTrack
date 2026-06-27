@@ -33,6 +33,7 @@ import { initMentionHandler, setOpenPageModal } from './mentions.js';
 import { exportFolderAsZip } from './notebook-export.js';
 import { sanitizeHTML } from './sanitize.js';
 import { createFocusTrap, plainTextToFragment, applyLanguageAttrs } from './utils.js';
+import { t } from './i18n.js';
 
 /***********************
  * SIDEBAR UI
@@ -362,8 +363,8 @@ export async function deleteNotebookItem(itemId, skipConfirm = false) {
   if (!skipConfirm) {
     const message =
       item.type === 'folder' && descendants.length > 0
-        ? `Delete "${item.name}" and ${descendants.length} item(s) inside it?`
-        : `Delete "${item.name}"?`;
+        ? t('notebookImport.confirmDeleteFolder', { name: item.name, count: descendants.length })
+        : t('notebookImport.confirmDeletePage', { name: item.name });
 
     if (!confirm(message)) {
       return;
@@ -519,7 +520,7 @@ setOpenPageModal(openPageModal);
 
 export function closePageModal() {
   if (pageHasChanges) {
-    if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
+    if (!confirm(t('notebookImport.confirmCloseUnsaved'))) {
       return;
     }
   }
@@ -670,7 +671,7 @@ export async function deletePageFromModal() {
   const page = notebookItems.find(i => i.id === currentPageId);
   if (!page) return;
 
-  if (confirm(`Delete "${page.name}"?`)) {
+  if (confirm(t('notebookImport.confirmDeletePage', { name: page.name }))) {
     await deleteNotebookItem(currentPageId, true);
     setPageHasChanges(false);
     _pageModalTrap?.deactivate();
@@ -873,16 +874,12 @@ export async function importNotebookFromZip(event) {
     });
 
     if (pdfFiles.length === 0) {
-      alert('No notebook data or PDF files found in the ZIP.');
+      alert(t('notebookImport.noDataOrPdf'));
       event.target.value = '';
       return;
     }
 
-    if (
-      !confirm(
-        `Found ${pdfFiles.length} PDF file(s). Import them as notebook pages?\n\nNote: Only file names will be imported. PDF content cannot be extracted.`
-      )
-    ) {
+    if (!confirm(t('notebookImport.confirmPdfImport', { count: pdfFiles.length }))) {
       event.target.value = '';
       return;
     }
@@ -960,10 +957,10 @@ export async function importNotebookFromZip(event) {
     saveNotebookToLocalStorage();
     renderNotebookTree();
 
-    alert(`Successfully imported ${importedCount} page(s) to the notebook.`);
+    alert(t('notebookImport.importedPages', { count: importedCount }));
   } catch (err) {
     console.error('Import error:', err);
-    alert('Error importing ZIP file: ' + err.message);
+    alert(t('notebookImport.zipImportError', { message: err.message }));
   }
 
   event.target.value = '';
@@ -975,7 +972,7 @@ async function importFromNotebookData(dataFile) {
   const data = JSON.parse(jsonContent);
 
   if (!data.items || !Array.isArray(data.items)) {
-    alert('Invalid notebook data file.');
+    alert(t('notebookImport.invalidDataFile'));
     return;
   }
 
@@ -1069,7 +1066,7 @@ async function importFromNotebookData(dataFile) {
   ]);
   renderNotebookTree();
 
-  alert(`Successfully imported ${pageCount} page(s) to the notebook.`);
+  alert(t('notebookImport.importedPages', { count: pageCount }));
 }
 
 /***********************

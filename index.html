@@ -19,19 +19,19 @@
 	<!-- Top Header Bar -->
 	<header class="top-header">
 		<div class="header-left">
-			<button class="notebook-toggle-btn" data-action="notebook:toggleSidebar" title="Toggle Notebook (Ctrl+B)" aria-label="Toggle Notebook (Ctrl+B)">
+			<button class="notebook-toggle-btn" data-action="notebook:toggleSidebar" title="Toggle Notebook (Ctrl+B)" aria-label="Toggle Notebook (Ctrl+B)" data-i18n-attr="title:header.toggleNotebook|aria-label:header.toggleNotebook">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
 					<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
 				</svg>
 			</button>
 			<div class="header-divider"></div>
-			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn" aria-label="Developed by BTi – Bossless Tech Industries">
+			<a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="header-credit-btn" aria-label="Developed by BTi – Bossless Tech Industries" data-i18n-attr="aria-label:header.developedBy">
 				<img src="images/bti-logo.png" alt="BTi – Bossless Tech Industries" class="header-credit-logo">
 			</a>
-			<button class="support-us-btn" data-action="support:open" aria-label="Support Us">
+			<button class="support-us-btn" data-action="support:open" aria-label="Support Us" data-i18n-attr="aria-label:header.supportUs">
 				<span class="support-us-icon" aria-hidden="true">☕</span>
-				<span class="support-us-label">Support Us</span>
+				<span class="support-us-label" data-i18n="header.supportUs">Support Us</span>
 			</button>
 		</div>
 		<div class="header-center">
@@ -41,7 +41,7 @@
 		</div>
 		<div class="header-right">
 			<div id="headerClockGroup" class="header-clock-group">
-				<button id="headerAddClockBtn" class="header-action-btn" data-action="clock:openModal" title="Add Clock" aria-label="Add Clock">
+				<button id="headerAddClockBtn" class="header-action-btn" data-action="clock:openModal" title="Add Clock" aria-label="Add Clock" data-i18n-attr="title:header.addClock|aria-label:header.addClock">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<circle cx="12" cy="12" r="9"></circle>
 						<polyline points="12 7 12 12 15 15"></polyline>
@@ -51,13 +51,13 @@
 				<div class="header-divider"></div>
 			</div>
 			<div class="header-undo-redo">
-				<button id="undoBtn" class="header-action-btn" data-action="history:undo" title="Undo (Ctrl+Z)" aria-label="Undo (Ctrl+Z)">
+				<button id="undoBtn" class="header-action-btn" data-action="history:undo" title="Undo (Ctrl+Z)" aria-label="Undo (Ctrl+Z)" data-i18n-attr="title:header.undo|aria-label:header.undo">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M3 7v6h6"></path>
 						<path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
 					</svg>
 				</button>
-				<button id="redoBtn" class="header-action-btn" data-action="history:redo" title="Redo (Ctrl+Y)" aria-label="Redo (Ctrl+Y)">
+				<button id="redoBtn" class="header-action-btn" data-action="history:redo" title="Redo (Ctrl+Y)" aria-label="Redo (Ctrl+Y)" data-i18n-attr="title:header.redo|aria-label:header.redo">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 7v6h-6"></path>
 						<path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
@@ -65,7 +65,7 @@
 				</button>
 			</div>
 			<div class="header-menu-wrapper" id="headerMenuWrapper">
-				<button class="header-action-btn header-menu-btn" id="headerMenuBtn" data-action="menu:toggle" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false">
+				<button class="header-action-btn header-menu-btn" id="headerMenuBtn" data-action="menu:toggle" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false" data-i18n-attr="title:header.moreOptions|aria-label:header.moreOptions">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<circle cx="12" cy="5" r="1"></circle>
 						<circle cx="12" cy="12" r="1"></circle>
@@ -73,40 +73,41 @@
 					</svg>
 				</button>
 				<div class="header-dropdown" id="headerDropdown" style="display:none;" role="menu">
-					<button class="header-dropdown-item" data-action="about:open" role="menuitem">About KanTrack</button>
-					<a class="header-dropdown-item" href="https://github.com/BTi-BosslessTechIndustries/KanTrack" target="_blank" rel="noopener noreferrer" role="menuitem">View the Code</a>
-					<button class="header-dropdown-item" data-action="shortcuts:open" role="menuitem">Help</button>
-					<div class="card-size-picker" role="group" aria-label="Card size">
-						<span class="card-size-picker-label">Card Size</span>
+					<button class="header-dropdown-item" data-action="about:open" role="menuitem" data-i18n="menu.about">About KanTrack</button>
+					<a class="header-dropdown-item" href="https://github.com/BTi-BosslessTechIndustries/KanTrack" target="_blank" rel="noopener noreferrer" role="menuitem" data-i18n="menu.viewCode">View the Code</a>
+					<button class="header-dropdown-item" data-action="shortcuts:open" role="menuitem" data-i18n="menu.help">Help</button>
+					<div class="card-size-picker" role="group" aria-label="Card size" data-i18n-attr="aria-label:menu.cardSizeLabel">
+						<span class="card-size-picker-label" data-i18n="menu.cardSizeLabel">Card Size</span>
 						<div class="card-size-picker-btns">
-							<button class="card-size-btn" data-action="cardSize:set" data-action-param="small" aria-label="Small cards" title="Small">S</button>
-							<button class="card-size-btn" data-action="cardSize:set" data-action-param="medium" aria-label="Medium cards" title="Medium">M</button>
-							<button class="card-size-btn" data-action="cardSize:set" data-action-param="large" aria-label="Large cards" title="Large">L</button>
+							<button class="card-size-btn" data-action="cardSize:set" data-action-param="small" aria-label="Small cards" title="Small" data-i18n-attr="aria-label:cardSize.smallAria|title:cardSize.small">S</button>
+							<button class="card-size-btn" data-action="cardSize:set" data-action-param="medium" aria-label="Medium cards" title="Medium" data-i18n-attr="aria-label:cardSize.mediumAria|title:cardSize.medium">M</button>
+							<button class="card-size-btn" data-action="cardSize:set" data-action-param="large" aria-label="Large cards" title="Large" data-i18n-attr="aria-label:cardSize.largeAria|title:cardSize.large">L</button>
 						</div>
 					</div>
-					<div class="theme-picker" role="group" aria-label="Theme">
-						<span class="theme-picker-label">Theme</span>
+					<div class="theme-picker" role="group" aria-label="Theme" data-i18n-attr="aria-label:menu.themeLabel">
+						<span class="theme-picker-label" data-i18n="menu.themeLabel">Theme</span>
 						<div class="theme-picker-btns">
-							<button class="theme-btn theme-btn-light" data-action="theme:set" data-action-param="light" aria-label="Light mode" title="Light"></button>
-							<button class="theme-btn theme-btn-dark" data-action="theme:set" data-action-param="dark" aria-label="Dark mode" title="Dark"></button>
-							<button class="theme-btn theme-btn-system" data-action="theme:set" data-action-param="system" aria-label="System default" title="System default"></button>
+							<button class="theme-btn theme-btn-light" data-action="theme:set" data-action-param="light" aria-label="Light mode" title="Light" data-i18n-attr="aria-label:theme.lightAria|title:theme.light"></button>
+							<button class="theme-btn theme-btn-dark" data-action="theme:set" data-action-param="dark" aria-label="Dark mode" title="Dark" data-i18n-attr="aria-label:theme.darkAria|title:theme.dark"></button>
+							<button class="theme-btn theme-btn-system" data-action="theme:set" data-action-param="system" aria-label="System default" title="System default" data-i18n-attr="aria-label:theme.systemAria|title:theme.system"></button>
 						</div>
 					</div>
-					<div class="language-picker" role="group" aria-label="Card Language">
-						<span class="language-picker-label">Language</span>
-						<select id="cardLanguageSelect" class="language-picker-select" aria-label="Card content language">
-							<option value="system">System Default</option>
+					<div class="language-picker" role="group" aria-label="Card Language" data-i18n-attr="aria-label:menu.languageAria">
+						<span class="language-picker-label" data-i18n="menu.languageLabel">Language</span>
+						<select id="cardLanguageSelect" class="language-picker-select" aria-label="Card content language" data-i18n-attr="aria-label:menu.languageAria">
+							<option value="system" data-i18n="menu.languageSystemOption">System Default</option>
 							<option value="en-GB">English (UK)</option>
 							<option value="es">Español</option>
 							<option value="fr">Français</option>
 							<option value="pt-PT">Português (PT)</option>
+							<option value="de-DE">Deutsch (DE)</option>
 						</select>
 					</div>
-					<a class="header-dropdown-item" href="privacy.html" target="_blank" rel="noopener noreferrer" role="menuitem">Privacy Policy</a>
+					<a class="header-dropdown-item" href="privacy.html" target="_blank" rel="noopener noreferrer" role="menuitem" data-i18n="menu.privacyPolicy">Privacy Policy</a>
 				</div>
 			</div>
 			<div class="header-divider"></div>
-			<button id="hiddenToggleBtn" class="header-action-btn header-hidden-btn" data-action="hidden:open" title="View Hidden Cards" aria-label="View Hidden Cards">
+			<button id="hiddenToggleBtn" class="header-action-btn header-hidden-btn" data-action="hidden:open" title="View Hidden Cards" aria-label="View Hidden Cards" data-i18n-attr="title:header.viewHidden|aria-label:header.viewHidden">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-4.5-11-4.5s1.6-3 4-5.5"></path>
 					<path d="M9.9 4.24A9.97 9.97 0 0 1 12 4c7 0 11 4.5 11 4.5s-1.6 3-4 5.5"></path>
@@ -114,7 +115,7 @@
 				</svg>
 				<span id="hiddenCount" class="hidden-count" style="display: none;">0</span>
 			</button>
-			<button id="trashToggleBtn" class="header-action-btn header-trash-btn" data-action="trash:togglePanel" title="View Trash" aria-label="View Trash">
+			<button id="trashToggleBtn" class="header-action-btn header-trash-btn" data-action="trash:togglePanel" title="View Trash" aria-label="View Trash" data-i18n-attr="title:header.viewTrash|aria-label:header.viewTrash">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="3 6 5 6 21 6"></polyline>
 					<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -127,9 +128,9 @@
 	<!-- Trash Panel -->
 	<div id="trashPanel" class="trash-panel" style="display: none;">
 		<div class="trash-panel-header">
-			<h3>Trash</h3>
+			<h3 data-i18n="trash.title">Trash</h3>
 			<div class="trash-panel-actions">
-				<button data-action="trash:emptyAll" class="empty-trash-btn" title="Empty Trash">Empty All</button>
+				<button data-action="trash:emptyAll" class="empty-trash-btn" title="Empty Trash" data-i18n="trash.emptyAll" data-i18n-attr="title:trash.emptyAllTooltip">Empty All</button>
 				<button data-action="trash:togglePanel" class="close-trash-btn">&times;</button>
 			</div>
 		</div>
@@ -142,16 +143,16 @@
 	<div id="notebookSidebar" class="notebook-sidebar">
 		<div id="notebookSidebarResize" class="notebook-sidebar-resize"></div>
 		<div class="notebook-sidebar-header">
-			<h3>Notebook</h3>
+			<h3 data-i18n="notebook.title">Notebook</h3>
 			<div class="notebook-header-actions">
-				<button class="notebook-action-btn" data-action="notebook:createFolder" title="New Folder" aria-label="New Folder">
+				<button class="notebook-action-btn" data-action="notebook:createFolder" title="New Folder" aria-label="New Folder" data-i18n-attr="title:notebook.newFolder|aria-label:notebook.newFolder">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
 						<line x1="12" y1="11" x2="12" y2="17"></line>
 						<line x1="9" y1="14" x2="15" y2="14"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn" data-action="notebook:createPage" title="New Page" aria-label="New Page">
+				<button class="notebook-action-btn" data-action="notebook:createPage" title="New Page" aria-label="New Page" data-i18n-attr="title:notebook.newPage|aria-label:notebook.newPage">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 						<polyline points="14 2 14 8 20 8"></polyline>
@@ -159,7 +160,7 @@
 						<line x1="9" y1="15" x2="15" y2="15"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn" data-action="notebook:triggerImport" title="Import (ZIP)" aria-label="Import (ZIP)">
+				<button class="notebook-action-btn" data-action="notebook:triggerImport" title="Import (ZIP)" aria-label="Import (ZIP)" data-i18n-attr="title:notebook.import|aria-label:notebook.import">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 						<polyline points="17 8 12 3 7 8"></polyline>
@@ -167,14 +168,14 @@
 					</svg>
 				</button>
 				<input type="file" id="notebookImportFile" accept=".zip" style="display: none;">
-				<button class="notebook-action-btn" data-action="notebook:exportAll" title="Export All (ZIP)" aria-label="Export All (ZIP)">
+				<button class="notebook-action-btn" data-action="notebook:exportAll" title="Export All (ZIP)" aria-label="Export All (ZIP)" data-i18n-attr="title:notebook.exportAll|aria-label:notebook.exportAll">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 						<polyline points="7 10 12 15 17 10"></polyline>
 						<line x1="12" y1="15" x2="12" y2="3"></line>
 					</svg>
 				</button>
-				<button class="notebook-action-btn notebook-close-btn" data-action="notebook:toggleSidebar" title="Close" aria-label="Close Notebook">
+				<button class="notebook-action-btn notebook-close-btn" data-action="notebook:toggleSidebar" title="Close" aria-label="Close Notebook" data-i18n-attr="title:notebook.close|aria-label:notebook.closeAria">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<line x1="18" y1="6" x2="6" y2="18"></line>
 						<line x1="6" y1="6" x2="18" y2="18"></line>
@@ -183,7 +184,7 @@
 			</div>
 		</div>
 		<div class="notebook-search">
-			<input type="text" id="notebookSearchInput" placeholder="Search pages...">
+			<input type="text" id="notebookSearchInput" placeholder="Search pages..." data-i18n-attr="placeholder:notebook.searchPlaceholder">
 		</div>
 		<div id="notebookTree" class="notebook-tree">
 			<!-- Tree items will be rendered here -->
@@ -197,7 +198,7 @@
 				<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
 				<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
 			</svg>
-			<span>Rename</span>
+			<span data-i18n="notebook.contextMenu.rename">Rename</span>
 		</div>
 		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="newFolder">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -205,7 +206,7 @@
 				<line x1="12" y1="11" x2="12" y2="17"></line>
 				<line x1="9" y1="14" x2="15" y2="14"></line>
 			</svg>
-			<span>New Subfolder</span>
+			<span data-i18n="notebook.contextMenu.newSubfolder">New Subfolder</span>
 		</div>
 		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="newPage">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -214,7 +215,7 @@
 				<line x1="12" y1="18" x2="12" y2="12"></line>
 				<line x1="9" y1="15" x2="15" y2="15"></line>
 			</svg>
-			<span>New Page Inside</span>
+			<span data-i18n="notebook.contextMenu.newPageInside">New Page Inside</span>
 		</div>
 		<div class="context-menu-divider"></div>
 		<div class="context-menu-item folder-only" data-action="notebook:contextMenu" data-action-param="exportFolder">
@@ -223,7 +224,7 @@
 				<polyline points="7 10 12 15 17 10"></polyline>
 				<line x1="12" y1="15" x2="12" y2="3"></line>
 			</svg>
-			<span>Export Folder (ZIP)</span>
+			<span data-i18n="notebook.contextMenu.exportFolder">Export Folder (ZIP)</span>
 		</div>
 		<div class="context-menu-divider"></div>
 		<div class="context-menu-item context-menu-delete" data-action="notebook:contextMenu" data-action-param="delete">
@@ -231,7 +232,7 @@
 				<polyline points="3 6 5 6 21 6"></polyline>
 				<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
 			</svg>
-			<span>Delete</span>
+			<span data-i18n="notebook.contextMenu.delete">Delete</span>
 		</div>
 	</div>
 
@@ -240,15 +241,15 @@
 		<div class="modal-content page-modal-content">
 			<span class="modal-close" data-action="notebook:closePage" aria-label="Close">&times;</span>
 			<div class="page-modal-header">
-				<h2 id="pageModalTitle" contenteditable="true" data-placeholder="Untitled Page">Untitled Page</h2>
+				<h2 id="pageModalTitle" contenteditable="true" data-placeholder="Untitled Page" data-i18n-attr="data-placeholder:modal.page.untitled">Untitled Page</h2>
 			</div>
 			<div class="page-modal-actions">
-				<button data-action="notebook:savePage">Save & Close</button>
-				<button class="export-btn" data-action="notebook:exportPagePDF">Export PDF</button>
-				<button class="delete-btn" data-action="notebook:deletePage">Delete</button>
+				<button data-action="notebook:savePage" data-i18n="modal.page.saveAndClose">Save & Close</button>
+				<button class="export-btn" data-action="notebook:exportPagePDF" data-i18n="modal.page.exportPDF">Export PDF</button>
+				<button class="delete-btn" data-action="notebook:deletePage" data-i18n="modal.page.delete">Delete</button>
 			</div>
 			<div class="page-editor-container">
-				<div id="pageEditor" class="page-editor" contenteditable="true" data-placeholder="Start writing..."></div>
+				<div id="pageEditor" class="page-editor" contenteditable="true" data-placeholder="Start writing..." data-i18n-attr="data-placeholder:modal.page.startWriting"></div>
 			</div>
 		</div>
 	</div>
@@ -271,15 +272,15 @@
 
     <div class="controls-top">
         <div class="controls-unified-row">
-            <input type="text" id="newNote" placeholder="New task title..." maxlength="200">
-            <button class="add-task-btn" data-action="task:add">Add</button>
+            <input type="text" id="newNote" placeholder="New task title..." maxlength="200" data-i18n-attr="placeholder:controls.newTaskPlaceholder">
+            <button class="add-task-btn" data-action="task:add" data-i18n="controls.add">Add</button>
             <div class="search-wrapper">
                 <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" id="taskSearchInput" placeholder="Search...">
-                <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="Clear search" aria-label="Clear search">&times;</button>
+                <input type="text" id="taskSearchInput" placeholder="Search..." data-i18n-attr="placeholder:controls.searchPlaceholder">
+                <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="Clear search" aria-label="Clear search" data-i18n-attr="title:controls.clearSearch|aria-label:controls.clearSearch">&times;</button>
             </div>
         </div>
         <div id="hiddenSearchHint" class="hidden-search-hint" style="display:none;"></div>
@@ -290,33 +291,33 @@
 
     <div class="kanban-board">
         <div class="column" id="todo">
-            <h2>To Do</h2>
+            <h2><span data-i18n="column.todo">To Do</span></h2>
         </div>
         <div class="column" id="inProgress">
-            <h2>In Progress</h2>
+            <h2><span data-i18n="column.inProgress">In Progress</span></h2>
         </div>
         <div class="column" id="onHold">
-            <h2>On Hold</h2>
+            <h2><span data-i18n="column.onHold">On Hold</span></h2>
         </div>
         <div class="column" id="done">
-            <h2>Done</h2>
+            <h2><span data-i18n="column.done">Done</span></h2>
         </div>
     </div>
 
     <div class="notes-container">
-        <textarea id="permanentNotes" class="notes-field" placeholder="Write permanent notes here..."></textarea>
-        <textarea id="temporaryNotes" class="notes-field" placeholder="Write temporary notes here..."></textarea>
+        <textarea id="permanentNotes" class="notes-field" placeholder="Write permanent notes here..." data-i18n-attr="placeholder:controls.permanentNotesPlaceholder"></textarea>
+        <textarea id="temporaryNotes" class="notes-field" placeholder="Write temporary notes here..." data-i18n-attr="placeholder:controls.temporaryNotesPlaceholder"></textarea>
     </div>
 
     <div class="controls-bottom">
         <div class="controls-row-secondary">
-            <button class="export-btn export-btn--all" data-action="board:exportEverything" title="Download workspace + all notes (two files)">Download everything</button>
+            <button class="export-btn export-btn--all" data-action="board:exportEverything" title="Download workspace + all notes (two files)" data-i18n="controls.downloadEverything" data-i18n-attr="title:controls.downloadEverythingTooltip">Download everything</button>
             <span class="controls-separator" aria-hidden="true"></span>
-            <button class="export-btn" data-action="board:exportJSON">Download workspace</button>
-            <button class="export-btn" data-action="board:exportJSONLite">Download workspace (lightweight)</button>
-            <button class="export-btn" data-action="board:exportEncrypted">Download workspace (encrypted)</button>
-            <button class="export-btn" data-action="board:exportHTML">Share as HTML (read-only)</button>
-            <button class="import-btn" data-action="board:triggerImport">Import workspace</button>
+            <button class="export-btn" data-action="board:exportJSON" data-i18n="controls.downloadWorkspace">Download workspace</button>
+            <button class="export-btn" data-action="board:exportJSONLite" data-i18n="controls.downloadWorkspaceLite">Download workspace (lightweight)</button>
+            <button class="export-btn" data-action="board:exportEncrypted" data-i18n="controls.downloadEncrypted">Download workspace (encrypted)</button>
+            <button class="export-btn" data-action="board:exportHTML" data-i18n="controls.shareHTML">Share as HTML (read-only)</button>
+            <button class="import-btn" data-action="board:triggerImport" data-i18n="controls.importWorkspace">Import workspace</button>
             <input type="file" id="importFile" accept=".kantrack.json,.kantrack.enc,.html,.txt" style="display: none;">
         </div>
         <p id="storageMonitorInfo" class="storage-monitor-info" style="display: none;"></p>
@@ -327,55 +328,55 @@
         <div class="modal-content">
             <span class="modal-close" data-action="task:closeModal" aria-label="Close">&times;</span>
             <div class="modal-title-row">
-                <h2 id="modalTitle" title="Double-click to edit">Task Details</h2>
-                <span id="autoSaveIndicator" class="auto-save-indicator" style="display: none;">Saved</span>
+                <h2 id="modalTitle" title="Double-click to edit" data-i18n-attr="title:modal.task.titleEditHint">Task Details</h2>
+                <span id="autoSaveIndicator" class="auto-save-indicator" style="display: none;" data-i18n="modal.task.autoSaveIndicator">Saved</span>
             </div>
 
             <div class="modal-actions-top">
-                <button data-action="task:saveModalOnly">Save</button>
-                <button data-action="task:saveModal">Save & Close</button>
-                <button class="export-btn" data-action="task:exportPDF">Export PDF</button>
-                <button class="delete-btn" data-action="task:deleteModal">Delete</button>
+                <button data-action="task:saveModalOnly" data-i18n="modal.task.save">Save</button>
+                <button data-action="task:saveModal" data-i18n="modal.task.saveAndClose">Save & Close</button>
+                <button class="export-btn" data-action="task:exportPDF" data-i18n="modal.task.exportPDF">Export PDF</button>
+                <button class="delete-btn" data-action="task:deleteModal" data-i18n="modal.task.delete">Delete</button>
             </div>
 
             <div class="modal-section">
                 <div class="notes-header">
-                    <h4>Notes</h4>
+                    <h4 data-i18n="modal.task.notes">Notes</h4>
                     <div class="notes-toolbar-right">
                         <div id="notesFormatBtns" class="notes-format-btns" style="display:none;">
-                            <button id="boldBtn" class="format-btn format-btn-bold" title="Bold" type="button"><b>B</b></button>
-                            <button id="italicBtn" class="format-btn format-btn-italic" title="Italic" type="button"><i>I</i></button>
-                            <button id="strikeBtn" class="format-btn format-btn-strike" title="Strikethrough" type="button"><s>S</s></button>
+                            <button id="boldBtn" class="format-btn format-btn-bold" title="Bold" type="button" data-i18n-attr="title:modal.task.boldTooltip"><b>B</b></button>
+                            <button id="italicBtn" class="format-btn format-btn-italic" title="Italic" type="button" data-i18n-attr="title:modal.task.italicTooltip"><i>I</i></button>
+                            <button id="strikeBtn" class="format-btn format-btn-strike" title="Strikethrough" type="button" data-i18n-attr="title:modal.task.strikeTooltip"><s>S</s></button>
                         </div>
-                        <button id="clearNotesBtn" class="clear-btn" data-action="task:clearNotes" style="display: none;">Clear All</button>
+                        <button id="clearNotesBtn" class="clear-btn" data-action="task:clearNotes" style="display: none;" data-i18n="modal.task.clearAll">Clear All</button>
                     </div>
                 </div>
                 <div id="notesPreview" class="notes-preview" style="display:none;"></div>
-                <div id="modalNotesEditor" class="notes-editor" contenteditable="true" data-placeholder="Write your notes here..."></div>
+                <div id="modalNotesEditor" class="notes-editor" contenteditable="true" data-placeholder="Write your notes here..." data-i18n-attr="data-placeholder:modal.task.notesPlaceholder"></div>
             </div>
 
             <div class="modal-section priority-section">
-                <h4>Priority: <span id="modalPriorityLabel">None</span></h4>
+                <h4><span data-i18n="modal.task.priority">Priority:</span> <span id="modalPriorityLabel">None</span></h4>
                 <div class="priority-controls">
-                    <button class="priority-btn" data-priority="none" data-action="task:setPriority" data-action-param="none">None</button>
-                    <button class="priority-btn" data-priority="low" data-action="task:setPriority" data-action-param="low">Low</button>
-                    <button class="priority-btn" data-priority="medium" data-action="task:setPriority" data-action-param="medium">Medium</button>
-                    <button class="priority-btn" data-priority="high" data-action="task:setPriority" data-action-param="high">High</button>
+                    <button class="priority-btn" data-priority="none" data-action="task:setPriority" data-action-param="none" data-i18n="modal.task.priorityNone">None</button>
+                    <button class="priority-btn" data-priority="low" data-action="task:setPriority" data-action-param="low" data-i18n="modal.task.priorityLow">Low</button>
+                    <button class="priority-btn" data-priority="medium" data-action="task:setPriority" data-action-param="medium" data-i18n="modal.task.priorityMedium">Medium</button>
+                    <button class="priority-btn" data-priority="high" data-action="task:setPriority" data-action-param="high" data-i18n="modal.task.priorityHigh">High</button>
                 </div>
             </div>
 
             <div class="modal-section due-date-section">
-                <h4>Due Date</h4>
+                <h4 data-i18n="modal.task.dueDate">Due Date</h4>
                 <div id="dueDateContainer"></div>
             </div>
 
             <div class="modal-section tags-section">
-                <h4>Tags</h4>
+                <h4 data-i18n="modal.task.tags">Tags</h4>
                 <div id="tagsContainer"></div>
             </div>
 
             <div class="modal-section timer-section">
-                <h4>Worked Time: <span id="modalTimerTotal">0m</span></h4>
+                <h4><span data-i18n="modal.task.workedTime">Worked Time:</span> <span id="modalTimerTotal">0m</span></h4>
                 <div class="timer-controls-wrapper">
                     <div class="timer-controls">
                         <button data-action="task:addTime" data-action-param="1">+1m</button>
@@ -398,29 +399,29 @@
 
             <div class="modal-section sub-kanban-section">
                 <h4 class="sub-kanban-toggle-header" data-action="task:toggleSubKanban">
-                    <span>Sub-Tasks <span id="subKanbanCount" class="sub-kanban-count"></span></span>
+                    <span><span data-i18n="modal.task.subTasks">Sub-Tasks</span> <span id="subKanbanCount" class="sub-kanban-count"></span></span>
                     <span id="subKanbanToggle" class="sub-kanban-toggle">&#9660;</span>
                 </h4>
                 <div id="subKanbanContent" class="sub-kanban-content" style="display: none;">
                     <div class="sub-kanban-add-row">
-                        <input type="text" id="newSubTaskInput" placeholder="Add sub-task...">
-                        <button data-action="task:addSubItem">Add</button>
+                        <input type="text" id="newSubTaskInput" placeholder="Add sub-task..." data-i18n-attr="placeholder:modal.task.subTaskPlaceholder">
+                        <button data-action="task:addSubItem" data-i18n="modal.task.add">Add</button>
                     </div>
                     <div id="subKanbanBoard" class="sub-kanban-board">
                         <div class="sub-kanban-column" data-column="todo">
-                            <div class="sub-kanban-column-header">To Do</div>
+                            <div class="sub-kanban-column-header" data-i18n="subKanban.todo">To Do</div>
                             <div class="sub-kanban-column-items" id="subKanbanTodo"></div>
                         </div>
                         <div class="sub-kanban-column" data-column="inProgress">
-                            <div class="sub-kanban-column-header">In Progress</div>
+                            <div class="sub-kanban-column-header" data-i18n="subKanban.inProgress">In Progress</div>
                             <div class="sub-kanban-column-items" id="subKanbanInProgress"></div>
                         </div>
                         <div class="sub-kanban-column" data-column="onHold">
-                            <div class="sub-kanban-column-header">On Hold</div>
+                            <div class="sub-kanban-column-header" data-i18n="subKanban.onHold">On Hold</div>
                             <div class="sub-kanban-column-items" id="subKanbanOnHold"></div>
                         </div>
                         <div class="sub-kanban-column" data-column="done">
-                            <div class="sub-kanban-column-header">Done</div>
+                            <div class="sub-kanban-column-header" data-i18n="subKanban.done">Done</div>
                             <div class="sub-kanban-column-items" id="subKanbanDone"></div>
                         </div>
                     </div>
@@ -429,7 +430,7 @@
 
             <div class="modal-section">
                 <h4 class="history-header" data-action="task:toggleHistory">
-                    <span>History</span>
+                    <span data-i18n="modal.task.history">History</span>
                     <span id="historyToggle" class="history-toggle">&#9660;</span>
                 </h4>
                 <div id="modalHistory" class="history-list" style="display: none;"></div>
@@ -457,38 +458,38 @@
     <div id="addClockModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="clockModalTitle">
         <div class="modal-content clock-modal-content">
             <span class="modal-close" data-action="clock:closeModal" aria-label="Close">&times;</span>
-            <h2 id="clockModalTitle">Add Clock</h2>
+            <h2 id="clockModalTitle" data-i18n="clock.addClock">Add Clock</h2>
 
             <div class="clock-type-selection">
                 <button class="clock-type-btn" data-type="timezone" data-action="clock:selectType" data-action-param="timezone">
                     <span class="clock-type-icon">&#127758;</span>
-                    <span class="clock-type-label">Timezone Clock</span>
+                    <span class="clock-type-label" data-i18n="clock.timezoneClock">Timezone Clock</span>
                 </button>
                 <button class="clock-type-btn" data-type="chronometer" data-action="clock:selectType" data-action-param="chronometer">
                     <span class="clock-type-icon">&#9201;</span>
-                    <span class="clock-type-label">Chronometer</span>
+                    <span class="clock-type-label" data-i18n="clock.chronometer">Chronometer</span>
                 </button>
             </div>
 
             <div id="timezoneClockForm" class="clock-form" style="display: none;">
-                <h3>Add Timezone Clock</h3>
-                <label for="clockName">Clock Name:</label>
-                <input type="text" id="clockName" placeholder="e.g., New York">
+                <h3 data-i18n="clock.addTimezoneTitle">Add Timezone Clock</h3>
+                <label for="clockName" data-i18n="clock.nameLabel">Clock Name:</label>
+                <input type="text" id="clockName" placeholder="e.g., New York" data-i18n-attr="placeholder:clock.namePlaceholder">
 
-                <label for="clockTimezoneSearch">Timezone (search):</label>
-                <input type="text" id="clockTimezoneSearch" placeholder="Type to search timezones..." autocomplete="off">
+                <label for="clockTimezoneSearch" data-i18n="clock.timezoneSearchLabel">Timezone (search):</label>
+                <input type="text" id="clockTimezoneSearch" placeholder="Type to search timezones..." autocomplete="off" data-i18n-attr="placeholder:clock.timezoneSearchPlaceholder">
                 <div id="timezoneList" class="timezone-list"></div>
                 <input type="hidden" id="clockTimezoneSelected">
 
-                <button class="modal-action-btn" data-action="clock:addTimezone">Add Clock</button>
+                <button class="modal-action-btn" data-action="clock:addTimezone" data-i18n="clock.addTimezoneButton">Add Clock</button>
             </div>
 
             <div id="chronometerForm" class="clock-form" style="display: none;">
-                <h3>Add Chronometer</h3>
-                <label for="chronometerName">Chronometer Name:</label>
-                <input type="text" id="chronometerName" placeholder="e.g., Work Timer">
+                <h3 data-i18n="clock.addChronometerTitle">Add Chronometer</h3>
+                <label for="chronometerName" data-i18n="clock.chronometerNameLabel">Chronometer Name:</label>
+                <input type="text" id="chronometerName" placeholder="e.g., Work Timer" data-i18n-attr="placeholder:clock.chronometerNamePlaceholder">
 
-                <button class="modal-action-btn" data-action="clock:addChronometer">Add Chronometer</button>
+                <button class="modal-action-btn" data-action="clock:addChronometer" data-i18n="clock.addChronometerButton">Add Chronometer</button>
             </div>
         </div>
     </div>
@@ -497,95 +498,95 @@
     <div id="aboutModal" class="modal about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" style="display:none;">
         <div class="modal-content about-modal-content">
             <span class="modal-close" data-action="about:close" aria-label="Close">&times;</span>
-            <h2 id="aboutModalTitle">About KanTrack</h2>
+            <h2 id="aboutModalTitle" data-i18n="about.title">About KanTrack</h2>
 
             <div class="about-modal-section">
-                <p class="about-intro">
+                <p class="about-intro" data-i18n="about.intro">
                     KanTrack is a privacy-first, local-only Kanban board built for focus and clarity.
                     No accounts. No cloud. No distractions. Just you and your work.
                 </p>
             </div>
 
             <div class="about-modal-section">
-                <h3>Features</h3>
+                <h3 data-i18n="about.features.title">Features</h3>
                 <ul class="about-modal-features">
-                    <li>Four-column board - To Do, In Progress, On Hold, Done</li>
-                    <li>Rich task details with notes, timers, priorities, due dates &amp; tags</li>
-                    <li>Built-in Notebook for freeform notes and documentation</li>
-                    <li>World clocks and chronometer widgets</li>
-                    <li>Full-text search, column filters, and tag filters</li>
-                    <li>Keyboard shortcuts for efficient navigation</li>
-                    <li>Export to PDF, HTML, JSON, and encrypted backup</li>
-                    <li>Undo / redo for all task actions</li>
+                    <li data-i18n="about.features.fourColumn">Four-column board - To Do, In Progress, On Hold, Done</li>
+                    <li data-i18n="about.features.richDetails">Rich task details with notes, timers, priorities, due dates &amp; tags</li>
+                    <li data-i18n="about.features.notebook">Built-in Notebook for freeform notes and documentation</li>
+                    <li data-i18n="about.features.worldClocks">World clocks and chronometer widgets</li>
+                    <li data-i18n="about.features.search">Full-text search, column filters, and tag filters</li>
+                    <li data-i18n="about.features.shortcuts">Keyboard shortcuts for efficient navigation</li>
+                    <li data-i18n="about.features.exports">Export to PDF, HTML, JSON, and encrypted backup</li>
+                    <li data-i18n="about.features.undoRedo">Undo / redo for all task actions</li>
                 </ul>
             </div>
 
             <div class="about-modal-divider"></div>
 
             <div class="about-modal-section">
-                <h3>Where Your Data Lives</h3>
+                <h3 data-i18n="about.dataLives.title">Where Your Data Lives</h3>
                 <table class="about-data-table">
                     <tbody>
                         <tr>
-                            <td>Tasks, notes, tags, history</td>
-                            <td>localStorage + IndexedDB -> your browser only</td>
+                            <td data-i18n="about.dataLives.row1.label">Tasks, notes, tags, history</td>
+                            <td data-i18n="about.dataLives.row1.value">localStorage + IndexedDB -> your browser only</td>
                         </tr>
                         <tr>
-                            <td>Notebook pages &amp; images</td>
-                            <td>IndexedDB -> your browser only</td>
+                            <td data-i18n="about.dataLives.row2.label">Notebook pages &amp; images</td>
+                            <td data-i18n="about.dataLives.row2.value">IndexedDB -> your browser only</td>
                         </tr>
                         <tr>
-                            <td>UI preferences</td>
-                            <td>localStorage -> your browser only</td>
+                            <td data-i18n="about.dataLives.row3.label">UI preferences</td>
+                            <td data-i18n="about.dataLives.row3.value">localStorage -> your browser only</td>
                         </tr>
                         <tr>
-                            <td>Encryption keys</td>
-                            <td>Never stored -> derived per-session from your password</td>
+                            <td data-i18n="about.dataLives.row4.label">Encryption keys</td>
+                            <td data-i18n="about.dataLives.row4.value">Never stored -> derived per-session from your password</td>
                         </tr>
                     </tbody>
                 </table>
-                <p class="about-privacy-note">
+                <p class="about-privacy-note" data-i18n="about.dataLives.note">
                     Nothing is sent to any server. KanTrack has no backend, no accounts, and makes no network requests. All storage is local to your browser.
                 </p>
             </div>
 
             <div class="about-modal-section">
-                <h3>What KanTrack Protects Against</h3>
+                <h3 data-i18n="about.protects.title">What KanTrack Protects Against</h3>
                 <ul class="about-modal-features">
-                    <li>XSS via imported data - an allowlist-based sanitizer strips all event handlers and unsafe tags before any HTML is rendered to the page</li>
-                    <li>Inline script injection - a strict Content Security Policy (<code>script-src 'self'</code>) blocks inline scripts and <code>javascript:</code> URL execution</li>
-                    <li>Malicious import files - the sanitizer also runs on content from imported <code>.kantrack.json</code> workspace files</li>
-                    <li>Encrypted exports use AES-256-GCM with PBKDF2 key derivation (100,000 iterations, SHA-256)</li>
+                    <li data-i18n="about.protects.xss">XSS via imported data - an allowlist-based sanitizer strips all event handlers and unsafe tags before any HTML is rendered to the page</li>
+                    <li><span data-i18n="about.protects.inlineScript.part1">Inline script injection - a strict Content Security Policy (</span><code>script-src 'self'</code><span data-i18n="about.protects.inlineScript.part2">) blocks inline scripts and </span><code>javascript:</code><span data-i18n="about.protects.inlineScript.part3"> URL execution</span></li>
+                    <li><span data-i18n="about.protects.maliciousImport.part1">Malicious import files - the sanitizer also runs on content from imported </span><code>.kantrack.json</code><span data-i18n="about.protects.maliciousImport.part2"> workspace files</span></li>
+                    <li data-i18n="about.protects.encryption">Encrypted exports use AES-256-GCM with PBKDF2 key derivation (100,000 iterations, SHA-256)</li>
                 </ul>
             </div>
 
             <div class="about-modal-section">
-                <h3>Known Limitations - Read These</h3>
+                <h3 data-i18n="about.limitations.title">Known Limitations - Read These</h3>
                 <ul class="about-modal-features about-modal-features--warn">
-                    <li>Device compromise - if your device is infected or physically accessed, data in localStorage and IndexedDB is readable. KanTrack cannot protect against OS-level access.</li>
-                    <li>Browser extensions - extensions with broad permissions can read page content and storage. Use a minimal-extension browser profile for sensitive data.</li>
-                    <li>Unencrypted exports - standard <code>.kantrack.json</code> exports are plain JSON. Use the encrypted export for sensitive data.</li>
-                    <li>Data at rest - KanTrack does not encrypt data in localStorage or IndexedDB. Anyone with access to your logged-in account can read it via browser DevTools.</li>
-                    <li>Password strength - the encrypted export is only as strong as the password you choose.</li>
+                    <li data-i18n="about.limitations.deviceCompromise">Device compromise - if your device is infected or physically accessed, data in localStorage and IndexedDB is readable. KanTrack cannot protect against OS-level access.</li>
+                    <li data-i18n="about.limitations.browserExtensions">Browser extensions - extensions with broad permissions can read page content and storage. Use a minimal-extension browser profile for sensitive data.</li>
+                    <li><span data-i18n="about.limitations.unencryptedExports.part1">Unencrypted exports - standard </span><code>.kantrack.json</code><span data-i18n="about.limitations.unencryptedExports.part2"> exports are plain JSON. Use the encrypted export for sensitive data.</span></li>
+                    <li data-i18n="about.limitations.dataAtRest">Data at rest - KanTrack does not encrypt data in localStorage or IndexedDB. Anyone with access to your logged-in account can read it via browser DevTools.</li>
+                    <li data-i18n="about.limitations.passwordStrength">Password strength - the encrypted export is only as strong as the password you choose.</li>
                 </ul>
-                <p class="about-honest-note">We cannot protect your data if your device is compromised. That is an honest limitation we cannot engineer away.</p>
+                <p class="about-honest-note" data-i18n="about.limitations.honestNote">We cannot protect your data if your device is compromised. That is an honest limitation we cannot engineer away.</p>
             </div>
 
             <div class="about-modal-section">
-                <h3>Report a Vulnerability</h3>
+                <h3 data-i18n="about.vulnerability.title">Report a Vulnerability</h3>
                 <p class="about-privacy-note">
-                    Found a security issue? Do not open a public issue.<br>
-                    Contact: <a href="mailto:general@bosslesstechindustries.com" class="about-mailto">general@bosslesstechindustries.com</a>
+                    <span data-i18n="about.vulnerability.part1">Found a security issue? Do not open a public issue.</span><br>
+                    <span data-i18n="about.vulnerability.part2">Contact:</span> <a href="mailto:general@bosslesstechindustries.com" class="about-mailto">general@bosslesstechindustries.com</a>
                 </p>
             </div>
 
             <div class="about-modal-divider"></div>
 
             <div class="about-modal-section about-modal-section--footer">
-                <span class="about-built-by">Built by</span>
+                <span class="about-built-by" data-i18n="about.footer.builtBy">Built by</span>
                 <a href="https://www.bosslesstechindustries.com" target="_blank" rel="noopener noreferrer" class="about-bti-link">BTi – Bossless Tech Industries</a>
                 <span class="about-footer-sep">·</span>
-                <a href="privacy.html" target="_blank" rel="noopener noreferrer" class="about-privacy-link">Privacy Policy</a>
+                <a href="privacy.html" target="_blank" rel="noopener noreferrer" class="about-privacy-link" data-i18n="about.footer.privacyPolicy">Privacy Policy</a>
             </div>
         </div>
     </div>
@@ -594,17 +595,17 @@
     <div id="supportModal" class="modal support-modal" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle" style="display:none;">
         <div class="modal-content support-modal-content">
             <span class="modal-close" data-action="support:close" aria-label="Close">&times;</span>
-            <h2 id="supportModalTitle">Support KanTrack ☕</h2>
+            <h2 id="supportModalTitle" data-i18n="support.title">Support KanTrack ☕</h2>
 
             <div class="about-modal-section">
-                <p class="about-intro">
+                <p class="about-intro" data-i18n="support.intro">
                     KanTrack is free and always will be! No ads, no accounts required, no tracking. We built it this way on purpose, because we believe your workspace is yours alone.
                 </p>
             </div>
 
             <div class="about-modal-section">
-                <h3>Why your support matters</h3>
-                <p class="about-privacy-note">
+                <h3 data-i18n="support.whyMatters.title">Why your support matters</h3>
+                <p class="about-privacy-note" data-i18n="support.whyMatters.body">
                     Keeping KanTrack alive has real costs, the domain, the infrastructure, and the time it takes to build things right. There are no investors or corporate backing behind this. It's just us, building something we believe in. If KanTrack helps you stay organized and clear-headed, a coffee goes a long way.
                 </p>
             </div>
@@ -612,20 +613,20 @@
             <div class="about-modal-divider"></div>
 
             <div class="about-modal-section">
-                <h3>What we're building next</h3>
-                <p class="about-privacy-note">Your support helps fund the next chapter of KanTrack:</p>
+                <h3 data-i18n="support.buildingNext.title">What we're building next</h3>
+                <p class="about-privacy-note" data-i18n="support.buildingNext.intro">Your support helps fund the next chapter of KanTrack:</p>
                 <ul class="about-modal-features">
-                    <li><strong>Encrypted Cloud Vault</strong> - zero-knowledge backup. The server will never be able to read your data, only you can.</li>
-                    <li><strong>Multi-device Sync</strong> - your board, seamlessly current across all your devices, with conflict resolution that stays out of your way.</li>
+                    <li><strong data-i18n="support.buildingNext.vault.title">Encrypted Cloud Vault</strong><span data-i18n="support.buildingNext.vault.body"> - zero-knowledge backup. The server will never be able to read your data, only you can.</span></li>
+                    <li><strong data-i18n="support.buildingNext.sync.title">Multi-device Sync</strong><span data-i18n="support.buildingNext.sync.body"> - your board, seamlessly current across all your devices, with conflict resolution that stays out of your way.</span></li>
                 </ul>
-                <p class="about-privacy-note">All of this is optional. Local Mode stays free and fully featured, forever. No paywalls on existing features, ever.</p>
-                <p class="about-privacy-note">Your support also helps fund our other open projects. See what we're working on <a href="https://bosslesstechindustries.com/projects" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link">here</a>.</p>
+                <p class="about-privacy-note" data-i18n="support.buildingNext.optional">All of this is optional. Local Mode stays free and fully featured, forever. No paywalls on existing features, ever.</p>
+                <p class="about-privacy-note"><span data-i18n="support.buildingNext.otherProjects">Your support also helps fund our other open projects. See what we're working on</span> <a href="https://bosslesstechindustries.com/projects" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link" data-i18n="support.buildingNext.here">here</a>.</p>
             </div>
 
             <div class="about-modal-divider"></div>
 
             <div class="support-modal-cta">
-                <a href="https://paypal.me/btibossless" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link">Support Us</a>
+                <a href="https://paypal.me/btibossless" target="_blank" rel="noopener noreferrer" class="support-modal-cta-link" data-i18n="support.cta">Support Us</a>
             </div>
         </div>
     </div>
@@ -641,148 +642,148 @@
                 </div>
                 <div class="help-modal-right">
                     <img src="images/bti-logo.png" alt="BTi - Bossless Tech Industries" class="help-modal-bti-logo">
-                    <span class="help-badge" id="shortcutsModalTitle">Help</span>
+                    <span class="help-badge" id="shortcutsModalTitle" data-i18n="menu.help">Help</span>
                     <span class="modal-close" data-action="shortcuts:close" aria-label="Close">&times;</span>
                 </div>
             </div>
 
             <!-- Your Board -->
             <div class="help-feat-section">
-                <div class="help-badge">Your Board</div>
+                <div class="help-badge" data-i18n="help.yourBoard.title">Your Board</div>
                 <div class="help-feat-grid">
                     <div class="help-feat-card">
                         <div class="help-feat-icon">📋</div>
-                        <h4>Kanban columns</h4>
-                        <p>Four columns: To Do, In Progress, On Hold, and Done. Move tasks between them by drag and drop.</p>
+                        <h4 data-i18n="help.kanbanColumns.title">Kanban columns</h4>
+                        <p data-i18n="help.kanbanColumns.body">Four columns: To Do, In Progress, On Hold, and Done. Move tasks between them by drag and drop.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🗑️</div>
-                        <h4>Done column limit</h4>
-                        <p>The Done column holds at most 30 cards. Once it's full, a dialog flags the 15 oldest for permanent deletion and lets you export each one - or all of them bundled as a ZIP - to PDF first. This bypasses the Trash entirely and cannot be undone, so the dialog stays open until you confirm.</p>
+                        <h4 data-i18n="help.doneLimit.title">Done column limit</h4>
+                        <p data-i18n="help.doneLimit.body">The Done column holds at most 30 cards. Once it's full, a dialog flags the 15 oldest for permanent deletion and lets you export each one - or all of them bundled as a ZIP - to PDF first. This bypasses the Trash entirely and cannot be undone, so the dialog stays open until you confirm.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">👁️</div>
-                        <h4>Hidden cards</h4>
-                        <p>Hide a To Do or On Hold card with the eye-off button to tuck it off the board without deleting it - it leaves the column counts and the Done limit too (not available for In Progress or Done cards). The "Hidden Cards" header button shows a count badge; restore one card at a time or select several with "Select All" + "Show Selected". While searching, a hint links straight to any matching hidden cards.</p>
+                        <h4 data-i18n="help.hiddenCards.title">Hidden cards</h4>
+                        <p data-i18n="help.hiddenCards.body">Hide a To Do or On Hold card with the eye-off button to tuck it off the board without deleting it - it leaves the column counts and the Done limit too (not available for In Progress or Done cards). The "Hidden Cards" header button shows a count badge; restore one card at a time or select several with "Select All" + "Show Selected". While searching, a hint links straight to any matching hidden cards.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🎯</div>
-                        <h4>Priority tinting</h4>
-                        <p>High, Medium, and Low priority with colour tinting. Columns auto-sort so the most important work rises to the top.</p>
+                        <h4 data-i18n="help.priorityTinting.title">Priority tinting</h4>
+                        <p data-i18n="help.priorityTinting.body">High, Medium, and Low priority with colour tinting. Columns auto-sort so the most important work rises to the top.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">📅</div>
-                        <h4>Due dates</h4>
-                        <p>Due date indicators on cards with clear overdue and due-today states so nothing slips past you.</p>
+                        <h4 data-i18n="help.dueDates.title">Due dates</h4>
+                        <p data-i18n="help.dueDates.body">Due date indicators on cards with clear overdue and due-today states so nothing slips past you.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🏷️</div>
-                        <h4>Tags</h4>
-                        <p>Colour-coded labels with a preset palette or custom hex. Pin your most-used tags for fast assignment.</p>
+                        <h4 data-i18n="help.tags.title">Tags</h4>
+                        <p data-i18n="help.tags.body">Colour-coded labels with a preset palette or custom hex. Pin your most-used tags for fast assignment.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🔍</div>
-                        <h4>Search and filter</h4>
-                        <p>Full-text search with tag and column filters. Find anything immediately across your entire board.</p>
+                        <h4 data-i18n="help.searchFilter.title">Search and filter</h4>
+                        <p data-i18n="help.searchFilter.body">Full-text search with tag and column filters. Find anything immediately across your entire board.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">⚙️</div>
-                        <h4>Card sizes</h4>
-                        <p>Small, Medium, and Large card display sizes. Your preference persists across sessions.</p>
+                        <h4 data-i18n="help.cardSizes.title">Card sizes</h4>
+                        <p data-i18n="help.cardSizes.body">Small, Medium, and Large card display sizes. Your preference persists across sessions.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🌓</div>
-                        <h4>Theme</h4>
-                        <p>Light, Dark, or System Default, selectable from the ⋮ menu. System Default follows your OS appearance live; choosing Light or Dark explicitly overrides the OS setting and persists across every future session until you switch back to System Default.</p>
+                        <h4 data-i18n="help.themeFeature.title">Theme</h4>
+                        <p data-i18n="help.themeFeature.body">Light, Dark, or System Default, selectable from the ⋮ menu. System Default follows your OS appearance live; choosing Light or Dark explicitly overrides the OS setting and persists across every future session until you switch back to System Default.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🗣️</div>
-                        <h4>Language</h4>
-                        <p>Choose System Default, English (UK), Español, Français, or Português (PT) from the ⋮ menu to control spell-check on card and notebook text - independent of your browser's language. System Default leaves spell-check to your browser as usual; an explicit choice applies only within KanTrack and persists across sessions. Note: support varies by browser - Safari and Firefox honour this choice, while Chrome and Edge may continue to spell-check using their own language settings.</p>
+                        <h4 data-i18n="help.languageFeature.title">Language</h4>
+                        <p data-i18n="help.languageFeature.body">Choose System Default, English (UK), Español, Français, Português (PT), or Deutsch (DE) from the ⋮ menu to control spell-check on card and notebook text - independent of your browser's language. System Default leaves spell-check to your browser as usual; an explicit choice applies only within KanTrack and persists across sessions. Note: support varies by browser - Safari and Firefox honour this choice, while Chrome and Edge may continue to spell-check using their own language settings.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🕐</div>
-                        <h4>World clocks</h4>
-                        <p>Timezone clocks and a chronometer in a widget row above the board. Reset collapses the row: current time moves to the header and a clock icon button lets you add more. Adding any clock restores the full widget row. On narrow screens (≤ 700 px wide) the widget row hides automatically and only the current time is shown in the header; it reappears when you widen the window.</p>
+                        <h4 data-i18n="help.worldClocks.title">World clocks</h4>
+                        <p data-i18n="help.worldClocks.body">Timezone clocks and a chronometer in a widget row above the board. Reset collapses the row: current time moves to the header and a clock icon button lets you add more. Adding any clock restores the full widget row. On narrow screens (≤ 700 px wide) the widget row hides automatically and only the current time is shown in the header; it reappears when you widen the window.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Task Detail -->
             <div class="help-feat-section">
-                <div class="help-badge">Task Detail</div>
+                <div class="help-badge" data-i18n="help.taskDetail.title">Task Detail</div>
                 <div class="help-feat-grid">
                     <div class="help-feat-card">
                         <div class="help-feat-icon">📝</div>
-                        <h4>Rich notes</h4>
-                        <p>Bold, italic, and strikethrough formatting. Paste images directly, stored locally and viewable in a full-screen zoom viewer.</p>
+                        <h4 data-i18n="help.richNotes.title">Rich notes</h4>
+                        <p data-i18n="help.richNotes.body">Bold, italic, and strikethrough formatting. Paste images directly, stored locally and viewable in a full-screen zoom viewer.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">📜</div>
-                        <h4>Edit log</h4>
-                        <p>Chronological log of every edit and deletion. Full history of how a task evolved, always visible inside the task.</p>
+                        <h4 data-i18n="help.editLog.title">Edit log</h4>
+                        <p data-i18n="help.editLog.body">Chronological log of every edit and deletion. Full history of how a task evolved, always visible inside the task.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">🔲</div>
-                        <h4>Sub-tasks</h4>
-                        <p>A collapsible mini kanban board inside any task. Same four columns, drag-and-drop between states, with a live done/total counter on the parent card.</p>
+                        <h4 data-i18n="help.subtasks.title">Sub-tasks</h4>
+                        <p data-i18n="help.subtasks.body">A collapsible mini kanban board inside any task. Same four columns, drag-and-drop between states, with a live done/total counter on the parent card.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">⏱️</div>
-                        <h4>Timer</h4>
-                        <p>Per-task time tracking with quick-add and quick-remove controls directly inside the task detail view.</p>
+                        <h4 data-i18n="help.timer.title">Timer</h4>
+                        <p data-i18n="help.timer.body">Per-task time tracking with quick-add and quick-remove controls directly inside the task detail view.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">✏️</div>
-                        <h4>Inline rename</h4>
-                        <p>Double-click the task title to rename it inline without opening a separate form.</p>
+                        <h4 data-i18n="help.inlineRename.title">Inline rename</h4>
+                        <p data-i18n="help.inlineRename.body">Double-click the task title to rename it inline without opening a separate form.</p>
                     </div>
                     <div class="help-feat-card">
                         <div class="help-feat-icon">💾</div>
-                        <h4>Save options</h4>
-                        <p><strong>Save</strong> keeps the task open for multi-step edits. <strong>Save &amp; Close</strong> saves and dismisses in one action.</p>
+                        <h4 data-i18n="help.saveOptions.title">Save options</h4>
+                        <p><strong data-i18n="help.saveOptions.save">Save</strong><span data-i18n="help.saveOptions.part1"> keeps the task open for multi-step edits. </span><strong data-i18n="help.saveOptions.saveAndClose">Save &amp; Close</strong><span data-i18n="help.saveOptions.part2"> saves and dismisses in one action.</span></p>
                     </div>
                 </div>
             </div>
 
             <!-- Notebook -->
             <div class="help-feat-section">
-                <div class="help-badge">Notebook</div>
-                <div class="help-notice">
+                <div class="help-badge" data-i18n="help.notebook.title">Notebook</div>
+                <div class="help-notice" data-i18n="help.notebook.body">
                     A resizable sidebar with a folder and page tree for notes and longer-form thinking. Pages support rich text with image paste, per-page PDF export, drag-and-drop reordering, right-click context menus for rename and delete, and live search by name. Export a folder or the full notebook as a ZIP archive and import pages back from ZIP.
                 </div>
             </div>
 
             <!-- Privacy -->
             <div class="help-feat-section">
-                <div class="help-badge">Privacy</div>
+                <div class="help-badge" data-i18n="help.privacy.title">Privacy</div>
                 <div class="help-notice">
-                    <strong>Everything stays on your device.</strong> KanTrack stores all data in your browser's IndexedDB and localStorage. Nothing is transmitted, synced, or logged to any server. No analytics. No telemetry. No cookies. A Content Security Policy enforced at the browser level blocks all third-party scripts and network connections. KanTrack monitors your browser storage quota and prompts you to export a backup when usage reaches 85%.
+                    <strong data-i18n="help.privacy.everythingStaysOnDevice">Everything stays on your device.</strong> <span data-i18n="help.privacy.body">KanTrack stores all data in your browser's IndexedDB and localStorage. Nothing is transmitted, synced, or logged to any server. No analytics. No telemetry. No cookies. A Content Security Policy enforced at the browser level blocks all third-party scripts and network connections. KanTrack monitors your browser storage quota and prompts you to export a backup when usage reaches 85%.</span>
                 </div>
             </div>
 
             <!-- Keyboard Shortcuts -->
             <div class="help-feat-section">
-                <div class="help-badge">Keyboard Shortcuts</div>
+                <div class="help-badge" data-i18n="help.shortcuts.title">Keyboard Shortcuts</div>
                 <div class="shortcuts-groups">
                     <section class="shortcuts-group">
-                        <h3>Board</h3>
+                        <h3 data-i18n="help.shortcuts.board.title">Board</h3>
                         <dl>
-                            <dt>N</dt><dd>Focus new task input</dd>
-                            <dt>/</dt><dd>Focus search</dd>
-                            <dt>?</dt><dd>Open Help</dd>
-                            <dt>↑ / ↓</dt><dd>Navigate cards in column</dd>
-                            <dt>← / →</dt><dd>Jump to adjacent column</dd>
-                            <dt>Enter / Space</dt><dd>Open focused card</dd>
+                            <dt>N</dt><dd data-i18n="help.shortcuts.board.focusNewTask">Focus new task input</dd>
+                            <dt>/</dt><dd data-i18n="help.shortcuts.board.focusSearch">Focus search</dd>
+                            <dt>?</dt><dd data-i18n="help.shortcuts.board.openHelp">Open Help</dd>
+                            <dt>↑ / ↓</dt><dd data-i18n="help.shortcuts.board.navigateCards">Navigate cards in column</dd>
+                            <dt>← / →</dt><dd data-i18n="help.shortcuts.board.jumpColumn">Jump to adjacent column</dd>
+                            <dt>Enter / Space</dt><dd data-i18n="help.shortcuts.board.openCard">Open focused card</dd>
                         </dl>
                     </section>
                     <section class="shortcuts-group">
-                        <h3>General</h3>
+                        <h3 data-i18n="help.shortcuts.general.title">General</h3>
                         <dl>
-                            <dt>Escape</dt><dd>Close modal or panel</dd>
-                            <dt>Ctrl+Z</dt><dd>Undo</dd>
-                            <dt>Ctrl+Shift+Z / Ctrl+Y</dt><dd>Redo</dd>
-                            <dt>Ctrl+B</dt><dd>Toggle notebook</dd>
+                            <dt>Escape</dt><dd data-i18n="help.shortcuts.general.closeModal">Close modal or panel</dd>
+                            <dt>Ctrl+Z</dt><dd data-i18n="help.shortcuts.general.undo">Undo</dd>
+                            <dt>Ctrl+Shift+Z / Ctrl+Y</dt><dd data-i18n="help.shortcuts.general.redo">Redo</dd>
+                            <dt>Ctrl+B</dt><dd data-i18n="help.shortcuts.general.toggleNotebook">Toggle notebook</dd>
                         </dl>
                     </section>
                 </div>
@@ -790,70 +791,70 @@
 
             <!-- Exports & Imports -->
             <div class="help-feat-section">
-                <div class="help-badge">Exports &amp; Imports</div>
+                <div class="help-badge" data-i18n="help.exports.title">Exports &amp; Imports</div>
 
-                <p class="help-section-label">Board - controls at the bottom of the board</p>
-                <p class="help-exports-note"><strong>Download everything</strong> downloads both files at once: a full <code>.kantrack.json</code> workspace backup and a complete notebook <code>.zip</code>. Each file can be imported separately using its own import button.</p>
+                <p class="help-section-label" data-i18n="help.exports.boardLabel">Board - controls at the bottom of the board</p>
+                <p class="help-exports-note"><strong data-i18n="help.exports.downloadEverything.title">Download everything</strong><span data-i18n="help.exports.downloadEverything.part1"> downloads both files at once: a full </span><code>.kantrack.json</code><span data-i18n="help.exports.downloadEverything.part2"> workspace backup and a complete notebook </span><code>.zip</code><span data-i18n="help.exports.downloadEverything.part3">. Each file can be imported separately using its own import button.</span></p>
                 <table class="help-exports-table">
                     <thead>
-                        <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
+                        <tr><th data-i18n="help.exports.table.format">Format</th><th data-i18n="help.exports.table.included">What's included</th><th data-i18n="help.exports.table.importable">Importable?</th></tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><code>.kantrack.json</code> full</td>
-                            <td>Everything - tasks, tags, notebook pages &amp; images, clocks</td>
-                            <td>Yes - merge or replace (restores workspace and notes)</td>
+                            <td data-i18n="help.exports.jsonFull.included">Everything - tasks, tags, notebook pages &amp; images, clocks</td>
+                            <td data-i18n="help.exports.jsonFull.importable">Yes - merge or replace (restores workspace and notes)</td>
                         </tr>
                         <tr>
                             <td><code>.kantrack.json</code> lite</td>
-                            <td>Same as full, without embedded images (smaller file)</td>
-                            <td>Yes - merge or replace (restores workspace and notes)</td>
+                            <td data-i18n="help.exports.jsonLite.included">Same as full, without embedded images (smaller file)</td>
+                            <td data-i18n="help.exports.jsonLite.importable">Yes - merge or replace (restores workspace and notes)</td>
                         </tr>
                         <tr>
                             <td><code>.kantrack.enc</code></td>
-                            <td>Full backup, passphrase-encrypted</td>
-                            <td>Yes - passphrase required (restores workspace and notes)</td>
+                            <td data-i18n="help.exports.enc.included">Full backup, passphrase-encrypted</td>
+                            <td data-i18n="help.exports.enc.importable">Yes - passphrase required (restores workspace and notes)</td>
                         </tr>
                         <tr>
                             <td><code>.html</code></td>
-                            <td>Read-only visual snapshot of the board</td>
-                            <td>Yes (board data only)</td>
+                            <td data-i18n="help.exports.html.included">Read-only visual snapshot of the board</td>
+                            <td data-i18n="help.exports.html.importable">Yes (board data only)</td>
                         </tr>
                         <tr>
-                            <td>Task <code>.pdf</code></td>
-                            <td>Single task with notes &amp; history</td>
-                            <td>No</td>
+                            <td><span data-i18n="help.exports.taskPdf.label">Task</span> <code>.pdf</code></td>
+                            <td data-i18n="help.exports.taskPdf.included">Single task with notes &amp; history</td>
+                            <td data-i18n="help.exports.notImportable">No</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="help-section-label">Notebook - controls inside the notebook sidebar</p>
+                <p class="help-section-label" data-i18n="help.exports.notebookLabel">Notebook - controls inside the notebook sidebar</p>
                 <table class="help-exports-table">
                     <thead>
-                        <tr><th>Format</th><th>What's included</th><th>Importable?</th></tr>
+                        <tr><th data-i18n="help.exports.table.format">Format</th><th data-i18n="help.exports.table.included">What's included</th><th data-i18n="help.exports.table.importable">Importable?</th></tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Folder / All pages <code>.zip</code></td>
-                            <td>Pages &amp; images, folder structure preserved</td>
-                            <td>Yes - notebook pages only, via notebook import button</td>
+                            <td><span data-i18n="help.exports.notebookZip.label">Folder / All pages</span> <code>.zip</code></td>
+                            <td data-i18n="help.exports.notebookZip.included">Pages &amp; images, folder structure preserved</td>
+                            <td data-i18n="help.exports.notebookZip.importable">Yes - notebook pages only, via notebook import button</td>
                         </tr>
                         <tr>
-                            <td>Page <code>.pdf</code></td>
-                            <td>Single note page</td>
-                            <td>No</td>
+                            <td><span data-i18n="help.exports.pagePdf.label">Page</span> <code>.pdf</code></td>
+                            <td data-i18n="help.exports.pagePdf.included">Single note page</td>
+                            <td data-i18n="help.exports.notImportable">No</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p class="help-exports-note">On import, <strong>Merge</strong> adds new items without touching existing ones. <strong>Replace</strong> overwrites everything - an automatic lightweight backup is downloaded first.</p>
+                <p class="help-exports-note"><span data-i18n="help.exports.importNote.part1">On import, </span><strong data-i18n="help.exports.importNote.merge">Merge</strong><span data-i18n="help.exports.importNote.part2"> adds new items without touching existing ones. </span><strong data-i18n="help.exports.importNote.replace">Replace</strong><span data-i18n="help.exports.importNote.part3"> overwrites everything - an automatic lightweight backup is downloaded first.</span></p>
             </div>
 
             <!-- About -->
             <div class="help-feat-section">
-                <div class="help-badge">About</div>
-                <blockquote class="help-blockquote">Built by BTi - Bossless Tech Industries, a small studio with one governing idea: software should serve the person using it.</blockquote>
-                <p class="help-tagline">KanTrack is an app, not a trap.</p>
+                <div class="help-badge" data-i18n="help.about.title">About</div>
+                <blockquote class="help-blockquote" data-i18n="help.about.blockquote">Built by BTi - Bossless Tech Industries, a small studio with one governing idea: software should serve the person using it.</blockquote>
+                <p class="help-tagline" data-i18n="help.about.tagline">KanTrack is an app, not a trap.</p>
             </div>
         </div>
     </div>

@@ -7,6 +7,7 @@ import * as state from './state.js';
 import { getNotebookImage } from './database.js';
 import { getImageDimensions } from './utils.js';
 import { getNotebookItemContent } from './repository.js';
+import { t } from './i18n.js';
 
 /***********************
  * PDF EXPORT
@@ -228,7 +229,7 @@ export async function exportFolderAsZip(folderId) {
   const folders = descendants.filter(i => i.type === 'folder');
 
   if (pages.length === 0) {
-    alert('This folder has no pages to export.');
+    alert(t('notebookImport.noPagesToExportFolder'));
     return;
   }
 
@@ -310,7 +311,7 @@ export async function exportAllNotebook() {
   const allPages = state.notebookItems.filter(i => i.type === 'page');
 
   if (allPages.length === 0) {
-    alert('No pages to export.');
+    alert(t('notebookImport.noPagesToExport'));
     return;
   }
 

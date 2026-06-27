@@ -26,6 +26,7 @@ import {
 import { validateImportFile, extractImportSummary } from './import-validator.js';
 import { encryptWorkspace, decryptWorkspace, computeHash } from './crypto.js';
 import { showError, showSuccess } from './notifications.js';
+import { t } from './i18n.js';
 
 const APP_VERSION = '1.0.0';
 const VALID_COLUMNS = ['todo', 'inProgress', 'onHold', 'done'];
@@ -477,12 +478,12 @@ export async function exportWorkspaceAsJSON(mode = 'full') {
  */
 export async function exportWorkspaceAsEncrypted() {
   _showPassphraseDialog({
-    title: 'Set export passphrase',
-    message: 'If you lose this passphrase, the file cannot be opened. Keep it safe.',
-    confirmLabel: 'Download encrypted',
+    title: t('importExport.setPassphraseTitle'),
+    message: t('importExport.setPassphraseMessage'),
+    confirmLabel: t('importExport.downloadEncrypted'),
     onConfirm: async passphrase => {
       if (!passphrase) {
-        showError('Passphrase cannot be empty.');
+        showError(t('importExport.passphraseEmpty'));
         return;
       }
       try {
@@ -495,7 +496,7 @@ export async function exportWorkspaceAsEncrypted() {
         link.download = `KanTrack_${getCurrentDate()}.kantrack.enc`;
         link.click();
       } catch (err) {
-        showError('Encryption failed: ' + err.message);
+        showError(t('importExport.encryptionFailed', { message: err.message }));
       }
     },
     onCancel: () => {},
@@ -522,7 +523,7 @@ export async function importBoardFromFile(event) {
   } else if (fileName.endsWith('.txt')) {
     await importBoardFromTXT(file);
   } else {
-    alert('Unsupported file type. Please use .kantrack.json, .kantrack.enc, .html, or .txt files.');
+    alert(t('importExport.unsupportedFileType'));
   }
 
   // Reset file input
@@ -537,7 +538,7 @@ async function _importWorkspaceFromJSON(file) {
       const parsed = JSON.parse(e.target.result);
       await _runImportFlow(parsed);
     } catch (err) {
-      showError('Could not read file: ' + err.message);
+      showError(t('importExport.readFileFailed', { message: err.message }));
     }
   };
   reader.readAsText(file);
@@ -548,16 +549,16 @@ async function _importWorkspaceFromEnc(file) {
   const reader = new FileReader();
   reader.onload = e => {
     _showPassphraseDialog({
-      title: 'Enter passphrase',
-      message: 'This file is encrypted. Enter the passphrase used when it was exported.',
-      confirmLabel: 'Decrypt and import',
+      title: t('importExport.enterPassphraseTitle'),
+      message: t('importExport.enterPassphraseMessage'),
+      confirmLabel: t('importExport.decryptAndImport'),
       onConfirm: async passphrase => {
         try {
           const jsonString = await decryptWorkspace(e.target.result, passphrase);
           const parsed = JSON.parse(jsonString);
           await _runImportFlow(parsed);
         } catch (err) {
-          showError('Incorrect passphrase or corrupted file.');
+          showError(t('importExport.incorrectPassphrase'));
         }
       },
       onCancel: () => {},
@@ -570,7 +571,7 @@ async function _importWorkspaceFromEnc(file) {
 async function _runImportFlow(parsed) {
   const { valid, errors, warnings } = validateImportFile(parsed);
   if (!valid) {
-    showError('Import failed: ' + errors.join(' '));
+    showError(t('importExport.importFailed', { errors: errors.join(' ') }));
     return;
   }
 
@@ -689,36 +690,48 @@ function _showImportPreviewDialog(summary, warnings, { onMerge, onReplace, onCan
     'background:#2c2c2c;color:#e0e0e0;border:1px solid #555;border-radius:8px;padding:24px;max-width:420px;width:90%;font-family:inherit';
 
   const counts = [
-    summary.tasks > 0 && `${summary.tasks} task${summary.tasks !== 1 ? 's' : ''}`,
-    summary.tags > 0 && `${summary.tags} tag${summary.tags !== 1 ? 's' : ''}`,
-    summary.pages > 0 && `${summary.pages} notebook page${summary.pages !== 1 ? 's' : ''}`,
-    summary.clocks > 0 && `${summary.clocks} clock${summary.clocks !== 1 ? 's' : ''}`,
+    summary.tasks > 0 &&
+      t(summary.tasks === 1 ? 'importExport.taskCount' : 'importExport.taskCountPlural', {
+        count: summary.tasks,
+      }),
+    summary.tags > 0 &&
+      t(summary.tags === 1 ? 'importExport.tagCount' : 'importExport.tagCountPlural', {
+        count: summary.tags,
+      }),
+    summary.pages > 0 &&
+      t(summary.pages === 1 ? 'importExport.pageCount' : 'importExport.pageCountPlural', {
+        count: summary.pages,
+      }),
+    summary.clocks > 0 &&
+      t(summary.clocks === 1 ? 'importExport.clockCount' : 'importExport.clockCountPlural', {
+        count: summary.clocks,
+      }),
   ].filter(Boolean);
 
   const countHtml =
     counts.length > 0
       ? `<ul style="margin:8px 0 0 16px;padding:0">${counts.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul>`
-      : '<p style="margin:8px 0 0">No data found in this file.</p>';
+      : `<p style="margin:8px 0 0">${escapeHtml(t('importExport.noDataFound'))}</p>`;
 
   const warningHtml =
     warnings.length > 0
-      ? `<p style="margin:16px 0 0;color:#ffb74d;font-size:0.9em">Note: ${escapeHtml(warnings.join(' '))}</p>`
+      ? `<p style="margin:16px 0 0;color:#ffb74d;font-size:0.9em">${escapeHtml(t('importExport.warningPrefix', { warnings: warnings.join(' ') }))}</p>`
       : '';
 
   dialog.innerHTML = `
-    <h3 style="margin:0 0 12px;color:#4caf50">Import workspace</h3>
-    <p style="margin:0">This file contains:</p>
+    <h3 style="margin:0 0 12px;color:#4caf50">${escapeHtml(t('importExport.title'))}</h3>
+    <p style="margin:0">${escapeHtml(t('importExport.contains'))}</p>
     ${countHtml}
     ${warningHtml}
-    <p style="margin:16px 0 0;font-size:0.9em"><strong>Importing this file restores your full workspace and all notebook pages together.</strong></p>
-    <p style="margin:8px 0 0;font-size:0.9em;color:#ffb74d"><strong>If you have already imported a notebook .zip file, duplicate notebook pages may appear.</strong></p>
-    <p style="margin:16px 0 8px">How would you like to import?</p>
+    <p style="margin:16px 0 0;font-size:0.9em"><strong>${escapeHtml(t('importExport.restoreNote'))}</strong></p>
+    <p style="margin:8px 0 0;font-size:0.9em;color:#ffb74d"><strong>${escapeHtml(t('importExport.duplicateNote'))}</strong></p>
+    <p style="margin:16px 0 8px">${escapeHtml(t('importExport.howToImport'))}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-      <button id="kt-import-merge" style="flex:1;padding:8px 12px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer">Merge with current</button>
-      <button id="kt-import-replace" style="flex:1;padding:8px 12px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer">Replace all</button>
-      <button id="kt-import-cancel" style="padding:8px 12px;background:transparent;color:#aaa;border:1px solid #555;border-radius:4px;cursor:pointer">Cancel</button>
+      <button id="kt-import-merge" style="flex:1;padding:8px 12px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer">${escapeHtml(t('importExport.mergeWithCurrent'))}</button>
+      <button id="kt-import-replace" style="flex:1;padding:8px 12px;background:#3a3a3a;color:#e0e0e0;border:1px solid #555;border-radius:4px;cursor:pointer">${escapeHtml(t('importExport.replaceAll'))}</button>
+      <button id="kt-import-cancel" style="padding:8px 12px;background:transparent;color:#aaa;border:1px solid #555;border-radius:4px;cursor:pointer">${escapeHtml(t('importExport.cancel'))}</button>
     </div>
-    <p style="margin:12px 0 0;font-size:0.8em;color:#888">Replace will download a backup of your current data first.</p>
+    <p style="margin:12px 0 0;font-size:0.8em;color:#888">${escapeHtml(t('importExport.replaceBackupNote'))}</p>
   `;
 
   document.body.appendChild(dialog);
@@ -778,7 +791,7 @@ function _showPassphraseDialog({ title, message, confirmLabel, onConfirm, onCanc
   const _confirm = () => {
     const passphrase = input.value;
     if (!passphrase) {
-      errorEl.textContent = 'Passphrase is required.';
+      errorEl.textContent = t('importExport.passphraseRequired');
       input.focus();
       return;
     }
@@ -812,7 +825,7 @@ async function importBoardFromHTML(file) {
       const dataScript = doc.getElementById('kanbanData');
 
       if (!dataScript) {
-        alert('Invalid import file: No data found');
+        alert(t('importExport.invalidFileNoData'));
         return;
       }
 
@@ -820,12 +833,12 @@ async function importBoardFromHTML(file) {
       try {
         importData = JSON.parse(dataScript.textContent);
       } catch (_) {
-        alert('Invalid import file: embedded data is not valid JSON.');
+        alert(t('importExport.invalidFileBadJson'));
         return;
       }
 
       if (!Array.isArray(importData?.tasks)) {
-        alert('Invalid import file: No tasks array found');
+        alert(t('importExport.invalidFileNoTasks'));
         return;
       }
 
@@ -847,14 +860,14 @@ async function importBoardFromHTML(file) {
       const skipped = importData.tasks.length - validRawTasks.length;
 
       if (validRawTasks.length === 0) {
-        alert('Invalid import file: No valid tasks found.');
+        alert(t('importExport.invalidFileNoValidTasks'));
         return;
       }
 
       const confirmMsg =
         skipped > 0
-          ? `This will replace your current board with ${validRawTasks.length} tasks (${skipped} malformed entries skipped).\n\nContinue?`
-          : `This will replace your current board with ${validRawTasks.length} tasks.\n\nContinue?`;
+          ? t('importExport.confirmReplaceWithSkipped', { count: validRawTasks.length, skipped })
+          : t('importExport.confirmReplace', { count: validRawTasks.length });
 
       if (confirm(confirmMsg)) {
         const processedTasks = [];
@@ -912,12 +925,12 @@ async function importBoardFromHTML(file) {
 
         saveTasks(processedTasks);
         flushPendingIDBWrites();
-        alert('Board imported successfully! The page will now reload.');
+        alert(t('importExport.importedSuccessfully'));
         location.reload();
       }
     } catch (err) {
       console.error('Import error:', err);
-      alert('Error importing file: ' + err.message);
+      alert(t('importExport.importErrorWithMessage', { message: err.message }));
     }
   };
 
@@ -1045,18 +1058,14 @@ async function importBoardFromTXT(file) {
       }
 
       if (convertedTasks.length === 0) {
-        alert('No valid tasks found in TXT file');
+        alert(t('importExport.noValidTasksInTxt'));
         return;
       }
 
-      if (
-        confirm(
-          `This will replace your current board with ${convertedTasks.length} imported tasks.\n\nContinue?`
-        )
-      ) {
+      if (confirm(t('importExport.confirmReplaceTxt', { count: convertedTasks.length }))) {
         saveTasks(convertedTasks);
         flushPendingIDBWrites();
-        alert('Board imported successfully from TXT! The page will now reload.');
+        alert(t('importExport.importedFromTxt'));
         location.reload();
       }
     } catch (err) {

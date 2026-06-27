@@ -226,17 +226,17 @@
             KanTrack
         </a>
         <a class="site-header-back" href="index.html" onclick="window.close(); return false;">
-            ← Back to app
+            ← <span data-i18n="privacy.backToApp">Back to app</span>
         </a>
     </header>
 
     <section class="hero">
-        <div class="hero-kicker">Legal</div>
-        <h1>Privacy &amp; Cookie Policy</h1>
-        <p class="hero-lead">
+        <div class="hero-kicker" data-i18n="privacy.kicker">Legal</div>
+        <h1 data-i18n="privacy.title">Privacy &amp; Cookie Policy</h1>
+        <p class="hero-lead" data-i18n="privacy.heroLead">
             No tracking. No ads. No data sent anywhere. Here's the full picture.
         </p>
-        <p class="hero-date">Last updated: April 2026</p>
+        <p class="hero-date" data-i18n="privacy.lastUpdated">Last updated: April 2026</p>
     </section>
 
     <div class="content-wrapper">
@@ -245,134 +245,134 @@
         <main>
 
             <div class="card">
-                <h2>1. Who we are</h2>
+                <h2 data-i18n="privacy.section1.title">1. Who we are</h2>
                 <p>
-                    KanTrack is developed and operated by <strong>BTi – Bossless Tech Industries</strong>, a small software studio based in <strong>Portugal</strong>.
-                    BTi – Bossless Tech Industries is the data controller within the meaning of the General Data Protection Regulation (GDPR - EU 2016/679) for any personal data processed in connection with serving this application.
+                    <span data-i18n="privacy.section1.p1a">KanTrack is developed and operated by</span> <strong>BTi – Bossless Tech Industries</strong><span data-i18n="privacy.section1.p1b">, a small software studio based in</span> <strong>Portugal</strong>.
+                    <strong>BTi – Bossless Tech Industries</strong> <span data-i18n="privacy.section1.p1c">is the data controller within the meaning of the General Data Protection Regulation (GDPR - EU 2016/679) for any personal data processed in connection with serving this application.</span>
                 </p>
                 <p>
-                    For any questions regarding this policy or to exercise your rights, contact us at:
+                    <span data-i18n="privacy.section1.p2">For any questions regarding this policy or to exercise your rights, contact us at:</span>
                     <a href="mailto:general@bosslesstechindustries.com">general@bosslesstechindustries.com</a>.
                 </p>
             </div>
 
             <div class="card">
-                <h2>2. How KanTrack works - a local-first app</h2>
+                <h2 data-i18n="privacy.section2.title">2. How KanTrack works - a local-first app</h2>
                 <p>
-                    KanTrack is a <strong>local-first application</strong>. All your tasks, notes, tags, and preferences are stored exclusively on <strong>your own device</strong> - in your browser's IndexedDB and localStorage - and are <strong>never transmitted to any server</strong>, including ours.
+                    <span data-i18n="privacy.section2.p1a">KanTrack is a</span> <strong data-i18n="privacy.section2.p1b">local-first application</strong><span data-i18n="privacy.section2.p1c">. All your tasks, notes, tags, and preferences are stored exclusively on</span> <strong data-i18n="privacy.section2.p1d">your own device</strong> <span data-i18n="privacy.section2.p1e">- in your browser's IndexedDB and localStorage - and are</span> <strong data-i18n="privacy.section2.p1f">never transmitted to any server</strong><span data-i18n="privacy.section2.p1g">, including ours.</span>
                 </p>
-                <p>
+                <p data-i18n="privacy.section2.p2">
                     No account is required. No login exists. KanTrack has no backend and no database of its own. The application is delivered to your browser as static files, and everything you do inside it stays on your device.
                 </p>
 
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Data</th>
-                            <th>Where it lives</th>
-                            <th>Who controls it</th>
+                            <th data-i18n="privacy.table.data">Data</th>
+                            <th data-i18n="privacy.table.whereItLives">Where it lives</th>
+                            <th data-i18n="privacy.table.whoControls">Who controls it</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Tasks, notes, tags, priorities, history</td>
-                            <td>Your device (IndexedDB)</td>
-                            <td><span class="tag tag-local">You</span></td>
+                            <td data-i18n="privacy.table.row1.data">Tasks, notes, tags, priorities, history</td>
+                            <td data-i18n="privacy.table.row1.where">Your device (IndexedDB)</td>
+                            <td><span class="tag tag-local" data-i18n="privacy.table.you">You</span></td>
                         </tr>
                         <tr>
-                            <td>Notebook pages &amp; embedded images</td>
-                            <td>Your device (IndexedDB)</td>
-                            <td><span class="tag tag-local">You</span></td>
+                            <td data-i18n="privacy.table.row2.data">Notebook pages &amp; embedded images</td>
+                            <td data-i18n="privacy.table.row2.where">Your device (IndexedDB)</td>
+                            <td><span class="tag tag-local" data-i18n="privacy.table.you">You</span></td>
                         </tr>
                         <tr>
-                            <td>UI preferences &amp; permanent notes</td>
-                            <td>Your device (localStorage)</td>
-                            <td><span class="tag tag-local">You</span></td>
+                            <td data-i18n="privacy.table.row3.data">UI preferences &amp; permanent notes</td>
+                            <td data-i18n="privacy.table.row3.where">Your device (localStorage)</td>
+                            <td><span class="tag tag-local" data-i18n="privacy.table.you">You</span></td>
                         </tr>
                         <tr>
-                            <td>Encryption keys (encrypted exports)</td>
-                            <td>Never stored - derived per session</td>
-                            <td><span class="tag tag-local">You</span></td>
+                            <td data-i18n="privacy.table.row4.data">Encryption keys (encrypted exports)</td>
+                            <td data-i18n="privacy.table.row4.where">Never stored - derived per session</td>
+                            <td><span class="tag tag-local" data-i18n="privacy.table.you">You</span></td>
                         </tr>
                     </tbody>
                 </table>
 
                 <p style="margin-top:14px;">
-                    You can <strong>export</strong> all your data at any time (JSON, encrypted JSON, HTML, PDF) and <strong>delete</strong> it in full from within the app. KanTrack functions entirely offline once loaded.
+                    <span data-i18n="privacy.section2.p3a">You can</span> <strong data-i18n="privacy.section2.p3b">export</strong> <span data-i18n="privacy.section2.p3c">all your data at any time (JSON, encrypted JSON, HTML, PDF) and</span> <strong data-i18n="privacy.section2.p3d">delete</strong> <span data-i18n="privacy.section2.p3e">it in full from within the app. KanTrack functions entirely offline once loaded.</span>
                 </p>
             </div>
 
             <div class="card">
-                <h2>3. Data we (or our infrastructure) may process</h2>
+                <h2 data-i18n="privacy.section3.title">3. Data we (or our infrastructure) may process</h2>
                 <p>
-                    KanTrack itself collects no personal data. However, like any website, serving the application files involves network requests. When your browser loads KanTrack, standard HTTP request data - including your <strong>IP address</strong> and request metadata (browser type, timestamp, requested resource) - is processed by our hosting provider as part of delivering the service.
+                    <span data-i18n="privacy.section3.p1a">KanTrack itself collects no personal data. However, like any website, serving the application files involves network requests. When your browser loads KanTrack, standard HTTP request data - including your</span> <strong data-i18n="privacy.section3.p1b">IP address</strong> <span data-i18n="privacy.section3.p1c">and request metadata (browser type, timestamp, requested resource) - is processed by our hosting provider as part of delivering the service.</span>
                 </p>
                 <p>
-                    <strong>Lawful basis (GDPR Art. 6):</strong> This processing is necessary for the performance of delivering the service to you (Art. 6(1)(b)) and on the basis of our legitimate interest in operating a secure, reliable infrastructure (Art. 6(1)(f)).
+                    <strong data-i18n="privacy.section3.p2a">Lawful basis (GDPR Art. 6):</strong> <span data-i18n="privacy.section3.p2b">This processing is necessary for the performance of delivering the service to you (Art. 6(1)(b)) and on the basis of our legitimate interest in operating a secure, reliable infrastructure (Art. 6(1)(f)).</span>
                 </p>
                 <p>
-                    <strong>Retention:</strong> Standard server logs (if any are retained at all) are subject to our hosting provider's retention policy. See Section 5 for details on Cloudflare's practices. We do not independently retain server logs.
+                    <strong data-i18n="privacy.section3.p3a">Retention:</strong> <span data-i18n="privacy.section3.p3b">Standard server logs (if any are retained at all) are subject to our hosting provider's retention policy. See Section 5 for details on Cloudflare's practices. We do not independently retain server logs.</span>
                 </p>
                 <p>
-                    KanTrack does <strong>not</strong> collect: email addresses, usernames, analytics events, click or page-view data, behavioral metrics, device fingerprints, or any other personal data.
+                    <span data-i18n="privacy.section3.p4a">KanTrack does</span> <strong data-i18n="privacy.section3.p4b">not</strong> <span data-i18n="privacy.section3.p4c">collect: email addresses, usernames, analytics events, click or page-view data, behavioral metrics, device fingerprints, or any other personal data.</span>
                 </p>
             </div>
 
             <div class="card">
-                <h2>4. Cookies</h2>
+                <h2 data-i18n="privacy.section4.title">4. Cookies</h2>
                 <p>
-                    <strong>We do not set any first-party cookies.</strong>
+                    <strong data-i18n="privacy.section4.p1">We do not set any first-party cookies.</strong>
                 </p>
-                <p>
+                <p data-i18n="privacy.section4.p2">
                     KanTrack uses your browser's IndexedDB and localStorage - not cookies - to persist your data locally. There are no session cookies, preference cookies, analytics cookies, or advertising cookies set by this application.
                     No cookie consent banner is required because we do not use cookies that require consent.
                 </p>
                 <p>
-                    <strong>Cloudflare technical cookies:</strong> KanTrack is served through Cloudflare's network. As part of its bot management and DDoS-protection infrastructure, Cloudflare may set strictly necessary technical cookies (such as <code>__cf_bm</code>) on your device. These cookies are set by Cloudflare, not by us, and are strictly necessary for the security and integrity of the service. They do not track you across websites, do not require your consent under the ePrivacy Directive, and are governed by <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's Privacy Policy</a>.
+                    <strong data-i18n="privacy.section4.p3a">Cloudflare technical cookies:</strong> <span data-i18n="privacy.section4.p3b">KanTrack is served through Cloudflare's network. As part of its bot management and DDoS-protection infrastructure, Cloudflare may set strictly necessary technical cookies (such as</span> <code>__cf_bm</code><span data-i18n="privacy.section4.p3c">) on your device. These cookies are set by Cloudflare, not by us, and are strictly necessary for the security and integrity of the service. They do not track you across websites, do not require your consent under the ePrivacy Directive, and are governed by</span> <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" data-i18n="privacy.section4.cloudflarePolicyLink">Cloudflare's Privacy Policy</a><span data-i18n="privacy.section4.p3d">.</span>
                 </p>
-                <p>
+                <p data-i18n="privacy.section4.p4">
                     Should any non-essential cookies be introduced in a future version of this application, this policy will be updated and any required consent mechanism will be put in place before their use.
                 </p>
             </div>
 
             <div class="card">
-                <h2>5. Third-party services &amp; data processors</h2>
+                <h2 data-i18n="privacy.section5.title">5. Third-party services &amp; data processors</h2>
                 <p>
-                    KanTrack is hosted on <strong>Cloudflare Pages</strong> (Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). As our hosting provider, Cloudflare acts as a <strong>data processor</strong> on our behalf within the meaning of GDPR Art. 28. In this capacity, Cloudflare may process certain technical data (such as IP addresses and HTTP request metadata) as part of providing hosting, CDN, and DDoS-protection services.
+                    <span data-i18n="privacy.section5.p1a">KanTrack is hosted on</span> <strong data-i18n="privacy.section5.p1b">Cloudflare Pages</strong> <span data-i18n="privacy.section5.p1c">(Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA). As our hosting provider, Cloudflare acts as a</span> <strong data-i18n="privacy.section5.p1d">data processor</strong> <span data-i18n="privacy.section5.p1e">on our behalf within the meaning of GDPR Art. 28. In this capacity, Cloudflare may process certain technical data (such as IP addresses and HTTP request metadata) as part of providing hosting, CDN, and DDoS-protection services.</span>
                 </p>
                 <p>
-                    Cloudflare's processing is subject to a Data Processing Addendum (DPA) in accordance with GDPR Art. 28, and data transfers outside the EEA are governed by Standard Contractual Clauses (SCCs). For further details, see <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's Privacy Policy</a>.
+                    <span data-i18n="privacy.section5.p2a">Cloudflare's processing is subject to a Data Processing Addendum (DPA) in accordance with GDPR Art. 28, and data transfers outside the EEA are governed by Standard Contractual Clauses (SCCs). For further details, see</span> <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" data-i18n="privacy.section5.cloudflarePolicyLink">Cloudflare's Privacy Policy</a><span data-i18n="privacy.section5.p2b">.</span>
                 </p>
-                <p>
+                <p data-i18n="privacy.section5.p3">
                     KanTrack does not embed any social media widgets, advertising networks, analytics scripts, or other third-party services. All application code is self-hosted. The application's Content Security Policy enforces this by blocking any external script execution.
                 </p>
             </div>
 
             <div class="card">
-                <h2>6. Your rights (GDPR)</h2>
-                <p>
+                <h2 data-i18n="privacy.section6.title">6. Your rights (GDPR)</h2>
+                <p data-i18n="privacy.section6.p1">
                     If you are located in the European Union or European Economic Area, you have the following rights under the GDPR. As described above, the only personal data we may hold about you is standard HTTP request data processed by our hosting infrastructure. Your rights are listed below in full for transparency:
                 </p>
                 <ul>
-                    <li><strong>Right of access (Art. 15)</strong> - you may request confirmation of whether we hold any personal data about you, and a copy of it.</li>
-                    <li><strong>Right to rectification (Art. 16)</strong> - you may ask us to correct inaccurate or incomplete data.</li>
-                    <li><strong>Right to erasure (Art. 17)</strong> - you may ask us to delete any personal data we hold, where no legal obligation requires us to retain it.</li>
-                    <li><strong>Right to restriction of processing (Art. 18)</strong> - you may ask us to restrict how we use your data in certain circumstances.</li>
-                    <li><strong>Right to data portability (Art. 20)</strong> - where processing is based on consent or contract and carried out by automated means, you may request your data in a structured, machine-readable format.</li>
-                    <li><strong>Right to object (Art. 21)</strong> - you may object to processing based on legitimate interest. We will stop unless we can demonstrate compelling legitimate grounds.</li>
-                    <li><strong>Right to lodge a complaint (Art. 77)</strong> - you have the right to file a complaint with your local data protection authority. In Portugal, the competent authority is the <a href="https://www.cnpd.pt" target="_blank" rel="noopener noreferrer">CNPD - Comissão Nacional de Proteção de Dados</a>.</li>
+                    <li><strong data-i18n="privacy.section6.right1.title">Right of access (Art. 15)</strong> - <span data-i18n="privacy.section6.right1.body">you may request confirmation of whether we hold any personal data about you, and a copy of it.</span></li>
+                    <li><strong data-i18n="privacy.section6.right2.title">Right to rectification (Art. 16)</strong> - <span data-i18n="privacy.section6.right2.body">you may ask us to correct inaccurate or incomplete data.</span></li>
+                    <li><strong data-i18n="privacy.section6.right3.title">Right to erasure (Art. 17)</strong> - <span data-i18n="privacy.section6.right3.body">you may ask us to delete any personal data we hold, where no legal obligation requires us to retain it.</span></li>
+                    <li><strong data-i18n="privacy.section6.right4.title">Right to restriction of processing (Art. 18)</strong> - <span data-i18n="privacy.section6.right4.body">you may ask us to restrict how we use your data in certain circumstances.</span></li>
+                    <li><strong data-i18n="privacy.section6.right5.title">Right to data portability (Art. 20)</strong> - <span data-i18n="privacy.section6.right5.body">where processing is based on consent or contract and carried out by automated means, you may request your data in a structured, machine-readable format.</span></li>
+                    <li><strong data-i18n="privacy.section6.right6.title">Right to object (Art. 21)</strong> - <span data-i18n="privacy.section6.right6.body">you may object to processing based on legitimate interest. We will stop unless we can demonstrate compelling legitimate grounds.</span></li>
+                    <li><strong data-i18n="privacy.section6.right7.title">Right to lodge a complaint (Art. 77)</strong> - <span data-i18n="privacy.section6.right7.bodya">you have the right to file a complaint with your local data protection authority. In Portugal, the competent authority is the</span> <a href="https://www.cnpd.pt" target="_blank" rel="noopener noreferrer" data-i18n="privacy.section6.cnpdLink">CNPD - Comissão Nacional de Proteção de Dados</a><span data-i18n="privacy.section6.right7.bodyb">.</span></li>
                 </ul>
                 <p>
-                    Regarding your <strong>task data, notes, and all other app content</strong>: this data is stored exclusively on your own device and is under your sole control. You can export or permanently delete it at any time from within the KanTrack application - no request to us is needed.
+                    <span data-i18n="privacy.section6.p2a">Regarding your</span> <strong data-i18n="privacy.section6.p2b">task data, notes, and all other app content</strong><span data-i18n="privacy.section6.p2c">: this data is stored exclusively on your own device and is under your sole control. You can export or permanently delete it at any time from within the KanTrack application - no request to us is needed.</span>
                 </p>
                 <p>
-                    To exercise any rights regarding infrastructure-level data, contact us at <a href="mailto:general@bosslesstechindustries.com">general@bosslesstechindustries.com</a>. We will respond within 30 days as required by GDPR Art. 12.
+                    <span data-i18n="privacy.section6.p3a">To exercise any rights regarding infrastructure-level data, contact us at</span> <a href="mailto:general@bosslesstechindustries.com">general@bosslesstechindustries.com</a><span data-i18n="privacy.section6.p3b">. We will respond within 30 days as required by GDPR Art. 12.</span>
                 </p>
             </div>
 
             <div class="card">
-                <h2>7. Changes to this policy</h2>
-                <p>
+                <h2 data-i18n="privacy.section7.title">7. Changes to this policy</h2>
+                <p data-i18n="privacy.section7.p1">
                     We may update this policy from time to time. Any changes will be posted on this page with an updated date. Since we do not collect your email address, we cannot notify you directly - please check back if you have questions.
                 </p>
             </div>
@@ -382,26 +382,26 @@
         <!-- ─── Sidebar ─── -->
         <aside class="sidebar">
             <div class="card">
-                <div>Quick summary</div>
+                <div data-i18n="privacy.sidebar.quickSummary">Quick summary</div>
                 <div class="notice">
-                    <strong>Your data stays on your device</strong>
-                    <span>Tasks, notes, and settings are never sent anywhere. You're in full control.</span>
+                    <strong data-i18n="privacy.sidebar.notice1.title">Your data stays on your device</strong>
+                    <span data-i18n="privacy.sidebar.notice1.body">Tasks, notes, and settings are never sent anywhere. You're in full control.</span>
                 </div>
                 <div class="notice">
-                    <strong>No cookies</strong>
-                    <span>We don't set any cookies. Cloudflare may set strictly necessary technical ones.</span>
+                    <strong data-i18n="privacy.sidebar.notice2.title">No cookies</strong>
+                    <span data-i18n="privacy.sidebar.notice2.body">We don't set any cookies. Cloudflare may set strictly necessary technical ones.</span>
                 </div>
                 <div class="notice">
-                    <strong>No tracking</strong>
-                    <span>No analytics, no ads, no tracking pixels - ever.</span>
+                    <strong data-i18n="privacy.sidebar.notice3.title">No tracking</strong>
+                    <span data-i18n="privacy.sidebar.notice3.body">No analytics, no ads, no tracking pixels - ever.</span>
                 </div>
                 <div class="notice">
-                    <strong>No data sales</strong>
-                    <span>We never sell or share your data with third parties.</span>
+                    <strong data-i18n="privacy.sidebar.notice4.title">No data sales</strong>
+                    <span data-i18n="privacy.sidebar.notice4.body">We never sell or share your data with third parties.</span>
                 </div>
                 <div class="notice" style="margin-bottom:0;">
-                    <strong>Questions?</strong>
-                    <span><a href="mailto:general@bosslesstechindustries.com">Email us anytime.</a></span>
+                    <strong data-i18n="privacy.sidebar.notice5.title">Questions?</strong>
+                    <span><a href="mailto:general@bosslesstechindustries.com" data-i18n="privacy.sidebar.notice5.body">Email us anytime.</a></span>
                 </div>
             </div>
         </aside>
@@ -411,12 +411,33 @@
     <footer class="site-footer">
         <p>
             © <span id="year"></span> BTi – Bossless Tech Industries ·
-            <a href="index.html" onclick="window.close(); return false;">Back to KanTrack</a>
+            <a href="index.html" onclick="window.close(); return false;" data-i18n="privacy.footer.backToKanTrack">Back to KanTrack</a>
         </p>
     </footer>
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+    <script type="module">
+        import { setLanguage, applyTranslations } from './scripts/kantrack-modules/i18n.js';
+
+        // Read the persisted card-content language preference (set in the main
+        // app's "More Options" > Language picker). Stored as a JSON string via
+        // safeSetItem, so it needs JSON.parse. Defaults to 'system' if missing,
+        // invalid, or if localStorage is unavailable (e.g. file:// restrictions).
+        let savedLanguage = 'system';
+        try {
+            const raw = localStorage.getItem('cardLanguage');
+            if (raw !== null) {
+                savedLanguage = JSON.parse(raw);
+            }
+        } catch {
+            savedLanguage = 'system';
+        }
+
+        setLanguage(savedLanguage);
+        applyTranslations(document);
     </script>
 
 </body>
