@@ -40,6 +40,17 @@ test.describe('privacy.html translation', () => {
     await expect(page.locator('.site-footer a')).toHaveText('Voltar ao KanTrack');
   });
 
+  test('renders in German when cardLanguage is "de-DE"', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('cardLanguage', JSON.stringify('de-DE'));
+    });
+    await page.goto('/privacy.html');
+
+    await expect(page.locator('h1')).toHaveText('Datenschutz- und Cookie-Richtlinie');
+    await expect(page.locator('.site-header-back')).toContainText('Zurück zur App');
+    await expect(page.locator('h2', { hasText: '6.' })).toHaveText('6. Deine Rechte (DSGVO)');
+  });
+
   test('falls back to English (UK) when cardLanguage is "system"', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('cardLanguage', JSON.stringify('system'));

@@ -5,12 +5,14 @@ import enGB from '../i18n/en-GB.json' with { type: 'json' };
 import es from '../i18n/es.json' with { type: 'json' };
 import fr from '../i18n/fr.json' with { type: 'json' };
 import ptPT from '../i18n/pt-PT.json' with { type: 'json' };
+import deDE from '../i18n/de-DE.json' with { type: 'json' };
 
 const DICTIONARIES = {
   'en-GB': enGB,
   es,
   fr,
   'pt-PT': ptPT,
+  'de-DE': deDE,
 };
 
 /**
@@ -23,6 +25,7 @@ const LANGUAGE_MAP = {
   es: 'es',
   fr: 'fr',
   'pt-PT': 'pt-PT',
+  'de-DE': 'de-DE',
 };
 
 let activeCode = 'en-GB';
@@ -42,7 +45,7 @@ export function interpolate(str, params) {
 }
 
 /**
- * Returns the currently active dictionary code ('en-GB' | 'es' | 'fr' | 'pt-PT').
+ * Returns the currently active dictionary code ('en-GB' | 'es' | 'fr' | 'pt-PT' | 'de-DE').
  */
 export function getLanguage() {
   return activeCode;
@@ -64,7 +67,7 @@ export function t(key, params) {
 /**
  * Set the active UI language, update <html lang>, and re-translate the
  * current document. 'system' resolves to English (UK).
- * @param {string} code - One of 'system', 'en-GB', 'es', 'fr', 'pt-PT'
+ * @param {string} code - One of 'system', 'en-GB', 'es', 'fr', 'pt-PT', 'de-DE'
  * @returns {string} the resolved dictionary code
  */
 export function setLanguage(code) {

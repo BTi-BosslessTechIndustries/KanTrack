@@ -300,11 +300,11 @@ test.describe('KanTrack header UI', () => {
 
   // ── Language picker ────────────────────────────────────────────────────────
 
-  test('language picker is visible in the dropdown with five options', async ({ page }) => {
+  test('language picker is visible in the dropdown with six options', async ({ page }) => {
     await page.locator('#headerMenuBtn').click();
     const select = page.locator('#cardLanguageSelect');
     await expect(select).toBeVisible();
-    await expect(select.locator('option')).toHaveCount(5);
+    await expect(select.locator('option')).toHaveCount(6);
     await expect(select).toHaveValue('system');
   });
 
@@ -321,6 +321,8 @@ test.describe('KanTrack header UI', () => {
     await expect(options.nth(3)).toHaveText('Français');
     await expect(options.nth(4)).toHaveAttribute('value', 'pt-PT');
     await expect(options.nth(4)).toHaveText('Português (PT)');
+    await expect(options.nth(5)).toHaveAttribute('value', 'de-DE');
+    await expect(options.nth(5)).toHaveText('Deutsch (DE)');
   });
 
   test('language picker label sits above the select with no overlap, and the select keeps a fixed width across options', async ({
@@ -336,7 +338,7 @@ test.describe('KanTrack header UI', () => {
     expect(labelBox.x).toBeLessThan(selectBox.x + selectBox.width);
 
     const initialWidth = selectBox.width;
-    for (const value of ['en-GB', 'es', 'fr', 'pt-PT', 'system']) {
+    for (const value of ['en-GB', 'es', 'fr', 'pt-PT', 'de-DE', 'system']) {
       await select.selectOption(value);
       const box = await select.boundingBox();
       expect(box.width).toBe(initialWidth);
@@ -392,6 +394,14 @@ test.describe('KanTrack header UI', () => {
     await page.locator('#cardLanguageSelect').selectOption('pt-PT');
     await expect(page.locator('#done h2 span[data-i18n="column.done"]')).toHaveText('Concluído');
     await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Ajuda');
+
+    // Deutsch (DE)
+    await page.locator('#cardLanguageSelect').selectOption('de-DE');
+    await expect(page.locator('#todo h2 span[data-i18n="column.todo"]')).toHaveText('Zu erledigen');
+    await expect(page.locator('#done h2 span[data-i18n="column.done"]')).toHaveText('Erledigt');
+    await expect(page.locator('[data-action="shortcuts:open"]')).toHaveText('Hilfe');
+    await expect(page.locator('.theme-picker-label')).toHaveText('Design');
+    await expect(page.locator('#undoBtn')).toHaveAttribute('title', 'Rückgängig (Ctrl+Z)');
 
     // Back to System Default -> English (UK)
     await page.locator('#cardLanguageSelect').selectOption('system');
@@ -468,6 +478,23 @@ test.describe('KanTrack header UI', () => {
     await page.locator('.notebook-toggle-btn').click();
     await expect(page.locator('.notebook-sidebar-header h3')).toHaveText('Caderno');
     await page.locator('.notebook-close-btn').click();
+
+    // Deutsch (DE)
+    await page.locator('#headerMenuBtn').click();
+    await page.locator('#cardLanguageSelect').selectOption('de-DE');
+    await page.locator('#headerMenuBtn').click();
+    await expect(page.locator('.clock-delete').first()).toHaveAttribute('title', 'Löschen');
+    await page.locator('.notebook-toggle-btn').click();
+    await expect(page.locator('.notebook-sidebar-header h3')).toHaveText('Notizbuch');
+    await expect(page.locator('#notebookSearchInput')).toHaveAttribute(
+      'placeholder',
+      'Seiten durchsuchen…'
+    );
+    await page.locator('.notebook-close-btn').click();
+    await page.locator('#trashToggleBtn').click();
+    await expect(page.locator('.trash-panel-header h3')).toHaveText('Papierkorb');
+    await expect(page.locator('.empty-trash-btn')).toHaveText('Alles leeren');
+    await page.locator('#trashToggleBtn').click();
 
     // Back to System Default -> English (UK)
     await page.locator('#headerMenuBtn').click();

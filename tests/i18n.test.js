@@ -16,6 +16,7 @@ import enGB from '../scripts/i18n/en-GB.json' with { type: 'json' };
 import esDict from '../scripts/i18n/es.json' with { type: 'json' };
 import frDict from '../scripts/i18n/fr.json' with { type: 'json' };
 import ptPTDict from '../scripts/i18n/pt-PT.json' with { type: 'json' };
+import deDE from '../scripts/i18n/de-DE.json' with { type: 'json' };
 
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -65,6 +66,11 @@ describe('t', () => {
     expect(t('column.done')).toBe('Concluído');
   });
 
+  it('returns the German string when the active language is de-DE', () => {
+    setLanguage('de-DE');
+    expect(t('column.todo')).toBe('Zu erledigen');
+  });
+
   it('falls back to the key itself when the key exists in no dictionary', () => {
     setLanguage('es');
     expect(t('not.a.real.key')).toBe('not.a.real.key');
@@ -87,6 +93,12 @@ describe('setLanguage', () => {
     setLanguage('fr');
     expect(getLanguage()).toBe('fr');
     expect(document.documentElement.lang).toBe('fr');
+  });
+
+  it('sets document.documentElement.lang to de-DE when chosen', () => {
+    setLanguage('de-DE');
+    expect(getLanguage()).toBe('de-DE');
+    expect(document.documentElement.lang).toBe('de-DE');
   });
 
   it('falls back to en-GB for an unrecognized code', () => {
@@ -142,7 +154,7 @@ describe('applyTranslations', () => {
 });
 
 describe('dictionary completeness', () => {
-  const dictionaries = { es: esDict, fr: frDict, 'pt-PT': ptPTDict };
+  const dictionaries = { es: esDict, fr: frDict, 'pt-PT': ptPTDict, 'de-DE': deDE };
   const baseKeys = Object.keys(enGB).sort();
 
   it('en-GB has no duplicate-looking empty values', () => {

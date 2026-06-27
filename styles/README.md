@@ -66,7 +66,7 @@ KanTrack supports Light, Dark, and System Default themes via the theme picker in
 
 ## Language
 
-The Language picker (`.language-picker` in `base.css`) sits in the header's "More Options" (⋮) menu, next to Theme. It is a native `<select>` (`#cardLanguageSelect`) with five options: System Default, English (UK), Español, Français, and Português (PT). The choice is persisted as `cardLanguage` in localStorage and drives two independent things:
+The Language picker (`.language-picker` in `base.css`) sits in the header's "More Options" (⋮) menu, next to Theme. It is a native `<select>` (`#cardLanguageSelect`) with six options: System Default, English (UK), Español, Français, Português (PT), and Deutsch (DE). The choice is persisted as `cardLanguage` in localStorage and drives two independent things:
 
 1. **Spell-check**: sets `lang`/`spellcheck="true"` on all editable card and notebook fields so the browser's native spell-checker uses that language's dictionary; "System Default" removes those attributes and leaves spell-check to the OS/browser.
 2. **UI translation**: calls `setLanguage()` + `applyTranslations(document)` (`scripts/kantrack-modules/i18n.js`) to translate the entire visible UI - header, ⋮ menu, column headers, trash panel, and any open modal (task detail, notebook, clocks, hidden cards, Done-limit, import/export, shortcuts/help, about) - plus the standalone `privacy.html` page. "System Default" uses the English (UK) dictionary for translation (spell-check is unaffected and stays with the OS/browser).

@@ -13,7 +13,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Sub-kanban boards**: each task contains a toggleable mini kanban board with the same four columns (To Do, In Progress, On Hold, Done); sub-tasks support drag-and-drop between states and display a live done/total counter on the parent card
 - **Card size**: three global card sizes (Small / Medium / Large) selectable from the ⋮ menu; preference persists across sessions
 - **Theme**: Light, Dark, or System Default, selectable from the ⋮ menu; System Default follows the OS colour scheme live, while an explicit Light or Dark choice is saved and overrides the OS setting on every future visit until you switch back to System Default
-- **Language**: a Language picker in the ⋮ menu translates the entire app UI - header, menus, modals (task detail, notebook, clocks, hidden cards, Done-limit, import/export), column headers, trash panel, and the Privacy page - and controls browser spell-check on card and notebook content, independent of the OS/browser language; choices are System Default, English (UK), Español, Français, or Português (PT); System Default uses English (UK) text and leaves spell-check to the OS as before, while an explicit choice translates the UI immediately, sets `lang`/`spellcheck` on all editable fields, and persists across sessions (including a full reload). Note: spell-check browser support varies - Safari and Firefox honour the chosen language for spell-check, while Chrome and Edge may keep using their own language settings regardless of this picker; UI text translation itself works the same in every browser
+- **Language**: a Language picker in the ⋮ menu translates the entire app UI - header, menus, modals (task detail, notebook, clocks, hidden cards, Done-limit, import/export), column headers, trash panel, and the Privacy page - and controls browser spell-check on card and notebook content, independent of the OS/browser language; choices are System Default, English (UK), Español, Français, Português (PT), or Deutsch (DE); System Default uses English (UK) text and leaves spell-check to the OS as before, while an explicit choice translates the UI immediately, sets `lang`/`spellcheck` on all editable fields, and persists across sessions (including a full reload). Note: spell-check browser support varies - Safari and Firefox honour the chosen language for spell-check, while Chrome and Edge may keep using their own language settings regardless of this picker; UI text translation itself works the same in every browser
 - **Priority system**: High / Medium / Low with colour tinting and column sorting
 - **Tags**: colour-coded labels with preset palette or custom hex colour; pinned tags appear in a quick-assign panel
 - **Due dates**: visual overdue and "due today" indicators on cards
@@ -110,6 +110,7 @@ KanTrack/
 ├── scripts/                     # Application source code
 │   ├── kantrack.js              # Bootstrap: registers all actions, inits router + store
 │   ├── i18n/                    # UI translation dictionaries (JSON, 466 keys each)
+│   │   ├── de-DE.json            # Deutsch (DE)
 │   │   ├── en-GB.json           # English (UK) - canonical/fallback dictionary
 │   │   ├── es.json               # Español
 │   │   ├── fr.json               # Français
