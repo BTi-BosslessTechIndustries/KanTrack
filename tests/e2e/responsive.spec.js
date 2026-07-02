@@ -56,6 +56,9 @@ test.describe('Layout persistence at narrow viewports', () => {
     await page.setViewportSize({ width: 1200, height: 900 });
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
+    // Clocks render only after an async IndexedDB read in the bootstrap
+    // sequence; wait for that to finish before querying .clock-time.
+    await expect(page.locator('.clock .clock-time').first()).toBeVisible();
 
     const wideFontSize = await page.evaluate(() => {
       const el = document.querySelector('.clock .clock-time');
