@@ -101,6 +101,9 @@ test.describe('Phase 4: Export / Import', () => {
   test('imports .kantrack.json via Merge: imported task appears after reload', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
+    // #importFile's change listener is attached late in the async bootstrap;
+    // wait for it before firing setInputFiles, or the event fires into a void.
+    await expect(page.locator('body[data-app-ready="true"]')).toBeAttached();
 
     const importedTitle = `Imported ${Date.now()}`;
     const payload = makeImportPayload([
