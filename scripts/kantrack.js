@@ -1192,4 +1192,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadNotebookFromLocalStorage();
   renderNotebookTree();
   setupNotebookEventListeners();
+
+  // Signals that async bootstrap (IDB load, clocks render, event listeners)
+  // has fully completed. .top-header is static markup visible before this
+  // point, so tests must wait on this marker rather than header visibility
+  // when they depend on late-attached listeners (e.g. #importFile) or
+  // async-rendered DOM (e.g. .clock-time).
+  document.body.setAttribute('data-app-ready', 'true');
 });
