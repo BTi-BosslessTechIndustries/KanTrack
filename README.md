@@ -9,7 +9,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 ## Features
 
 - **Kanban board**: four columns (To Do, In Progress, On Hold, Done) with drag-and-drop
-- **Task detail modal**: rich notes editor with **Bold**, **Italic**, and **Strikethrough** formatting; images (paste-to-insert, with full-screen viewer and zoom controls); a chronological edit/delete log; a collapsible sub-kanban board; **Save** keeps the modal open for multi-step edits, **Save & Close** saves and dismisses; double-click the title to rename it inline
+- **Task detail modal**: rich notes editor with **Bold**, **Italic**, and **Strikethrough** formatting; tables (create with the ⊞ Table button or paste directly from Numbers, Excel, Word, or any web page — a dropdown gives access to add/delete rows and columns and merge/unmerge cells); images (paste-to-insert, with full-screen viewer and zoom controls); a chronological edit/delete log; a collapsible sub-kanban board; **Save** keeps the modal open for multi-step edits, **Save & Close** saves and dismisses; double-click the title to rename it inline
 - **Sub-kanban boards**: each task contains a toggleable mini kanban board with the same four columns (To Do, In Progress, On Hold, Done); sub-tasks support drag-and-drop between states and display a live done/total counter on the parent card
 - **Card size**: three global card sizes (Small / Medium / Large) selectable from the ⋮ menu; preference persists across sessions
 - **Theme**: Light, Dark, or System Default, selectable from the ⋮ menu; System Default follows the OS colour scheme live, while an explicit Light or Dark choice is saved and overrides the OS setting on every future visit until you switch back to System Default
@@ -82,7 +82,7 @@ Use this to verify exactly what Cloudflare Pages will deploy.
 npm run build        # production build → dist/
 npm run preview      # serve dist/ locally at http://localhost:4173
 
-npm run test:run     # unit tests (Vitest, 790 tests across 32 files, ~1s)
+npm run test:run     # unit tests (Vitest, 868 tests across 34 files, ~1.5s)
 npm run test         # unit tests in watch mode
 npm run typecheck    # TypeScript type check (tsc --noEmit)
 npm run lint         # ESLint
@@ -115,7 +115,7 @@ KanTrack/
 │   │   ├── es.json               # Español
 │   │   ├── fr.json               # Français
 │   │   └── pt-PT.json            # Português (PT)
-│   ├── kantrack-modules/        # Feature modules (39 files)
+│   ├── kantrack-modules/        # Feature modules (40 files)
 │   │   ├── types.ts             # Shared TypeScript types
 │   │   ├── store.ts             # Flux-like state store
 │   │   ├── router.ts            # data-action event delegation
@@ -135,7 +135,7 @@ KanTrack/
 │   └── responsive.css           # Media queries (breakpoints at 400 / 480 / 600 / 640 / 700 / 768 / 900 / 1024 px; min-width 1200 px)
 │
 ├── tests/                       # All automated tests
-│   ├── *.test.js                # Vitest unit tests (790 tests, 32 files)
+│   ├── *.test.js                # Vitest unit tests (868 tests, 34 files)
 │   ├── i18n.test.js              # UI translation: t(), setLanguage(), dictionary completeness, key-usage scan
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
 │   └── e2e/                     # Playwright end-to-end tests (148 tests, 12 files)

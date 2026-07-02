@@ -21,6 +21,7 @@ import {
 import { sortColumnByPriority } from './sorting.js';
 import { renderSubKanban } from './sub-kanban.js';
 import { openImageViewer } from './images.js';
+import { resetTableEditor } from './table-editor.js';
 import { updateNoteCardDisplay, setOpenTaskModal, setDeactivateModalTrap } from './tasks.js';
 import {
   getTagById,
@@ -80,6 +81,7 @@ export async function openTaskModal(taskId) {
 
   // Clear notes editor and reset toolbar
   notesEditor.innerHTML = '';
+  resetTableEditor();
   clearNotesBtn.style.display = 'none';
   const formatBtnsOnOpen = document.getElementById('notesFormatBtns');
   if (formatBtnsOnOpen) formatBtnsOnOpen.style.display = 'none';
@@ -595,6 +597,7 @@ export function deactivateTaskModalTrap() {
 export function clearNotes() {
   const notesEditor = document.getElementById('modalNotesEditor');
   notesEditor.innerHTML = '';
+  resetTableEditor();
   state.setModalHasChanges(true);
   const preview = document.getElementById('notesPreview');
   if (preview && preview.innerHTML) {
