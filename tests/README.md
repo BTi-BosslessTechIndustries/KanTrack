@@ -20,6 +20,7 @@ tests/
 ├── hidden-cards.test.js          # hideCard/showCard/showCards, getHiddenTasks/getHiddenCount, countHiddenMatches, undo/redo, translated notifications
 ├── i18n.test.js                   # t(), interpolate(), getLanguage(), setLanguage(), applyTranslations(), dictionary completeness, translation key-usage scan
 ├── images.test.js                # image modal open/close and clipboard paste handler
+├── images-paste.test.js          # paste handler routing: table (HTML+TSV) wins over image/tiff; plain-text fallback; Numbers/Excel clipboard fix (jsdom)
 ├── import-validator.test.js      # .kantrack.json import validation and error cases
 ├── loading.test.js               # loading overlay show/hide and progress indicator utilities
 ├── modal-notes.test.js           # task modal notes editor: add, render, history entries
@@ -36,6 +37,7 @@ tests/
 ├── storage.test.js               # loadNotesFromLocalStorage, saveNotesToLocalStorage
 ├── store.test.js                 # Redux-like store: dispatch, subscribe, getState, reducer
 ├── sub-kanban.test.js            # add/move/rename/delete sub-tasks, undo entries, language attributes
+├── table-editor.test.js          # table grid navigation, cell selection, merge/unmerge, TSV paste, HTML paste, row/column add/delete (jsdom)
 ├── tags.test.js                  # tag CRUD, pinning, assignment, cleanupUnusedTags
 ├── timer.test.js                 # addTime(), quickAddTime(), LONG_PRESS_THRESHOLD
 ├── undo.test.js                  # recordAction, undo, redo, trash
@@ -67,7 +69,7 @@ npm run test        # watch mode
 npm run test:ui     # Vitest UI in browser
 ```
 
-**790 tests across 32 files**: all should pass on every run.
+**868 tests across 34 files**: all should pass on every run.
 
 ### What is mocked
 
@@ -76,12 +78,13 @@ npm run test:ui     # Vitest UI in browser
 - **`fake-indexeddb`**: a complete in-memory IDB implementation (no browser required)
 - **`localStorage`**: a Map-backed mock (global)
 - **`document`**: stub with `getElementById`, `querySelector`, `querySelectorAll`, `createElement`, `addEventListener`, `removeEventListener`, and `body.appendChild` so modules can import without crashing. **Note:** under Vitest's module isolation (`isolate: true`), this stub is not reliably accessible as a bare `document` identifier inside production-module code. Test files that call production code which uses `document` must re-set `global.document` inside their own `beforeEach` (see `timer.test.js`, `tags.test.js`, `sorting.test.js`, `search.test.js` for the pattern).
-- **`window`**: stub with no-op `dispatchEvent` / `addEventListener`
+- **`window`**: stub with no-op `dispatchEvent` / `addEventListener` — skipped when a real jsdom window is already present (same guard as the `document` stub, so `@vitest-environment jsdom` test files keep the full jsdom `window` including `getSelection`)
 - **`navigator.storage`**: stub that returns fixed quota values
 
-> **Tests that need real DOM** (e.g. `focus-trap.test.js`) import `JSDOM` directly and use
-> `vi.stubGlobal('document', jsdomDoc)` to temporarily replace the setup.js stub with a real
-> jsdom document for the duration of those tests.
+> **Tests that need real DOM** use one of two patterns:
+>
+> - `focus-trap.test.js` imports `JSDOM` directly and uses `vi.stubGlobal('document', jsdomDoc)` to replace the setup.js stub for the duration of those tests.
+> - `table-editor.test.js` and `images-paste.test.js` use the `@vitest-environment jsdom` file-level annotation, which installs a full jsdom environment (including `window.getSelection`) before `setup.js` runs. The `setup.js` window stub is guarded to skip when a real jsdom window is present.
 
 ---
 
