@@ -980,6 +980,7 @@ body.clocks-collapsed .clock-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
 }
 
 .notes-format-btns {
@@ -998,6 +999,7 @@ body.clocks-collapsed .clock-wrapper {
   font-family: inherit;
   padding: 3px 9px;
   line-height: 1.4;
+  white-space: nowrap;
   transition:
     background 0.15s,
     border-color 0.15s;
@@ -1091,6 +1093,158 @@ body.clocks-collapsed .clock-wrapper {
   border-color: rgba(var(--overlay-rgb), 0.3);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   transform: scale(1.02);
+}
+
+/* ===== Table Editor ===== */
+
+.notes-editor table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8px 0;
+}
+
+.notes-editor td,
+.notes-editor th {
+  border: 1px solid rgba(var(--overlay-rgb), 0.25);
+  padding: 6px 10px;
+  min-width: 60px;
+  height: 2em;
+  vertical-align: top;
+  text-align: left;
+}
+
+.notes-editor th {
+  font-weight: 600;
+}
+
+.notes-editor td.table-cell-selected,
+.notes-editor th.table-cell-selected {
+  background: rgba(var(--overlay-rgb), 0.12);
+  outline: 1px solid rgba(var(--overlay-rgb), 0.4);
+}
+
+.format-btn-separator {
+  display: inline-block;
+  width: 1px;
+  height: 16px;
+  background: rgba(var(--overlay-rgb), 0.2);
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.table-create-prompt {
+  position: absolute;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--panel-bg, #1e1e2e);
+  border: 1px solid rgba(var(--overlay-rgb), 0.2);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  margin-top: 4px;
+}
+
+.table-create-prompt label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.table-create-prompt input[type='number'] {
+  width: 48px;
+  padding: 3px 6px;
+  border: 1px solid rgba(var(--overlay-rgb), 0.2);
+  border-radius: 4px;
+  background: rgba(var(--overlay-rgb), 0.06);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+/* ===== Table Action Dropdown ===== */
+.format-btn-active {
+  background: rgba(var(--overlay-rgb), 0.12) !important;
+  border-color: rgba(var(--overlay-rgb), 0.22) !important;
+}
+
+.table-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 200;
+  min-width: 210px;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--panel-bg-rgb), 0.98) 0%,
+    rgba(var(--panel-bg-rgb-alt), 0.98) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(var(--overlay-rgb), 0.12);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+}
+
+.table-dropdown-group {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(var(--overlay-rgb), 0.3);
+  padding: 8px 14px 3px;
+}
+
+.table-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 14px;
+  background: none;
+  border: none;
+  color: rgba(var(--overlay-rgb), 0.75);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.table-dropdown-item:hover {
+  background: rgba(var(--overlay-rgb), 0.07);
+  color: rgba(var(--overlay-rgb), 0.95);
+}
+
+.table-dropdown-item .tdi-icon {
+  width: 16px;
+  text-align: center;
+  color: rgba(var(--overlay-rgb), 0.35);
+  flex-shrink: 0;
+  font-style: normal;
+}
+
+.table-dropdown-item.tdi-danger {
+  color: rgba(255, 120, 120, 0.85);
+}
+
+.table-dropdown-item.tdi-danger .tdi-icon {
+  color: rgba(255, 100, 100, 0.55);
+}
+
+.table-dropdown-item.tdi-danger:hover {
+  background: rgba(80, 40, 40, 0.35);
+}
+
+.table-dropdown-divider {
+  height: 1px;
+  background: rgba(var(--overlay-rgb), 0.07);
+  margin: 2px 0;
 }
 
 /* ===== Modal Actions Top ===== */

@@ -4,6 +4,7 @@
 import * as state from './state.js';
 import { initMentionHandler } from './mentions.js';
 import { plainTextToFragment } from './utils.js';
+import { initTableEditor, handleTablePaste, updateTableToolbar } from './table-editor.js';
 
 export function setupClipboardPaste() {
   const notesEditor = document.getElementById('modalNotesEditor');
@@ -11,6 +12,8 @@ export function setupClipboardPaste() {
 
   // Initialize mention handler for Kanban notes
   initMentionHandler(notesEditor);
+  notesEditor.addEventListener('focus', () => updateClearNotesButton());
+  notesEditor.addEventListener('blur', () => updateClearNotesButton());
 
   // Mark changes when notes are edited and show/hide toolbar
   notesEditor.addEventListener('input', () => {
@@ -54,14 +57,46 @@ export function setupClipboardPaste() {
   });
 
   notesEditor.addEventListener('paste', async e => {
-    const items = e.clipboardData.items;
-    let hasImage = false;
+    e.preventDefault();
 
-    // Check for images first
+    const htmlData = e.clipboardData.getData('text/html');
+    const plainText = e.clipboardData.getData('text/plain');
+
+    // Table check runs first: spreadsheet apps (Numbers, Excel) put an image
+    // preview on the clipboard alongside the actual cell data — we must not
+    // treat that preview as a real image paste.
+    const tableFrag = handleTablePaste(htmlData, plainText);
+    if (tableFrag) {
+      const after = document.createElement('p');
+      after.appendChild(document.createElement('br'));
+      tableFrag.appendChild(after);
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(tableFrag);
+      } else {
+        notesEditor.appendChild(tableFrag);
+      }
+      if (notesEditor.firstChild && notesEditor.firstChild.nodeName === 'TABLE') {
+        const before = document.createElement('p');
+        before.appendChild(document.createElement('br'));
+        notesEditor.insertBefore(before, notesEditor.firstChild);
+      }
+      const newRange = document.createRange();
+      newRange.setStart(after, 0);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+      state.setModalHasChanges(true);
+      updateClearNotesButton();
+      return;
+    }
+
+    // Check for a real image paste (screenshot, photo — no table data present)
+    const items = e.clipboardData.items;
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf('image') !== -1) {
-        hasImage = true;
-        e.preventDefault();
         state.setModalHasChanges(true);
 
         const blob = items[i].getAsFile();
@@ -76,7 +111,6 @@ export function setupClipboardPaste() {
 
           img.onclick = () => openImageViewer(img.src);
 
-          // Insert at cursor position
           const selection = window.getSelection();
           if (selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
@@ -91,33 +125,31 @@ export function setupClipboardPaste() {
         };
 
         reader.readAsDataURL(blob);
+        return;
       }
     }
 
-    // If no image, paste as plain text with line breaks preserved
-    if (!hasImage) {
-      e.preventDefault();
-      const text = e.clipboardData.getData('text/plain');
-
-      const selection = window.getSelection();
-      if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-        const fragment = plainTextToFragment(text);
-        const lastNode = fragment.lastChild;
-        range.insertNode(fragment);
-        if (lastNode) {
-          range.setStartAfter(lastNode);
-          range.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
+    // Plain text fallback
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const fragment = plainTextToFragment(plainText);
+      const lastNode = fragment.lastChild;
+      range.insertNode(fragment);
+      if (lastNode) {
+        range.setStartAfter(lastNode);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
       }
-
-      state.setModalHasChanges(true);
-      updateClearNotesButton();
     }
+
+    state.setModalHasChanges(true);
+    updateClearNotesButton();
   });
+
+  initTableEditor(notesEditor);
 }
 
 export function updateClearNotesButton() {
@@ -129,8 +161,10 @@ export function updateClearNotesButton() {
     const hasTextContent = notesEditor.textContent.trim().length > 0;
     const hasImages = notesEditor.querySelectorAll('img').length > 0;
     const hasContent = notesEditor.innerHTML.trim() && (hasTextContent || hasImages);
+    const isFocused = document.activeElement === notesEditor;
     clearNotesBtn.style.display = hasContent ? 'inline-block' : 'none';
-    if (formatBtns) formatBtns.style.display = hasContent ? 'flex' : 'none';
+    if (formatBtns) formatBtns.style.display = hasContent || isFocused ? 'flex' : 'none';
+    updateTableToolbar();
   }
 }
 
