@@ -14,7 +14,7 @@ KanTrack is a single-page, local-first Kanban board application. It runs entirel
 - Vanilla JavaScript + TypeScript, ES modules, no runtime framework
 - Build: Vite 5 (Rollup under the hood)
 - Persistence: `localStorage` (synchronous, primary) + IndexedDB (asynchronous, fallback)
-- Test suite: Vitest (531 unit) + Playwright (43 E2E)
+- Test suite: Vitest (868 unit) + Playwright (150 E2E)
 - Entry point: `index.html` → `scripts/kantrack.js`
 
 ---
@@ -375,6 +375,10 @@ Input events are debounced 200 ms before `applyFilters()` runs, preventing per-k
 
 `applyFilters()` calls the registered VL updater for each column. The VL receives the full filtered+sorted dataset and re-renders its window.
 
+### Clear Button Hit-Box
+
+`#clearSearchBtn` (`styles/features.css`) is positioned with `top: 0; bottom: 0;` and centered with flexbox, not `top: 50%; transform: translateY(-50%)` - the transform-based version had a 1px hover dead-zone inside the glyph, likely from a rounding mismatch between the layout box and the transform-painted box. `.clear-search-btn:hover` also sets `transform: none;` to override `base.css`'s global `button:hover { transform: translateY(-2px); }`, which every plain `<button>` inherits; left unoverridden, that inherited lift animates the button 2px upward on hover and drifts the hit-region past its own bottom edge. This override must be preserved - removing it restores the inherited lift and reintroduces the drift. See `tests/e2e/search.spec.js` for the regression test.
+
 ---
 
 ## 11. Tag System
@@ -572,7 +576,7 @@ Web Workers are bundled as separate chunks. `jsPDF` and `html2canvas` are exclud
 ### Unit Tests
 
 ```bash
-npm run test:run   # Vitest - 531 tests, ~1.5 s
+npm run test:run   # Vitest - 868 tests, ~2 s
 npm run test       # Vitest watch mode
 npm run test:ui    # Vitest browser UI
 ```
@@ -583,7 +587,7 @@ Environment: `node` (not jsdom). `tests/setup.js` installs `fake-indexeddb`, `lo
 ### E2E Tests
 
 ```bash
-npm run e2e        # Playwright headless - 43 tests, ~35 s
+npm run e2e        # Playwright headless - 150 tests, ~65 s
 npm run e2e:ui     # Playwright interactive
 ```
 
