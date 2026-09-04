@@ -138,7 +138,7 @@ KanTrack/
 │   ├── *.test.js                # Vitest unit tests (868 tests, 34 files)
 │   ├── i18n.test.js              # UI translation: t(), setLanguage(), dictionary completeness, key-usage scan
 │   ├── setup.js                 # Vitest setup: mocks IDB, localStorage, crypto
-│   └── e2e/                     # Playwright end-to-end tests (148 tests, 12 files)
+│   └── e2e/                     # Playwright end-to-end tests (150 tests, 12 files)
 │       ├── smoke.spec.js        # Core persistence smoke tests
 │       ├── flows.spec.js        # User flow tests (delete, edit, notes, undo)
 │       ├── accessibility.spec.js# Keyboard shortcuts and focus management
