@@ -20,6 +20,7 @@ import {
   idbPutOplog,
   idbDeleteOplog,
   idbDeleteAllUndoneOplog,
+  idbUpdateOplog,
 } from './database.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - utils.js is not yet typed
@@ -505,10 +506,7 @@ export async function appendOplogEntry(entry: OplogEntry): Promise<void> {
  */
 export async function updateOplogEntry(opId: string, changes: Partial<OplogEntry>): Promise<void> {
   try {
-    const entries = (await idbGetAllOplog()) as OplogEntry[];
-    const existing = entries.find(e => e.opId === opId);
-    if (!existing) return;
-    await idbPutOplog({ ...existing, ...changes });
+    await idbUpdateOplog(opId, changes);
   } catch (e) {
     debugWarn('Error updating oplog entry (non-fatal):', e);
   }

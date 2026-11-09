@@ -11,6 +11,7 @@ import {
   loadNotesFromLocalStorage,
   saveNotesToLocalStorage,
   loadNotebookFromLocalStorage,
+  saveNotebookToLocalStorage,
   loadPermanentNotes,
   savePermanentNotes,
   setAutoSaveCallback,
@@ -104,6 +105,7 @@ import {
   cleanupUnusedTags,
   renderTagFilterButtons,
   registerRecordAction,
+  createTag,
 } from './kantrack-modules/tags.js';
 import { renderDueDatePicker, renderDueDateHTML } from './kantrack-modules/due-dates.js';
 import {
@@ -631,6 +633,261 @@ window.addEventListener('beforeunload', function (e) {
 });
 
 /***********************
+ * DEMO BOARD SEED
+ * Populates the board with realistic demo data on first visit (empty board only).
+ ***********************/
+function seedDemoBoard() {
+  // Create demo tags
+  createTag('Compliance', 2); // amber
+  createTag('Analytics', 5); // blue
+  createTag('Platform', 3); // green
+
+  const twoDaysFromNow = new Date(Date.now() + 2 * 86_400_000).toISOString().split('T')[0];
+
+  // Helper: timestamp N days ago at a given hour:minute
+  const ago = (days, h = 9, m = 0) => {
+    const d = new Date(Date.now() - days * 86_400_000);
+    d.setHours(h, m, 0, 0);
+    return d.toLocaleString();
+  };
+
+  const note1HTML =
+    '<p>Revenue variance: −$42k vs forecast. Main driver is timing on enterprise renewals — 3 accounts pushed to Q4 by procurement. COGS came in $18k under budget; ops ran lean in September. Net effect: EBITDA within acceptable range. No restatement needed. Sending summary to CFO this afternoon.</p>';
+  const note2HTML =
+    '<p>Reviewed 4 data categories. Transaction logs: compliant at 7-year retention. Analytics events: non-compliant — currently indefinite, needs 90-day rolling cap. Marketing email logs: borderline, legal recommends 2-year. Customer PII export process exists but SLA documentation is missing — raised ticket with engineering. Full report drafted, waiting on legal sign-off.</p>';
+  const note3HTML =
+    '<p>Data model wired to Snowflake staging. 30-day rolling cash position working correctly. Issue: AR aging buckets show negative amounts above $500k — sign convention mismatch in source GL. Blocked on accounting confirmation before pushing to prod. Also need design sign-off on the breakdown table layout.</p>';
+  const note4HTML =
+    "<p>Historical load complete for FY2022–2024. FY2025 YTD at ~40%. Blocker: intercompany elimination account codes don't map 1:1 to new chart of accounts. Building manual mapping table — ~2–3h work. This is a risk to the deadline; escalating to ops lead if not resolved by EOD tomorrow.</p>";
+
+  const demoTasks = [
+    {
+      id: crypto.randomUUID(),
+      title: 'Reconcile Q3 P&L against actuals',
+      timer: 118,
+      priority: 'low',
+      tags: ['analytics'],
+      dueDate: null,
+      column: 'done',
+      _demo: true,
+      noteEntries: [{ timestamp: ago(5, 10, 30), notesHTML: note1HTML, images: [] }],
+      actions: [
+        { action: 'Created', timestamp: ago(5, 8, 45), type: 'created' },
+        { action: 'Added tag "Analytics"', timestamp: ago(5, 8, 46), type: 'tag' },
+        { type: 'note', timestamp: ago(5, 10, 30), notesHTML: note1HTML, images: [] },
+        { action: 'Added 118 minute(s) to timer', timestamp: ago(5, 10, 30), type: 'timer' },
+        { action: 'Priority changed from None to Low', timestamp: ago(5, 14, 0), type: 'priority' },
+        { action: 'Moved to Done', timestamp: ago(5, 16, 15), type: 'status' },
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      title: 'Audit data retention policies for GDPR',
+      timer: 74,
+      priority: 'medium',
+      tags: ['compliance'],
+      dueDate: null,
+      column: 'done',
+      _demo: true,
+      noteEntries: [{ timestamp: ago(4, 11, 15), notesHTML: note2HTML, images: [] }],
+      actions: [
+        { action: 'Created', timestamp: ago(4, 9, 0), type: 'created' },
+        { action: 'Added tag "Compliance"', timestamp: ago(4, 9, 1), type: 'tag' },
+        {
+          action: 'Priority changed from None to Medium',
+          timestamp: ago(4, 9, 5),
+          type: 'priority',
+        },
+        { type: 'note', timestamp: ago(4, 11, 15), notesHTML: note2HTML, images: [] },
+        { action: 'Added 74 minute(s) to timer', timestamp: ago(4, 11, 15), type: 'timer' },
+        { action: 'Moved to Done', timestamp: ago(4, 15, 30), type: 'status' },
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      title: 'Build automated cash flow dashboard',
+      timer: 93,
+      priority: 'high',
+      tags: ['analytics', 'platform'],
+      dueDate: null,
+      column: 'inProgress',
+      _demo: true,
+      noteEntries: [{ timestamp: ago(3, 15, 45), notesHTML: note3HTML, images: [] }],
+      actions: [
+        { action: 'Created', timestamp: ago(3, 10, 0), type: 'created' },
+        { action: 'Added tag "Analytics"', timestamp: ago(3, 10, 1), type: 'tag' },
+        { action: 'Added tag "Platform"', timestamp: ago(3, 10, 1), type: 'tag' },
+        {
+          action: 'Priority changed from None to High',
+          timestamp: ago(3, 10, 5),
+          type: 'priority',
+        },
+        { type: 'note', timestamp: ago(3, 15, 45), notesHTML: note3HTML, images: [] },
+        { action: 'Added 93 minute(s) to timer', timestamp: ago(3, 15, 45), type: 'timer' },
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      title: 'Migrate legacy GL to new data warehouse',
+      timer: 61,
+      priority: 'medium',
+      tags: ['platform'],
+      dueDate: twoDaysFromNow,
+      column: 'inProgress',
+      _demo: true,
+      noteEntries: [{ timestamp: ago(2, 14, 0), notesHTML: note4HTML, images: [] }],
+      actions: [
+        { action: 'Created', timestamp: ago(2, 9, 30), type: 'created' },
+        { action: 'Added tag "Platform"', timestamp: ago(2, 9, 31), type: 'tag' },
+        {
+          action: 'Priority changed from None to Medium',
+          timestamp: ago(2, 9, 35),
+          type: 'priority',
+        },
+        { action: `Due date set to ${twoDaysFromNow}`, timestamp: ago(2, 9, 36), type: 'dueDate' },
+        { type: 'note', timestamp: ago(2, 14, 0), notesHTML: note4HTML, images: [] },
+        { action: 'Added 61 minute(s) to timer', timestamp: ago(2, 14, 0), type: 'timer' },
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      title: 'Implement IFRS 17 reporting module',
+      noteEntries: [],
+      timer: 0,
+      priority: 'high',
+      tags: ['compliance', 'platform'],
+      dueDate: null,
+      column: 'todo',
+      _demo: true,
+      subKanban: {
+        enabled: true,
+        items: [
+          {
+            id: crypto.randomUUID(),
+            title: 'Define calculation engine',
+            column: 'done',
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: crypto.randomUUID(),
+            title: 'Schema migration',
+            column: 'inProgress',
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: crypto.randomUUID(),
+            title: 'Audit trail logging',
+            column: 'todo',
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      },
+      actions: [
+        { action: 'Created', timestamp: ago(1, 11, 0), type: 'created' },
+        { action: 'Added tag "Compliance"', timestamp: ago(1, 11, 1), type: 'tag' },
+        { action: 'Added tag "Platform"', timestamp: ago(1, 11, 1), type: 'tag' },
+        {
+          action: 'Priority changed from None to High',
+          timestamp: ago(1, 11, 5),
+          type: 'priority',
+        },
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      title: 'Document model validation framework',
+      noteEntries: [],
+      timer: 0,
+      priority: 'low',
+      tags: ['compliance', 'analytics'],
+      dueDate: null,
+      column: 'todo',
+      _demo: true,
+      actions: [
+        { action: 'Created', timestamp: ago(1, 11, 30), type: 'created' },
+        { action: 'Added tag "Compliance"', timestamp: ago(1, 11, 31), type: 'tag' },
+        { action: 'Added tag "Analytics"', timestamp: ago(1, 11, 31), type: 'tag' },
+      ],
+    },
+  ];
+
+  state.setNotesData(demoTasks);
+  void saveNotesToLocalStorage();
+  dispatch({ type: TASK_SET_ALL, payload: [...state.notesData] });
+  ['todo', 'inProgress', 'onHold', 'done'].forEach(col => updateColumnVirtualList(col));
+  window.dispatchEvent(new Event('kantrack:updateColumnCounts'));
+  renderTagFilterButtons();
+
+  // Seed demo notebook
+  const ts2 = new Date().toISOString();
+  const demoFolderId = crypto.randomUUID();
+  const demoNotebook = [
+    {
+      id: demoFolderId,
+      type: 'folder',
+      parentId: null,
+      name: 'Q4 Finance Ops',
+      order: 0,
+      createdAt: ts2,
+      updatedAt: ts2,
+      expanded: true,
+      _demo: true,
+    },
+    {
+      id: crypto.randomUUID(),
+      type: 'page',
+      parentId: demoFolderId,
+      name: 'Regulatory Checklist',
+      order: 0,
+      createdAt: ts2,
+      updatedAt: ts2,
+      content:
+        '<h2>IFRS 17 Readiness</h2><p>Target go-live: end of Q4. Key outstanding items:</p><ul><li>Calculation engine sign-off from actuarial team — pending review</li><li>Schema migration dry-run scheduled for staging environment</li><li>Audit trail must capture every contract modification with user ID and timestamp</li></ul><h2>GDPR — Data Retention</h2><p>Retention audit completed. Action items:</p><ul><li>Customer transaction records: 7-year retention confirmed, archival pipeline in place</li><li>Analytics event logs: reduce to 90-day rolling window — engineering ticket raised</li><li>DPA with new BI vendor requires legal sign-off before data transfer</li></ul>',
+      images: [],
+      _demo: true,
+    },
+    {
+      id: crypto.randomUUID(),
+      type: 'page',
+      parentId: demoFolderId,
+      name: 'Architecture Decisions',
+      order: 1,
+      createdAt: ts2,
+      updatedAt: ts2,
+      content:
+        '<h2>Data Warehouse Migration</h2><p>Moving from legacy Oracle GL to Snowflake. Rationale:</p><ul><li>Column-store compression reduces storage cost ~60% on historical data</li><li>Native support for time-travel queries — critical for period-end reconciliation</li><li>Separation of compute and storage allows burst scaling during month-end close</li></ul><h2>Reporting Pipeline</h2><p>Decision: batch over real-time for financial reports.</p><ul><li>Real-time adds complexity without user benefit — finance runs reports at close, not live</li><li>dbt for transformation layer — version-controlled, testable, auditable</li><li>Airflow DAGs for orchestration, 15-min SLA on overnight runs</li></ul><h2>Open Questions</h2><p>Row-level security strategy for multi-entity P&L access not yet finalised. Need input from InfoSec before Q4 freeze.</p>',
+      images: [],
+      _demo: true,
+    },
+  ];
+  demoNotebook.forEach(item => state.pushToNotebookItems(item));
+  saveNotebookToLocalStorage();
+
+  // Insert dismissible banner before the board
+  const banner = document.createElement('div');
+  banner.id = 'kt-demo-banner';
+  banner.className = 'kt-demo-banner';
+  banner.innerHTML =
+    '<span>Demo board — explore KanTrack freely, then clear when ready.</span>' +
+    '<button class="kt-demo-dismiss-btn" id="kt-demo-dismiss">Clear demo data</button>';
+
+  document.querySelector('.kanban-board')?.insertAdjacentElement('beforebegin', banner);
+
+  document.getElementById('kt-demo-dismiss')?.addEventListener('click', () => {
+    state.setNotesData(state.notesData.filter(t => !t._demo));
+    void saveNotesToLocalStorage();
+    dispatch({ type: TASK_SET_ALL, payload: [...state.notesData] });
+    ['todo', 'inProgress', 'onHold', 'done'].forEach(col => updateColumnVirtualList(col));
+    window.dispatchEvent(new Event('kantrack:updateColumnCounts'));
+    state.setNotebookItems(state.notebookItems.filter(i => !i._demo));
+    saveNotebookToLocalStorage();
+    renderNotebookTree();
+    safeSetItem('kt_demo_dismissed', '1');
+    banner.remove();
+  });
+}
+
+/***********************
  * BOOTSTRAP
  ***********************/
 document.addEventListener('DOMContentLoaded', async () => {
@@ -660,8 +917,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Attach interaction listeners before any awaits so they are ready as soon
+  // as the page reports "top-header visible" (used as the test readiness marker).
+  // setupDragAndDrop only attaches dragover/drop to static .column elements, so
+  // it is safe to call before data is loaded.
+  setupDragAndDrop();
+
+  const importFileInput = document.getElementById('importFile');
+  if (importFileInput) {
+    importFileInput.addEventListener('change', e => importBoardFromFile(e));
+  }
+
   await initIndexedDB();
   await runDataMigrations();
+
+  // Load and render notebook tree early so tree items are in the DOM as soon
+  // as possible (reduces timing window in tests that check lang attributes).
+  await loadNotebookFromLocalStorage();
+  renderNotebookTree();
 
   // Set up auto-save callback before any saves can fire
   setAutoSaveCallback(showAutoSaveIndicator);
@@ -678,6 +951,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize feature modules (after tasks are loaded)
   await initTags();
   renderTagFilterButtons();
+
+  // Seed demo board on first visit (after initTags + initVirtualLists).
+  // Use live state.notesData instead of the stale notes snapshot so that any
+  // task added by the user (or test) during the async init window is not wiped.
+  if (state.notesData.length === 0 && safeGetItem('kt_demo_dismissed') !== '1') {
+    seedDemoBoard();
+  }
+
   await initUndo();
   registerRecordAction(recordAction);
   scheduleCompaction();
@@ -691,6 +972,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load clocks (async)
   await loadClocks();
+
+  // Signal that the board is fully ready: VirtualLists initialized, tasks
+  // loaded, demo board seeded, and all async init operations complete.
+  // Tests wait for this before interacting with cards to avoid races with
+  // the async init window (IDB load, undo/oplog, backfill, clocks).
+  document.body.dataset.appReady = 'true';
 
   // Position logo now that clock state is known, then track continuously
   positionHeaderLogo();
@@ -739,7 +1026,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render hidden-cards count
   updateHiddenCountBadge();
 
-  setupDragAndDrop();
   setupClipboardPaste();
   loadPermanentNotes();
 
@@ -777,12 +1063,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const notebookImportFile = document.getElementById('notebookImportFile');
   if (notebookImportFile) {
     notebookImportFile.addEventListener('change', e => importNotebookFromZip(e));
-  }
-
-  // Board file import trigger
-  const importFileInput = document.getElementById('importFile');
-  if (importFileInput) {
-    importFileInput.addEventListener('change', e => importBoardFromFile(e));
   }
 
   // Timezone search input
@@ -1188,9 +1468,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Initialize notebook (must be last - depends on other modules being ready)
-  await loadNotebookFromLocalStorage();
-  renderNotebookTree();
+  // Set up notebook event listeners (notebook items already loaded+rendered above)
   setupNotebookEventListeners();
 
   // Signals that async bootstrap (IDB load, clocks render, event listeners)

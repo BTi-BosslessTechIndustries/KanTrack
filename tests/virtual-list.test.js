@@ -193,11 +193,12 @@ describe('VirtualList: update', () => {
     expect(container.querySelectorAll('.vl-card').length).toBe(0);
   });
 
-  it('respects INITIAL_RENDER cap on update', () => {
+  it('renders all items on update (no cap) so moved cards are always visible', () => {
     container = makeContainer();
     vl = new VirtualList(container, makeItems(2), renderItem);
-    vl.update(makeItems(INITIAL_RENDER + 8));
-    expect(container.querySelectorAll('.vl-card').length).toBe(INITIAL_RENDER);
+    const newCount = INITIAL_RENDER + 8;
+    vl.update(makeItems(newCount));
+    expect(container.querySelectorAll('.vl-card').length).toBe(newCount);
   });
 });
 

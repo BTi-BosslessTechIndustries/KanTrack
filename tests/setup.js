@@ -9,22 +9,28 @@ import 'fake-indexeddb/auto';
 // ---------------------------------------------------------------------------
 let _lsStore = {};
 
-global.localStorage = {
-  getItem: key => (Object.prototype.hasOwnProperty.call(_lsStore, key) ? _lsStore[key] : null),
-  setItem: (key, value) => {
-    _lsStore[key] = String(value);
+// global.localStorage is a read-only getter in jsdom (and some Node envs),
+// so use defineProperty — the same pattern used for navigator below.
+Object.defineProperty(global, 'localStorage', {
+  value: {
+    getItem: key => (Object.prototype.hasOwnProperty.call(_lsStore, key) ? _lsStore[key] : null),
+    setItem: (key, value) => {
+      _lsStore[key] = String(value);
+    },
+    removeItem: key => {
+      delete _lsStore[key];
+    },
+    clear: () => {
+      _lsStore = {};
+    },
+    get length() {
+      return Object.keys(_lsStore).length;
+    },
+    key: i => Object.keys(_lsStore)[i] ?? null,
   },
-  removeItem: key => {
-    delete _lsStore[key];
-  },
-  clear: () => {
-    _lsStore = {};
-  },
-  get length() {
-    return Object.keys(_lsStore).length;
-  },
-  key: i => Object.keys(_lsStore)[i] ?? null,
-};
+  writable: true,
+  configurable: true,
+});
 
 // Called from beforeEach in each test file to get a clean slate
 export function resetLocalStorage() {

@@ -281,16 +281,11 @@ export function updateNoteColumn(id, oldColumn, newColumn) {
       // it already offers this card its own "Export PDF" button, and stacking
       // two dialogs for one move would be confusing.
       if (!capacityTriggered) {
-        // Use requestAnimationFrame to ensure we're outside the drag event context
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (
-              confirm(`Task "${note.title}" moved to Done.\n\nDo you want to export it as PDF?`)
-            ) {
-              exportTaskAsPDF(id);
-            }
-          }, 100);
-        });
+        setTimeout(() => {
+          if (confirm(`Task "${note.title}" moved to Done.\n\nDo you want to export it as PDF?`)) {
+            exportTaskAsPDF(id);
+          }
+        }, 0);
       }
     }
   }
@@ -358,6 +353,7 @@ export function createNoteElement(content) {
     hideButton = document.createElement('button');
     hideButton.classList.add('hide-card-btn');
     hideButton.title = 'Hide card';
+    hideButton.setAttribute('aria-label', 'Hide card');
     hideButton.innerHTML =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
       '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-4.5-11-4.5s1.6-3 4-5.5"></path>' +
@@ -379,6 +375,7 @@ export function createNoteElement(content) {
   priorityButton.textContent = '🏷️';
   priorityButton.style.color = getPriorityColor(content.priority);
   priorityButton.title = 'Set Priority';
+  priorityButton.setAttribute('aria-label', 'Set Priority');
   priorityButton.onclick = function (e) {
     e.stopPropagation();
     showQuickPriorityMenu(content.id, priorityButton);
@@ -392,8 +389,9 @@ export function createNoteElement(content) {
 
   const timerButton = document.createElement('button');
   timerButton.textContent = '⏱️';
-  timerButton.style.color = '#ff9800';
+  timerButton.style.color = '#f59e0b';
   timerButton.title = 'Quick Add Time (Long press to subtract)';
+  timerButton.setAttribute('aria-label', 'Quick Add Time');
 
   // Long press detection
   let pressTimer = null;
@@ -456,9 +454,10 @@ export function createNoteElement(content) {
   };
 
   const deleteButton = document.createElement('button');
-  deleteButton.textContent = '❌';
+  deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
   deleteButton.style.color = '#e57373';
   deleteButton.title = 'Delete';
+  deleteButton.setAttribute('aria-label', 'Delete task');
   const handleDelete = async function (e) {
     e.stopPropagation();
     if (confirm('Are you sure you want to delete this task?')) {
@@ -558,11 +557,12 @@ export function createNoteElement(content) {
   note.appendChild(editDeleteContainer);
 
   note.addEventListener('dragstart', e => {
-    if (e.target.closest('button')) {
-      e.preventDefault();
-      return;
-    }
     setDraggedItemRef(note);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  note.addEventListener('dragend', () => {
+    setDraggedItemRef(null);
   });
 
   enableTouchDrag(note, openTaskModalFn);

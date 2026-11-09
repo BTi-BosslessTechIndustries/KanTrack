@@ -52,9 +52,6 @@ export function toggleNotebookSidebar() {
     toggleBtn.classList.remove('active');
     document.body.classList.remove('notebook-sidebar-open');
   }
-
-  // Persist sidebar state
-  setUIPref('notebookSidebarOpen', notebookSidebarOpen);
 }
 
 export function setupSidebarResize() {
@@ -994,7 +991,7 @@ async function importFromNotebookData(dataFile) {
     dialog.style.cssText =
       'background:#2c2c2c;color:#e0e0e0;border:1px solid #555;border-radius:8px;padding:24px;max-width:420px;width:90%;font-family:inherit';
     dialog.innerHTML = `
-      <h3 style="margin:0 0 12px;color:#4caf50">Import notebook</h3>
+      <h3 style="margin:0 0 12px;color:#22c55e">Import notebook</h3>
       <p style="margin:0">This file contains:</p>
       ${countHtml}
       <p style="margin:16px 0 0;font-size:0.9em"><strong>Only notebook pages will be imported. Your board tasks and settings will not be affected.</strong></p>
@@ -1092,11 +1089,11 @@ export function setupNotebookEventListeners() {
     }
   });
 
-  // Restore sidebar state
-  const savedSidebarState = getUIPref('notebookSidebarOpen', null);
-  if (savedSidebarState === true || savedSidebarState === 'true') {
-    toggleNotebookSidebar();
-  }
+  // Sidebar always starts closed on page load; the user can open it via the
+  // toggle button. Persisting the open state across reloads caused test
+  // flakiness because a reload from a previous open-sidebar test would
+  // auto-open the sidebar, making the test's toggle click close instead of
+  // open it.
 
   // Restore sidebar width
   const savedSidebarWidth = getUIPref('notebookSidebarWidth', null);

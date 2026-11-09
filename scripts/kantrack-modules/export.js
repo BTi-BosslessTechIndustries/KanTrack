@@ -311,9 +311,9 @@ export async function exportBoardAsHTML() {
   <title>Kanban Board Export - ${getCurrentDate()}</title>
   <style>
     body { font-family: Arial, sans-serif; background: #1e1e1e; color: #e0e0e0; padding: 20px; }
-    h1 { color: #4caf50; }
+    h1 { color: #22c55e; }
     .task { background: #2c2c2c; padding: 15px; margin: 10px 0; border-radius: 5px; }
-    .task h3 { color: #4caf50; margin-top: 0; }
+    .task h3 { color: #22c55e; margin-top: 0; }
     img { max-width: 100%; margin: 10px 0; border-radius: 5px; }
   </style>
 </head>
@@ -344,11 +344,11 @@ function generatePreviewHTML(tasks) {
 
     const priorityColor =
       task.priority === 'high'
-        ? '#f44336'
+        ? '#ef4444'
         : task.priority === 'low'
-          ? '#4caf50'
+          ? '#22c55e'
           : task.priority === 'medium'
-            ? '#ff9800'
+            ? '#f59e0b'
             : 'rgba(255, 255, 255, 0.5)';
 
     html += `<div class="task">
@@ -371,7 +371,10 @@ function generatePreviewHTML(tasks) {
  * mode = 'lightweight' - data only, no image data
  */
 async function _buildWorkspacePayload(mode) {
-  const tasks = await getAllTasks();
+  const allTasks = await getAllTasks();
+  // Soft-deleted tasks are kept in storage for the undo system but should not
+  // appear in exported files — a shared export would otherwise expose deleted content.
+  const tasks = allTasks.filter(task => !task.deleted);
   const tags = await getAllTags();
   const notebook_items = await getAllNotebookItems();
   const clocks = (await getAllClocks()) || [];
@@ -719,7 +722,7 @@ function _showImportPreviewDialog(summary, warnings, { onMerge, onReplace, onCan
       : '';
 
   dialog.innerHTML = `
-    <h3 style="margin:0 0 12px;color:#4caf50">${escapeHtml(t('importExport.title'))}</h3>
+    <h3 style="margin:0 0 12px;color:#22c55e">${escapeHtml(t('importExport.title'))}</h3>
     <p style="margin:0">${escapeHtml(t('importExport.contains'))}</p>
     ${countHtml}
     ${warningHtml}
@@ -766,14 +769,14 @@ function _showPassphraseDialog({ title, message, confirmLabel, onConfirm, onCanc
     'background:#2c2c2c;color:#e0e0e0;border:1px solid #555;border-radius:8px;padding:24px;max-width:380px;width:90%;font-family:inherit';
 
   dialog.innerHTML = `
-    <h3 style="margin:0 0 12px;color:#4caf50">${escapeHtml(title)}</h3>
+    <h3 style="margin:0 0 12px;color:#22c55e">${escapeHtml(title)}</h3>
     <p style="margin:0 0 12px;font-size:0.9em;color:#aaa">${escapeHtml(message)}</p>
     <input id="kt-passphrase" type="password" placeholder="Passphrase"
       style="width:100%;box-sizing:border-box;padding:8px;background:#1e1e1e;color:#e0e0e0;border:1px solid #555;border-radius:4px;font-size:1em">
-    <p id="kt-pass-error" style="margin:6px 0 0;font-size:0.85em;color:#f44336;min-height:1em"></p>
+    <p id="kt-pass-error" style="margin:6px 0 0;font-size:0.85em;color:#ef4444;min-height:1em"></p>
     <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
       <button id="kt-pass-cancel" style="padding:8px 14px;background:transparent;color:#aaa;border:1px solid #555;border-radius:4px;cursor:pointer">Cancel</button>
-      <button id="kt-pass-confirm" style="padding:8px 14px;background:#4caf50;color:#fff;border:none;border-radius:4px;cursor:pointer">${escapeHtml(confirmLabel)}</button>
+      <button id="kt-pass-confirm" style="padding:8px 14px;background:#22c55e;color:#fff;border:none;border-radius:4px;cursor:pointer">${escapeHtml(confirmLabel)}</button>
     </div>
   `;
 

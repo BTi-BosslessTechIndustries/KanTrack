@@ -8,9 +8,36 @@ CSS stylesheets split by concern. All four files are imported by `index.html`.
 
 ### `base.css`
 
-Reset, typography, CSS variables (colours, spacing, font sizes), global element defaults, and the `.sr-only` utility class (visually hidden but accessible to screen readers). This is the foundation - everything else builds on it.
+Reset, typography, CSS custom properties (colours, spacing, font sizes), global element defaults, and the `.sr-only` utility class (visually hidden but accessible to screen readers). This is the foundation — everything else builds on it.
+
+**Font**: `body` uses `'Plus Jakarta Sans'` as the first font family (loaded from Google Fonts via `<link>` in `index.html`), falling back to `'SF Pro Display'`, `'Helvetica Neue'`, and `'Arial'`. The CSP in `index.html` allows `fonts.googleapis.com` for the stylesheet and `fonts.gstatic.com` for the font binary.
 
 Theme variables live in `:root` (dark, the default) and `body.theme-light` (light overrides); see Theming below.
+
+**Design tokens in `:root`:**
+
+- **Accent (Indigo)**: `--accent-color: #6366f1`, `--accent-hover: #4f46e5`, `--accent-rgb: 99, 102, 241`
+- **Warning (Amber)**: `--warning-color: #f59e0b`, `--warning-rgb: 245, 158, 11`
+- **Error**: `--error-color: #ef4444`, plus surface/border/text tokens `--error-surface`, `--error-border`, `--error-text`
+- **Success**: `--success-color: #22c55e`
+- **Type scale**: `--text-xs` (0.70rem) through `--text-lg` (1.10rem) — use these on any small UI text instead of bare `em` values
+- **Spacing scale**: `--space-1` (4px) through `--space-6` (24px)
+- **Easing curves**: `--ease-out` and `--ease-in-out` for consistent animation timing across panels and buttons
+
+**Dark theme (`:root`) key variables:**
+
+- `--text-primary: #f1f5f9` / `--text-muted: #94a3b8` (Slate scale)
+- `--page-bg-start: #0d0d0d` / `--page-bg-mid: #1a1a1a`
+
+**Light theme (`body.theme-light`) overrides:**
+
+- `--text-primary: #0f172a` / `--text-muted: #64748b` (Slate 900/500)
+- `--page-bg-start: #f8fafc` / `--page-bg-mid: #f1f5f9` (Slate 50/100)
+- `color-scheme: light` (tells the browser to use light native widgets)
+
+**Column styling**: columns carry `border-radius: 12px` (reduced from 16px) and a 3px coloured left border to visually distinguish each column — `--overlay-rgb` for To Do, indigo `--accent-rgb` for In Progress, amber `245, 158, 11` for On Hold, green `34, 197, 94` for Done. Columns animate in on load via `@keyframes kt-col-enter` with staggered delays (`0 / 100 / 200 / 300 ms`). Empty columns show a dashed "Drop or add cards here" placeholder via `::after`. Drop-hover state applies an accent-tinted background instead of a dashed outline.
+
+**Demo board banner**: `.kt-demo-banner` / `.kt-demo-dismiss-btn` — the indigo-accented banner shown to first-time users above the board when demo data has been seeded; dismissed by clicking "Clear demo data".
 
 `.language-picker`, `.language-picker-label`, and `.language-picker-select` style the Language picker in the ⋮ menu, stacking the label above the `<select>` (`flex-direction: column`) so the fixed-width control never overlaps the label.
 
@@ -18,16 +45,30 @@ Theme variables live in `:root` (dark, the default) and `body.theme-light` (ligh
 
 Reusable UI components: cards (`.note`), buttons, modals, the top header, inputs, badges, tags, priority indicators, context menus, and the notebook sidebar. If it appears on-screen in more than one place, it lives here.
 
+**Notable updates from the design system overhaul:**
+
+- Help modal brand colours changed from teal `#00c2ff` / `#43ffd2` to indigo `#6366f1` / `#818cf8`; `.help-badge` and `.help-feat-card` use `rgba(var(--accent-rgb), ...)` tokens
+- `text-transform: uppercase` and `letter-spacing` removed from `.shortcuts-group h3`, `.help-section-label`, `.help-exports-table th`, `.modal-section h4`, `.sub-kanban-column-header`, `.clock-label` — consistent with the lower-contrast, less-uppercase direction of the design system
+- Modal open/close animations use `@starting-style` (Chrome 117+) for the backdrop fade and content scale; `.modal-close:hover` no longer rotates 90°
+- `.sub-kanban-toggle` is now a flex container holding an SVG chevron icon (not a text `▼`/`▲` character)
+- `.timer-badge`: amber `rgba(245, 158, 11, 0.75)` background, dark text `#1a1a1a`, `font-variant-numeric: tabular-nums`
+- `.add-task-btn` now has an explicit indigo background (`--accent-color`) and `--accent-hover` hover state
+- Focus rings (input / textarea `:focus`) use a 3px `rgba(var(--accent-rgb), 0.1)` box-shadow instead of generic overlay rings
+- `.delete-btn` background and border use the semantic `--error-surface` / `--error-border` / `--error-text` tokens; `.card-size-btn.active` and `.theme-btn.active` use `rgba(var(--accent-rgb), ...)` instead of a hardcoded blue
+- Header dropdown has `@starting-style` scale animation; `:active` state added to `.header-dropdown-item`
+
 ### `features.css`
 
 Feature-specific styles that are large or isolated enough to need their own section: the sub-kanban board, the history panel inside the task modal, the clocks widget, the search overlay, the storage monitor indicator, drag-and-drop visual feedback, the pinned-tag management panel inside the tag selector, the `.kt-hidden-*` Hidden Cards modal (and `.kt-capacity-*` Done-column-limit dialog, which reuses the same classes), and `.note:focus-visible` keyboard focus ring for card navigation.
 
 Notable rules:
 
-- `.kt-hidden-modal` / `.kt-hidden-*` - shared "KanTrack look" for native `<dialog>` pop-ups (dark gradient background, teal `#43ffd2` accent, pill badges/buttons), matching the Help modal aesthetic; used by both the Hidden Cards modal (`hidden-cards.js`) and the Done column limit dialog (`done-capacity.js`, via the additional `.kt-capacity-*` accent classes)
+- `.kt-hidden-modal` / `.kt-hidden-*` - shared "KanTrack look" for native `<dialog>` pop-ups (dark gradient background, indigo `#6366f1` / `#818cf8` accent, pill badges/buttons), matching the Help modal aesthetic; used by both the Hidden Cards modal (`hidden-cards.js`) and the Done column limit dialog (`done-capacity.js`, via the additional `.kt-capacity-*` accent classes)
 - `.tag-color-input-hidden` - collapses the `<input type="color">` to zero size with `pointer-events: none`; the picker is opened programmatically to prevent its browser-enforced minimum dimensions from overlapping adjacent elements (e.g. the Pin checkbox)
 - `.tag-pin-checkbox input[type='checkbox']` - explicitly resets `flex: none` and `min-width: unset` to cancel the broad `.tag-dropdown-create input` rule that would otherwise stretch the checkbox across the row
 - `.tree-item-expand` - includes `cursor: pointer` so click events fire reliably on the folder expand arrow across all platforms
+- **Notification container position**: moved from `top: 20px; right: 80px` to `bottom: 20px; right: 20px` (bottom-right toasts); animation changed from slide-in-from-right to slide-up-from-below (`translateY(calc(100% + 24px))` → `translateY(0)`) with separate ease-in dismiss; `.notification-icon` is now `display: flex; align-items: center` to hold SVG icons
+- **Notebook sidebar**: `.notebook-toggle-btn.active` uses amber `rgba(245, 158, 11, ...)` tokens (via `--warning-color` / `--warning-rgb`); drag-over highlight uses `--accent-rgb`; tree item `.selected` uses `rgba(var(--warning-rgb), 0.15)`; page icon colour changed from Material blue `#64b5f6` to indigo `#818cf8`; sidebar transition uses `var(--ease-in-out)` easing curve
 
 ### `responsive.css`
 
@@ -49,8 +90,8 @@ Media queries keyed by viewport width. Each breakpoint and what it governs:
 
 ## Conventions
 
-- CSS custom properties (variables) are declared in `base.css` under `:root`
-- Priority colours: `.priority-high` / `.priority-medium` / `.priority-low` are in `components.css`
+- CSS custom properties (variables) are declared in `base.css` under `:root`; use the semantic tokens (`--accent-color`, `--warning-color`, `--error-color`, `--text-xs` … `--text-lg`, `--space-1` … `--space-6`) rather than raw hex values or `em` fractions
+- Priority colours: `.priority-high` / `.priority-medium` / `.priority-low` are in `components.css`; the underlying colour values map to `--error-color: #ef4444` / `--warning-color: #f59e0b` / `--success-color: #22c55e`
 - No CSS-in-JS, no Tailwind, no CSS modules - plain CSS that any browser can read
 - All styles are globally scoped (no shadow DOM); class names act as the namespace
 
@@ -58,8 +99,8 @@ Media queries keyed by viewport width. Each breakpoint and what it governs:
 
 KanTrack supports Light, Dark, and System Default themes via the theme picker in the header's "More Options" (⋮) menu, next to Card Size.
 
-- `:root` in `base.css` defines the dark theme's colours as the default values for a set of semantic variables: `--overlay-rgb`, `--page-bg-start`, `--page-bg-mid`, `--text-primary`, `--text-muted`, `--input-bg-solid`, `--panel-bg-rgb` / `--panel-bg-rgb-alt` (header, dropdowns, modals), and `--card-bg-rgb` / `--card-bg-rgb-alt` (note cards).
-- `body.theme-light` overrides each of these with the light-theme equivalents.
+- `:root` in `base.css` defines the dark theme's colours as the default values for a set of semantic variables: `--overlay-rgb`, `--page-bg-start`, `--page-bg-mid`, `--text-primary`, `--text-muted`, `--input-bg-solid`, `--panel-bg-rgb` / `--panel-bg-rgb-alt` (header, dropdowns, modals), and `--card-bg-rgb` / `--card-bg-rgb-alt` (note cards). `:root` also carries `color-scheme: dark` so the browser renders native widgets (scrollbars, date inputs) in dark mode by default.
+- `body.theme-light` overrides each of these with the light-theme equivalents and sets `color-scheme: light`. It also overrides `.top-header` background and box-shadow to maintain a legible header on the light page background.
 - `--overlay-rgb` is the key trick: it's `255, 255, 255` (white) in dark mode and `0, 0, 0` (black) in light mode. Any `rgba(var(--overlay-rgb), X)` declaration therefore lightens content on dark backgrounds and darkens it on light backgrounds at the same alpha - used throughout `components.css` and `features.css` for borders, hover states, and translucent surfaces.
 - `scripts/kantrack.js` resolves the active theme (`getEffectiveTheme()`), applies it by toggling `body.theme-light` (`applyTheme()`), and listens for OS colour-scheme changes (`initThemeSystemListener()`) when the mode is `'system'`. The chosen mode (`'light' | 'dark' | 'system'`) is persisted as `themeMode` and defaults to `'system'`.
 - Dark backdrops/scrims (e.g. `.kt-hidden-modal::backdrop`, `.modal-overlay`) intentionally stay `rgba(0, 0, 0, A)` in both themes: a dimming layer should always be dark.

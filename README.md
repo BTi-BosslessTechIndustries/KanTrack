@@ -9,7 +9,7 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 ## Features
 
 - **Kanban board**: four columns (To Do, In Progress, On Hold, Done) with drag-and-drop
-- **Task detail modal**: rich notes editor with **Bold**, **Italic**, and **Strikethrough** formatting; tables (create with the ⊞ Table button or paste directly from Numbers, Excel, Word, or any web page — a dropdown gives access to add/delete rows and columns and merge/unmerge cells); images (paste-to-insert, with full-screen viewer and zoom controls); a chronological edit/delete log; a collapsible sub-kanban board; **Save** keeps the modal open for multi-step edits, **Save & Close** saves and dismisses; double-click the title to rename it inline
+- **Task detail modal**: rich notes editor with **Bold**, **Italic**, and **Strikethrough** formatting; tables (create with the Table button or paste directly from Numbers, Excel, Word, or any web page — a dropdown gives access to add/delete rows and columns and merge/unmerge cells); images (paste-to-insert, with full-screen viewer and zoom controls); a chronological edit/delete log; a collapsible sub-kanban board; **Save** keeps the modal open for multi-step edits, **Save & Close** saves and dismisses; double-click the title to rename it inline
 - **Sub-kanban boards**: each task contains a toggleable mini kanban board with the same four columns (To Do, In Progress, On Hold, Done); sub-tasks support drag-and-drop between states and display a live done/total counter on the parent card
 - **Card size**: three global card sizes (Small / Medium / Large) selectable from the ⋮ menu; preference persists across sessions
 - **Theme**: Light, Dark, or System Default, selectable from the ⋮ menu; System Default follows the OS colour scheme live, while an explicit Light or Dark choice is saved and overrides the OS setting on every future visit until you switch back to System Default
@@ -30,7 +30,8 @@ KanTrack is a privacy-first personal workflow tool that runs entirely in the bro
 - **Column task counts**: each column header shows a live count of visible tasks; the count reflects active search and filter state
 - **Storage quota monitoring**: checks browser storage quota silently at startup; displays a calm informational message in the settings panel when usage reaches 70%, and a stronger prompt to export a backup at 85%; also requests durable storage permission from the browser so data is protected from automatic eviction
 - **Keyboard shortcuts**: `N` focus new task input; `/` focus search; `?` open shortcuts reference; arrow keys navigate cards across and within columns; `Ctrl+Z` undo; `Ctrl+Shift+Z` / `Ctrl+Y` redo; `Ctrl+B` toggle notebook sidebar; `Escape` closes any open modal or panel
-- **Fully offline**: no CDN dependencies at runtime; everything is bundled
+- **Demo board**: on first visit with an empty board, a set of realistic demo tasks and a sample notebook folder are seeded automatically; a dismissible banner above the board links to the "Clear demo data" action — clicking it removes all demo content in one step and the banner never reappears
+- **Fully offline**: no CDN dependencies at runtime except Plus Jakarta Sans (served from Google Fonts on first load; falls back to system fonts offline); everything else is bundled
 - **No analytics, no telemetry, no cookies**: not ever
 
 ---
@@ -106,10 +107,11 @@ KanTrack/
 │
 ├── index.html                   # App entry point (Vite root)
 ├── privacy.html                 # Privacy & Cookie Policy page (GDPR)
+├── privacy.js                   # Bootstrap script for privacy.html (i18n apply; extracted from inline script)
 │
 ├── scripts/                     # Application source code
 │   ├── kantrack.js              # Bootstrap: registers all actions, inits router + store
-│   ├── i18n/                    # UI translation dictionaries (JSON, 466 keys each)
+│   ├── i18n/                    # UI translation dictionaries (JSON, ~466 keys each)
 │   │   ├── de-DE.json            # Deutsch (DE)
 │   │   ├── en-GB.json           # English (UK) - canonical/fallback dictionary
 │   │   ├── es.json               # Español
@@ -186,11 +188,12 @@ KanTrack/
 | ---------- | ------------------------------------------------------------- |
 | Language   | Vanilla JavaScript (ES modules) + TypeScript (4 core modules) |
 | Build      | Vite 8                                                        |
-| Unit tests | Vitest 2 + fake-indexeddb                                     |
+| Unit tests | Vitest 5 + fake-indexeddb                                     |
 | E2E tests  | Playwright                                                    |
-| Linting    | ESLint 10 (flat config)                                       |
+| Linting    | ESLint 9 (flat config)                                        |
 | Formatting | Prettier 3                                                    |
 | Storage    | localStorage (sync primary) + IndexedDB (async secondary)     |
+| Fonts      | Plus Jakarta Sans (Google Fonts) — falls back to system fonts |
 | Export     | jsPDF + JSZip (bundled, no CDN)                               |
 | Deployment | Cloudflare Pages (static, free tier)                          |
 

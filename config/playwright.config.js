@@ -18,6 +18,8 @@ export default defineConfig({
     // Capture screenshots and traces only on failure
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
+    // Disable CSS animations/transitions so timing-sensitive drag tests are stable
+    reducedMotion: 'reduce',
   },
 
   projects: [

@@ -510,6 +510,31 @@ export function idbDeleteOplogBatch(opIds) {
 }
 
 /**
+ * Update a single oplog entry by merging changes in one transaction.
+ * Uses a single readwrite transaction (get + put) to avoid a cross-DB
+ * race when the `db` reference is swapped between two separate awaits.
+ */
+export function idbUpdateOplog(opId, changes) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['oplog'], 'readwrite');
+    const store = transaction.objectStore('oplog');
+
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+
+    const getRequest = store.get(opId);
+    getRequest.onsuccess = () => {
+      const existing = getRequest.result;
+      if (existing) {
+        store.put({ ...existing, ...changes });
+      }
+      resolve();
+    };
+    getRequest.onerror = () => reject(getRequest.error);
+  });
+}
+
+/**
  * Delete all oplog entries where undone === true in a single transaction.
  */
 export function idbDeleteAllUndoneOplog() {

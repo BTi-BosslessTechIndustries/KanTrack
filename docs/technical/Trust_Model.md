@@ -94,6 +94,7 @@ Before any imported file is applied, `validateImportFile(data)` checks:
 - `tasks` is an array.
 - Each task has required fields (`id`, `title`, `column`) with the correct types.
 - `column` value is one of the four permitted columns (`todo`, `inProgress`, `onHold`, `done`).
+- Tag `customColor` fields, if present, must match `/^#[0-9a-fA-F]{6}$/` — arbitrary strings are not permitted as colour values to prevent CSS injection via tag custom colours.
 - Unknown top-level keys are ignored (future-compatibility without error).
 
 Files that fail validation are rejected with a user-visible error; no partial application occurs.
@@ -107,29 +108,34 @@ Files that fail validation are rejected with a user-visible error; no partial ap
 ```
 default-src  'self'
 script-src   'self'
-style-src    'self' 'unsafe-inline'
+style-src    'self' 'unsafe-inline' https://fonts.googleapis.com
+font-src     https://fonts.gstatic.com
 img-src      'self' data: blob:
 connect-src  'self'
 object-src   'none'
 base-uri     'self'
 ```
 
+The `style-src` and `font-src` additions permit loading Plus Jakarta Sans from Google Fonts. The `connect-src` directive remains `'self'` only — Google Fonts is loaded via `<link rel="stylesheet">` (covered by `style-src`), not via `fetch()` or `XMLHttpRequest`, so no network data channel is opened to a third party. `privacy.html` carries the same CSP update and also no longer uses an inline `<script>` block (extracted to `privacy.js`).
+
 ### What this enforces
 
-| Directive                   | Effect                                                                                                                                                                     |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `script-src 'self'`         | Only scripts from the same origin may execute. Inline `<script>` tags and `javascript:` URIs are blocked.                                                                  |
-| `connect-src 'self'`        | `fetch()`, `XMLHttpRequest`, WebSocket, and EventSource connections are restricted to the same origin. No data can be exfiltrated to a remote server via JS network calls. |
-| `object-src 'none'`         | `<object>`, `<embed>`, and `<applet>` are blocked entirely.                                                                                                                |
-| `base-uri 'self'`           | `<base href>` injection is blocked.                                                                                                                                        |
-| `img-src data: blob:`       | Permits task and notebook images stored as data URLs or Blob object URLs.                                                                                                  |
-| `style-src 'unsafe-inline'` | Inline styles are permitted (required for dynamic card colours and per-tag styling). This is a conscious trade-off.                                                        |
+| Directive                                        | Effect                                                                                                                                                                                     |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `script-src 'self'`                              | Only scripts from the same origin may execute. Inline `<script>` tags and `javascript:` URIs are blocked.                                                                                  |
+| `connect-src 'self'`                             | `fetch()`, `XMLHttpRequest`, WebSocket, and EventSource connections are restricted to the same origin. No data can be exfiltrated to a remote server via JS network calls.                 |
+| `object-src 'none'`                              | `<object>`, `<embed>`, and `<applet>` are blocked entirely.                                                                                                                                |
+| `base-uri 'self'`                                | `<base href>` injection is blocked.                                                                                                                                                        |
+| `img-src data: blob:`                            | Permits task and notebook images stored as data URLs or Blob object URLs.                                                                                                                  |
+| `style-src 'unsafe-inline' fonts.googleapis.com` | Inline styles are permitted (required for dynamic card colours and per-tag styling). Google Fonts stylesheet is additionally allowed for Plus Jakarta Sans. This is a conscious trade-off. |
+| `font-src fonts.gstatic.com`                     | Permits downloading the Plus Jakarta Sans web font binary from Google Fonts CDN.                                                                                                           |
 
 ### What CSP does not cover
 
 - CSP does not protect against injections that execute within a permitted inline style (e.g., CSS expression injection is a historical IE-only issue and does not apply to modern browsers).
 - CSP does not protect against malicious `file://` origins or localhost bypasses if the app is served under non-standard conditions.
 - `'unsafe-inline'` for styles means a malicious script that CAN execute (e.g., via an extension bypass) could inject `<style>` to exfiltrate data via CSS timing attacks - this risk is accepted as extremely low given the no-inline-script restriction.
+- The Google Fonts CDN (`fonts.gstatic.com`) loads a font binary; it does not receive any user data. The only information transmitted is the font file request, which is a standard HTTP GET with no KanTrack-specific identifiers.
 
 ---
 
