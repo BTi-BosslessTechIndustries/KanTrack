@@ -302,6 +302,16 @@ test.describe('Notebook ZIP import', () => {
 
 test.describe('Notebook item language', () => {
   test.beforeEach(async ({ page }) => {
+    // Prevent demo board seeding, which schedules a 300 ms debounced
+    // idbClearAndBulkPut that races with clearNotebookItems/injectNotebookItems.
+    await page.addInitScript(() => {
+      // safeGetItem() JSON-parses the stored value, so we must store a
+      // JSON-encoded string ("1") — not a bare number (1) — or the
+      // `safeGetItem('kt_demo_dismissed') !== '1'` guard in seedDemoBoard()
+      // would see the number 1 and treat it as "not dismissed".
+      localStorage.setItem('kt_demo_dismissed', JSON.stringify('1'));
+    });
+
     await page.goto('/');
     await expect(page.locator('.top-header')).toBeVisible();
 
