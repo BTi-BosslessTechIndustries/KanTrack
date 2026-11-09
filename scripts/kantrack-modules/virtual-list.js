@@ -73,7 +73,7 @@ export class VirtualList {
   update(newItems) {
     this.#items = newItems;
     this.#startIndex = 0;
-    this.#endIndex = newItems.length;
+    this.#endIndex = Math.min(INITIAL_RENDER, newItems.length);
     this.#render();
   }
 
