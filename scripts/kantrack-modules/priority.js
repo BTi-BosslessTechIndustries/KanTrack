@@ -12,9 +12,9 @@ import { deepClone } from './utils.js';
 // Priority definitions (centralized)
 export const PRIORITIES = [
   { value: null, label: 'None', color: 'rgba(255, 255, 255, 0.5)' },
-  { value: 'low', label: 'Low', color: '#4caf50' },
-  { value: 'medium', label: 'Medium', color: '#ff9800' },
-  { value: 'high', label: 'High', color: '#f44336' },
+  { value: 'low', label: 'Low', color: '#22c55e' },
+  { value: 'medium', label: 'Medium', color: '#f59e0b' },
+  { value: 'high', label: 'High', color: '#ef4444' },
 ];
 
 export function getPriorityLabel(priority) {

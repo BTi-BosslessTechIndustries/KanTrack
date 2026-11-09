@@ -12,7 +12,7 @@ KanTrack is a single-page, local-first Kanban board application. It runs entirel
 **Key properties:**
 
 - Vanilla JavaScript + TypeScript, ES modules, no runtime framework
-- Build: Vite 5 (Rollup under the hood)
+- Build: Vite 8 (Rollup under the hood)
 - Persistence: `localStorage` (synchronous, primary) + IndexedDB (asynchronous, fallback)
 - Test suite: Vitest (868 unit) + Playwright (150 E2E)
 - Entry point: `index.html` → `scripts/kantrack.js`
@@ -233,6 +233,9 @@ DOMContentLoaded
   6. initVirtualLists(notes)         - create one VirtualList per column
   7. initTags()                      - load tag definitions from IDB
   8. renderTagFilterButtons()
+  8b. seedDemoBoard()                - if board is empty AND kt_demo_dismissed != '1',
+                                       populate 6 demo tasks + a demo notebook folder
+                                       and show a dismissible indigo banner above the board
   9. initUndo()                      - reconstruct undo stacks from oplog
  10. scheduleCompaction()            - hourly background oplog cleanup
  11. initSearch()                    - attach search input listeners
@@ -461,6 +464,10 @@ All mutations via `setDueDate(taskId, isoDate | null)` - records an undo action 
 - **Merge** - appends imported tasks/items not already present (matched by `id`)
 - **Replace** - replaces all local data (auto-downloads a lightweight backup first as safety net)
 
+### Deleted Task Filtering
+
+Before building the workspace payload, `export.js` calls `getAllTasks()` and filters out any task where `task.deleted === true`. Soft-deleted tasks are retained in `state.notesData` to support redo after deletion, but they must not appear in exported files to avoid leaking deleted content to recipients.
+
 ### Worker Thread
 
 `export-worker.js` receives the full payload and runs `JSON.stringify()` off the main thread to prevent UI freezes on large exports.
@@ -486,6 +493,10 @@ decryptWorkspace(buffer, passphrase) → string (JSON)
 ```
 
 No keys are stored. The key is re-derived from the passphrase on every encrypt/decrypt call. The version byte makes future algorithm upgrades detectable and migratable without breaking existing files.
+
+### JSON Import Validation (`import-validator.js`)
+
+`validateImportFile(parsed)` validates `.kantrack.json` import files. Beyond the existing checks (top-level structure, `formatVersion`, required task fields, valid column enum), the validator also checks tag `customColor` fields: any tag with a non-null `customColor` that is not a valid 6-digit hex colour (`#rrggbb`) is reported as an error. `tags.js` applies the same regex guard (`HEX_COLOR_RE`) in `resolveTagColor()` and `hexToRgba()` so that malformed custom colours in already-imported data degrade gracefully to the default palette colour rather than breaking.
 
 ### HTML Import Validation
 
@@ -536,6 +547,8 @@ Implemented in Phase 7. Key components:
 - **ESC chain** - single global `keydown` handler closes the topmost open modal/panel in priority order.
 - **Card keyboard nav** - task cards have `tabIndex=0`. Arrow keys navigate within a column; Enter/Space opens the modal.
 - **ARIA** - all modals carry `role="dialog"`, `aria-modal="true"`, `aria-labelledby`.
+- **`aria-label` on icon-only buttons** - icon-only card action buttons (`hide-card-btn`, `priorityButton`, `timerButton`, `deleteButton`) in `tasks.js`, note history edit/delete buttons in `modal.js`, and the sub-kanban item delete button in `sub-kanban.js` all carry `aria-label` attributes so screen readers announce their purpose.
+- **Notification ARIA live region** - the `#notificationContainer` now carries `aria-live="polite"` and `aria-atomic="false"` so screen readers announce new toasts without interrupting the current announcement.
 - **`.sr-only`** - visually-hidden utility class for screen-reader-only labels (`base.css`).
 
 ---
@@ -545,20 +558,51 @@ Implemented in Phase 7. Key components:
 ### Variables (defined in `base.css`)
 
 ```css
---primary-color: #3b82f6 --secondary-color: #6366f1 --danger-color: #ef4444 --warning-color: #f59e0b
-  --success-color: #22c55e --background-color: #ffffff --surface-color: #f8fafc
-  --border-color: #e2e8f0 --text-primary: #1e293b --text-secondary: #64748b
-  --notebook-sidebar-width: 300px (resizable via JS);
+/* Accent (Indigo) */
+--accent-color: #6366f1;
+--accent-hover: #4f46e5;
+--accent-rgb: 99, 102, 241;
+
+/* Semantic */
+--success-color: #22c55e;
+--warning-color: #f59e0b;    /* amber — also --warning-rgb: 245, 158, 11 */
+--error-color: #ef4444;      /* also --error-surface / --error-border / --error-text */
+
+/* Type scale */
+--text-xs: 0.70rem;   /* 11.2px — timestamps, badges   */
+--text-sm: 0.80rem;   /* 12.8px — secondary metadata   */
+--text-base: 0.90rem; /* 14.4px — body, card text      */
+--text-md: 1.00rem;   /* 16px   — note titles          */
+--text-lg: 1.10rem;   /* 17.6px — column headers       */
+
+/* Spacing scale */
+--space-1: 4px;  --space-2: 8px;  --space-3: 12px;
+--space-4: 16px; --space-6: 24px;
+
+/* Easing curves */
+--ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+/* Theme variables (dark default) */
+--overlay-rgb: 255, 255, 255; /* 0, 0, 0 in light theme */
+--page-bg-start: #0d0d0d;     /* #f8fafc in light theme */
+--text-primary: #f1f5f9;      /* #0f172a in light theme */
+--text-muted: #94a3b8;        /* #64748b in light theme */
+--notebook-sidebar-width: 400px; /* resizable via JS    */
 ```
+
+### Font
+
+`body` uses `'Plus Jakarta Sans'` (400/500/600 weights, loaded via `<link>` from `fonts.googleapis.com`) as the primary typeface, with a system-font fallback chain. The CSP in `index.html` and `privacy.html` allows `style-src https://fonts.googleapis.com` and `font-src https://fonts.gstatic.com` to permit the font.
 
 ### Stylesheet Responsibilities
 
-| File             | Purpose                                                         |
-| ---------------- | --------------------------------------------------------------- |
-| `base.css`       | Reset, layout, typography, colour variables, `.sr-only`         |
-| `components.css` | Buttons, modals, inputs, dropdowns, tag chips, shortcuts dialog |
-| `features.css`   | Kanban board, cards, sidebar, notebook, clocks, due-date badges |
-| `responsive.css` | Breakpoints at 320px, 768px, 1024px                             |
+| File             | Purpose                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| `base.css`       | Reset, layout, typography, colour tokens + type/spacing scale, `.sr-only`, columns  |
+| `components.css` | Buttons, modals, inputs, dropdowns, tag chips, shortcuts dialog, timer badge         |
+| `features.css`   | Kanban board, cards, sidebar, notebook, clocks, notifications, due-date badges       |
+| `responsive.css` | Breakpoints at 400 / 480 / 600 / 640 / 700 / 768 / 900 / 1024 px; min-width 1200px |
 
 ---
 
@@ -616,7 +660,7 @@ kantrack.js
   ├── modal.js ─────────── state.js, storage.js, undo.js, due-dates.js, tags.js, timer.js
   ├── undo.js ──────────── state.js, storage.js, repository.ts, notifications.js
   ├── search.js ─────────── state.js
-  ├── tags.js ──────────── state.js, storage.js, repository.ts
+  ├── tags.js ──────────── state.js, storage.js, repository.ts  ← exports createTag (used by demo board seed)
   ├── due-dates.js ────────── state.js, storage.js, undo.js, utils.js
   ├── sorting.js ──────────── state.js
   ├── drag-drop.js ──────── state.js, storage.js, undo.js

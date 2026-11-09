@@ -8,6 +8,7 @@ export const FORMAT_VERSION = 1;
 export const SUPPORTED_FORMAT_VERSIONS = [1];
 
 const VALID_COLUMNS = ['todo', 'inProgress', 'onHold', 'done'];
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
 
 /**
  * Validate a parsed .kantrack.json object.
@@ -73,6 +74,19 @@ export function validateImportFile(parsed) {
       warnings.push(
         `${invalidColumnCount} task(s) reference unknown columns and will be placed in "To Do".`
       );
+    }
+  }
+
+  // ── Tag customColor format ─────────────────────────────────────────────────
+  if (Array.isArray(parsed.tags)) {
+    for (const tag of parsed.tags) {
+      if (tag.customColor !== undefined && tag.customColor !== null) {
+        if (!HEX_COLOR_RE.test(tag.customColor)) {
+          errors.push(
+            `Tag "${tag.id}": customColor "${String(tag.customColor).slice(0, 32)}" is not a valid 6-digit hex colour (expected #rrggbb).`
+          );
+        }
+      }
     }
   }
 

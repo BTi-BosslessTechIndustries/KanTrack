@@ -32,6 +32,9 @@ import {
 import { renderDueDatePicker } from './due-dates.js';
 import { recordAction } from './undo.js';
 
+const _CHEVRON_DOWN = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+const _CHEVRON_UP = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>`;
+
 let _taskModalTrap = null;
 let _taskModalReturnFocus = null;
 
@@ -100,7 +103,7 @@ export async function openTaskModal(taskId) {
   // Always collapse history when opening modal
   historyList.style.display = 'none';
   const toggle = document.getElementById('historyToggle');
-  if (toggle) toggle.textContent = '▼';
+  if (toggle) toggle.innerHTML = _CHEVRON_DOWN;
 
   // Display history with expandable notes
   await renderHistory(task);
@@ -212,7 +215,7 @@ export async function renderHistory(task) {
 
       const expand = document.createElement('span');
       expand.classList.add('history-expand');
-      expand.textContent = '▼';
+      expand.innerHTML = _CHEVRON_DOWN;
 
       // Edit/Delete buttons
       const actions = document.createElement('div');
@@ -220,6 +223,7 @@ export async function renderHistory(task) {
 
       const editBtn = document.createElement('button');
       editBtn.title = 'Edit note';
+      editBtn.setAttribute('aria-label', 'Edit note');
       editBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
       editBtn.onclick = e => {
         e.stopPropagation();
@@ -229,6 +233,7 @@ export async function renderHistory(task) {
       const deleteBtn = document.createElement('button');
       deleteBtn.classList.add('delete-note-btn');
       deleteBtn.title = 'Delete note';
+      deleteBtn.setAttribute('aria-label', 'Delete note');
       deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
       deleteBtn.onclick = e => {
         e.stopPropagation();
@@ -267,7 +272,7 @@ export async function renderHistory(task) {
       const toggleExpand = () => {
         const isExpanded = content.style.display === 'block';
         content.style.display = isExpanded ? 'none' : 'block';
-        expand.textContent = isExpanded ? '▼' : '▲';
+        expand.innerHTML = isExpanded ? _CHEVRON_DOWN : _CHEVRON_UP;
       };
 
       info.onclick = toggleExpand;
@@ -316,7 +321,7 @@ async function editNoteEntry(taskId, noteEntryIndex, actionIndex) {
   const expand = historyItem.querySelector('.history-expand');
   if (content) {
     content.style.display = 'block';
-    if (expand) expand.textContent = '▲';
+    if (expand) expand.innerHTML = _CHEVRON_UP;
   }
 
   // Create edit container
@@ -616,10 +621,10 @@ export function toggleHistory() {
 
   if (historyList.style.display === 'none') {
     historyList.style.display = 'block';
-    toggle.textContent = '▲';
+    toggle.innerHTML = _CHEVRON_UP;
   } else {
     historyList.style.display = 'none';
-    toggle.textContent = '▼';
+    toggle.innerHTML = _CHEVRON_DOWN;
   }
 }
 
