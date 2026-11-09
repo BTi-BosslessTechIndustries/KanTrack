@@ -71,9 +71,17 @@ export class VirtualList {
    * @param {object[]} newItems  New sorted + filtered task objects
    */
   update(newItems) {
+    // If the previous list was entirely within the render window (all items
+    // were visible), render all new items so a just-moved card is always visible.
+    // For large lists where the window was capped, preserve the current window
+    // size so virtualization is maintained.
+    const prevLen = this.#items.length;
+    const wasAllRendered = prevLen > 0 && this.#endIndex >= prevLen;
     this.#items = newItems;
     this.#startIndex = 0;
-    this.#endIndex = Math.min(INITIAL_RENDER, newItems.length);
+    this.#endIndex = wasAllRendered
+      ? newItems.length
+      : Math.min(newItems.length, Math.max(this.#endIndex, INITIAL_RENDER));
     this.#render();
   }
 
