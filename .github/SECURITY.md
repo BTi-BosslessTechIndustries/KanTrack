@@ -51,10 +51,10 @@ Notes and notebook pages store rich HTML. Before rendering any stored HTML back 
 - Validates `<img src>` to allow only `blob:` and `data:image/` URLs
 
 **Inline script injection:**
-A strict Content Security Policy (`script-src 'self'`) prevents inline `<script>` tags and `javascript:` URL navigation from executing.
+A strict Content Security Policy (`script-src 'self'`) prevents inline `<script>` tags and `javascript:` URL navigation from executing. The CSP now additionally permits loading Plus Jakarta Sans from Google Fonts (`style-src https://fonts.googleapis.com`; `font-src https://fonts.gstatic.com`). `connect-src` remains `'self'` only — no data channel is opened to Google Fonts via JavaScript.
 
 **Malicious export file injection:**
-The sanitizer runs on content loaded from imported workspace files, not just locally authored content. A crafted `.kantrack.json` with embedded XSS payloads in note HTML will have those payloads stripped before display.
+The sanitizer runs on content loaded from imported workspace files, not just locally authored content. A crafted `.kantrack.json` with embedded XSS payloads in note HTML will have those payloads stripped before display. Additionally, `import-validator.js` now validates tag `customColor` values against a strict hex regex (`/^#[0-9a-fA-F]{6}$/`) so malformed colour strings cannot be injected via the import path.
 
 ### What KanTrack Does Not Protect Against
 
@@ -108,7 +108,8 @@ Defense-in-depth layers currently in place:
 
 1. An allowlist-based HTML sanitizer applied to all stored rich-text content before DOM insertion
 2. A Content Security Policy (`script-src 'self'`) blocking inline script execution
-3. Optional AES-256-GCM encryption for exported workspace files
+3. `import-validator.js` schema + format validation on every import, including hex-format enforcement on tag custom colours
+4. Optional AES-256-GCM encryption for exported workspace files
 
 ---
 

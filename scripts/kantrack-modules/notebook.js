@@ -994,7 +994,7 @@ async function importFromNotebookData(dataFile) {
     dialog.style.cssText =
       'background:#2c2c2c;color:#e0e0e0;border:1px solid #555;border-radius:8px;padding:24px;max-width:420px;width:90%;font-family:inherit';
     dialog.innerHTML = `
-      <h3 style="margin:0 0 12px;color:#4caf50">Import notebook</h3>
+      <h3 style="margin:0 0 12px;color:#22c55e">Import notebook</h3>
       <p style="margin:0">This file contains:</p>
       ${countHtml}
       <p style="margin:16px 0 0;font-size:0.9em"><strong>Only notebook pages will be imported. Your board tasks and settings will not be affected.</strong></p>

@@ -15,6 +15,7 @@ The bootstrap file loaded by `index.html`. It:
 3. Calls `initRouter()` to attach the single delegated click listener
 4. Calls `dispatch({ type: TASK_SET_ALL, payload: tasks })` to seed the store after loading from IDB
 5. Sets up column count listeners, the auto-save indicator, the storage monitor, and the card content language setting (`applyLanguageSettings()`, persisted as `cardLanguage`); also calls `setLanguage()` and `applyTranslations()` (i18n.js) to translate the whole UI to the saved language on load, and re-runs both whenever the language picker changes
+5b. Calls `seedDemoBoard()` on the first visit if the board is completely empty and the `kt_demo_dismissed` localStorage key is not set; this populates the board with 6 realistic demo tasks (using three demo tags: Compliance, Analytics, Platform) and a demo notebook folder ("Q4 Finance Ops") with two pages, then inserts a dismissible banner above the kanban board
 6. Registers a `beforeunload` handler that calls `flushPendingIDBWrites()` to flush any in-flight debounced IDB writes before the page unloads
 7. Registers global keyboard shortcuts: **N** (new task), **/** (search), **?** (shortcuts dialog), **ESC** (close any open modal), and arrow-key card navigation
 
