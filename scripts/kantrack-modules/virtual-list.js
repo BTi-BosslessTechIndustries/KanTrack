@@ -73,10 +73,7 @@ export class VirtualList {
   update(newItems) {
     this.#items = newItems;
     this.#startIndex = 0;
-    // Render all items on update so a card moved to this column is always
-    // visible regardless of how many cards the column already has.
-    // The IntersectionObserver handles windowing as the user scrolls.
-    this.#endIndex = newItems.length;
+    this.#endIndex = Math.min(INITIAL_RENDER, newItems.length);
     this.#render();
   }
 
@@ -104,24 +101,35 @@ export class VirtualList {
   // ── Private ──────────────────────────────────────────────────
 
   #onIntersection(entries) {
-    let changed = false;
+    let needsUpdate = false;
     for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      if (entry.target === this.#bottomSentinel) {
-        const newEnd = Math.min(this.#endIndex + BUFFER, this.#items.length);
-        if (newEnd !== this.#endIndex) {
-          this.#endIndex = newEnd;
-          changed = true;
-        }
-      } else if (entry.target === this.#topSentinel) {
-        const newStart = Math.max(0, this.#startIndex - BUFFER);
-        if (newStart !== this.#startIndex) {
-          this.#startIndex = newStart;
-          changed = true;
-        }
-      }
+      if (entry.isIntersecting) needsUpdate = true;
     }
-    if (changed) {
+    if (needsUpdate) this.#updateWindowFromScroll();
+  }
+
+  /**
+   * Recalculate the render window based on the container's current scroll
+   * position. Keeps only BUFFER cards above/below the visible area in the DOM,
+   * so the total node count stays bounded regardless of list size.
+   */
+  #updateWindowFromScroll() {
+    const scrollTop = this.#container.scrollTop;
+    const viewportHeight = this.#container.clientHeight || 600;
+    const h = this.#cardHeight;
+    const total = this.#items.length;
+
+    if (total === 0) return;
+
+    const firstVisible = Math.floor(scrollTop / h);
+    const lastVisible = Math.ceil((scrollTop + viewportHeight) / h);
+
+    const newStart = Math.max(0, firstVisible - BUFFER);
+    const newEnd = Math.min(total, lastVisible + BUFFER);
+
+    if (newStart !== this.#startIndex || newEnd !== this.#endIndex) {
+      this.#startIndex = newStart;
+      this.#endIndex = newEnd;
       this.#render();
     }
   }

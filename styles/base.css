@@ -282,13 +282,18 @@ body {
   overflow: hidden;
   z-index: 10001;
   transform-origin: top right;
-  transition:
-    opacity 150ms var(--ease-out),
-    transform 150ms var(--ease-out);
+}
 
-  @starting-style {
-    opacity: 0;
-    transform: scale(0.95) translateY(-4px);
+@media not (prefers-reduced-motion: reduce) {
+  .header-dropdown {
+    transition:
+      opacity 150ms var(--ease-out),
+      transform 150ms var(--ease-out);
+
+    @starting-style {
+      opacity: 0;
+      transform: scale(0.95) translateY(-4px);
+    }
   }
 }
 

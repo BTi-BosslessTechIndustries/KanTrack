@@ -83,7 +83,7 @@
   "notebook.exportAll": "Alle exportieren (ZIP)",
   "notebook.close": "Schließen",
   "notebook.closeAria": "Notizbuch schließen",
-  "notebook.searchPlaceholder": "Seiten durchsuchen",
+  "notebook.searchPlaceholder": "Seiten durchsuchen…",
   "notebook.contextMenu.rename": "Umbenennen",
   "notebook.contextMenu.newSubfolder": "Neuer Unterordner",
   "notebook.contextMenu.newPageInside": "Neue Seite darin",

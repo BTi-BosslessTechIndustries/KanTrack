@@ -322,6 +322,7 @@ test.describe('Notebook item language', () => {
     ]);
     await page.reload({ waitUntil: 'load' });
     await expect(page.locator('.top-header')).toBeVisible();
+    await page.waitForSelector('body[data-app-ready="true"]');
   });
 
   test('tree item name has the active language attributes on creation', async ({ page }) => {
