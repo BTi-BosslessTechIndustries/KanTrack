@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Privacy &amp; Cookie Policy – KanTrack by BTi – Bossless Tech Industries" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self';" />
     <title>Privacy &amp; Cookie Policy – KanTrack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,15 +19,15 @@
             --border: rgba(255,255,255,0.08);
             --text: #f0f0f0;
             --muted: rgba(255,255,255,0.55);
-            --accent: #3b82f6;
-            --accent-muted: rgba(59,130,246,0.15);
-            --warn: rgba(249,115,22,0.12);
+            --accent: #6366f1;
+            --accent-muted: rgba(99,102,241,0.15);
+            --warn: rgba(245,158,11,0.12);
         }
 
         html { background: var(--bg); }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%);
             min-height: 100vh;
             color: var(--text);
@@ -415,30 +418,7 @@
         </p>
     </footer>
 
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
-
-    <script type="module">
-        import { setLanguage, applyTranslations } from './scripts/kantrack-modules/i18n.js';
-
-        // Read the persisted card-content language preference (set in the main
-        // app's "More Options" > Language picker). Stored as a JSON string via
-        // safeSetItem, so it needs JSON.parse. Defaults to 'system' if missing,
-        // invalid, or if localStorage is unavailable (e.g. file:// restrictions).
-        let savedLanguage = 'system';
-        try {
-            const raw = localStorage.getItem('cardLanguage');
-            if (raw !== null) {
-                savedLanguage = JSON.parse(raw);
-            }
-        } catch {
-            savedLanguage = 'system';
-        }
-
-        setLanguage(savedLanguage);
-        applyTranslations(document);
-    </script>
+    <script type="module" src="privacy.js"></script>
 
 </body>
 </html>

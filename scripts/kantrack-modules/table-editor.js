@@ -1,5 +1,16 @@
 import { applyTranslations } from './i18n.js';
 
+// Lucide SVG icon strings for the table toolbar and dropdown
+const _TABLE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"></path></svg>`;
+const _CHEVRON_DOWN_SM = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+const _TRASH = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+const _ARROW_UP = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>`;
+const _ARROW_DOWN = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>`;
+const _ARROW_LEFT = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`;
+const _ARROW_RIGHT = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
+const _MERGE = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`;
+const _UNMERGE = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="10" y1="14" x2="3" y2="21"></line><line x1="21" y1="3" x2="14" y2="10"></line></svg>`;
+
 let _editor = null;
 let _selStart = null;
 let _selEnd = null;
@@ -402,7 +413,9 @@ export function updateTableToolbar() {
   const inTable = cell !== null || _selStart !== null;
   const createBtn = document.getElementById('createTableBtn');
   if (createBtn) {
-    createBtn.textContent = inTable ? '⊞ Table ▾' : '⊞ Table';
+    createBtn.innerHTML = inTable
+      ? `${_TABLE_ICON} Table ${_CHEVRON_DOWN_SM}`
+      : `${_TABLE_ICON} Table`;
     createBtn.classList.toggle('format-btn-active', inTable);
   }
   if (!inTable) document.getElementById('tableDropdown')?.remove();
@@ -651,7 +664,7 @@ function _showTableDropdown() {
     { type: 'group', label: 'Table' },
     {
       type: 'item',
-      icon: '✕',
+      icon: _TRASH,
       label: 'Delete Table',
       i18n: 'modal.task.deleteTableTooltip',
       action: deleteTable,
@@ -661,21 +674,21 @@ function _showTableDropdown() {
     { type: 'group', label: 'Rows' },
     {
       type: 'item',
-      icon: '↑',
+      icon: _ARROW_UP,
       label: 'Add Row Above',
       i18n: 'modal.task.addRowBeforeTooltip',
       action: addRowBefore,
     },
     {
       type: 'item',
-      icon: '↓',
+      icon: _ARROW_DOWN,
       label: 'Add Row Below',
       i18n: 'modal.task.addRowAfterTooltip',
       action: addRowAfter,
     },
     {
       type: 'item',
-      icon: '✕',
+      icon: _TRASH,
       label: 'Delete Row',
       i18n: 'modal.task.deleteRowTooltip',
       action: deleteRow,
@@ -685,21 +698,21 @@ function _showTableDropdown() {
     { type: 'group', label: 'Columns' },
     {
       type: 'item',
-      icon: '←',
+      icon: _ARROW_LEFT,
       label: 'Add Column Left',
       i18n: 'modal.task.addColBeforeTooltip',
       action: addColBefore,
     },
     {
       type: 'item',
-      icon: '→',
+      icon: _ARROW_RIGHT,
       label: 'Add Column Right',
       i18n: 'modal.task.addColAfterTooltip',
       action: addColAfter,
     },
     {
       type: 'item',
-      icon: '✕',
+      icon: _TRASH,
       label: 'Delete Column',
       i18n: 'modal.task.deleteColTooltip',
       action: deleteCol,
@@ -709,14 +722,14 @@ function _showTableDropdown() {
     { type: 'group', label: 'Cells' },
     {
       type: 'item',
-      icon: '⊞',
+      icon: _MERGE,
       label: 'Merge Cells',
       i18n: 'modal.task.mergeCellsTooltip',
       action: mergeCells,
     },
     {
       type: 'item',
-      icon: '⊟',
+      icon: _UNMERGE,
       label: 'Unmerge Cell',
       i18n: 'modal.task.unmergeCellsTooltip',
       action: unmergeCells,
@@ -739,7 +752,7 @@ function _showTableDropdown() {
       btn.className = 'table-dropdown-item' + (item.danger ? ' tdi-danger' : '');
       const icon = document.createElement('span');
       icon.className = 'tdi-icon';
-      icon.textContent = item.icon;
+      icon.innerHTML = item.icon;
       const label = document.createElement('span');
       label.setAttribute('data-i18n', item.i18n);
       label.textContent = item.label;

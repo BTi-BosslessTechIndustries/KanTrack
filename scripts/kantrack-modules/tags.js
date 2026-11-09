@@ -131,14 +131,17 @@ export function getTagColor(tagId) {
   return resolveTagColor(tag);
 }
 
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
+
 function resolveTagColor(tag) {
-  if (tag.customColor) {
+  if (tag.customColor && HEX_COLOR_RE.test(tag.customColor)) {
     return { color: tag.customColor, bg: hexToRgba(tag.customColor, 0.2) };
   }
   return TAG_COLORS[tag.colorIndex] || TAG_COLORS[9];
 }
 
 function hexToRgba(hex, alpha) {
+  if (!hex || !HEX_COLOR_RE.test(hex)) return `rgba(0, 0, 0, ${alpha})`;
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);

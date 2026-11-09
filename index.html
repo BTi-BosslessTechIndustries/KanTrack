@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self';"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self';"
     />
     <title>KanTrack</title>
     <link rel="icon" type="image/png" href="images/kantrack_icon.png">
+    <!-- Plus Jakarta Sans — professional, friendly SaaS typeface -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Link to External CSS -->
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/components.css">
@@ -30,7 +37,7 @@
 				<img src="images/bti-logo.png" alt="BTi – Bossless Tech Industries" class="header-credit-logo">
 			</a>
 			<button class="support-us-btn" data-action="support:open" aria-label="Support Us" data-i18n-attr="aria-label:header.supportUs">
-				<span class="support-us-icon" aria-hidden="true">☕</span>
+				<svg class="support-us-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="13" height="13"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
 				<span class="support-us-label" data-i18n="header.supportUs">Support Us</span>
 			</button>
 		</div>
@@ -184,7 +191,7 @@
 			</div>
 		</div>
 		<div class="notebook-search">
-			<input type="text" id="notebookSearchInput" placeholder="Search pages..." data-i18n-attr="placeholder:notebook.searchPlaceholder">
+			<input type="text" id="notebookSearchInput" placeholder="Search pages" data-i18n-attr="placeholder:notebook.searchPlaceholder">
 		</div>
 		<div id="notebookTree" class="notebook-tree">
 			<!-- Tree items will be rendered here -->
@@ -265,21 +272,21 @@
                 </div>
             </div>
             <button class="clock-reset-btn" data-action="clock:resetClocks" title="Remove all clocks, keep Current Time only" style="display: none;">
-                &#x21BA; Reset clocks
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"></path><path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path></svg> Reset clocks
             </button>
         </div>
     </div>
 
     <div class="controls-top">
         <div class="controls-unified-row">
-            <input type="text" id="newNote" placeholder="New task title..." maxlength="200" data-i18n-attr="placeholder:controls.newTaskPlaceholder">
+            <input type="text" id="newNote" placeholder="New task" maxlength="200" data-i18n-attr="placeholder:controls.newTaskPlaceholder">
             <button class="add-task-btn" data-action="task:add" data-i18n="controls.add">Add</button>
             <div class="search-wrapper">
                 <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" id="taskSearchInput" placeholder="Search..." data-i18n-attr="placeholder:controls.searchPlaceholder">
+                <input type="text" id="taskSearchInput" placeholder="Search" data-i18n-attr="placeholder:controls.searchPlaceholder">
                 <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="Clear search" aria-label="Clear search" data-i18n-attr="title:controls.clearSearch|aria-label:controls.clearSearch">&times;</button>
             </div>
         </div>
@@ -305,8 +312,8 @@
     </div>
 
     <div class="notes-container">
-        <textarea id="permanentNotes" class="notes-field" placeholder="Write permanent notes here..." data-i18n-attr="placeholder:controls.permanentNotesPlaceholder"></textarea>
-        <textarea id="temporaryNotes" class="notes-field" placeholder="Write temporary notes here..." data-i18n-attr="placeholder:controls.temporaryNotesPlaceholder"></textarea>
+        <textarea id="permanentNotes" class="notes-field" placeholder="Permanent notes" data-i18n-attr="placeholder:controls.permanentNotesPlaceholder"></textarea>
+        <textarea id="temporaryNotes" class="notes-field" placeholder="Temporary notes" data-i18n-attr="placeholder:controls.temporaryNotesPlaceholder"></textarea>
     </div>
 
     <div class="controls-bottom">
@@ -348,7 +355,7 @@
                             <button id="italicBtn" class="format-btn format-btn-italic" title="Italic" type="button" data-i18n-attr="title:modal.task.italicTooltip"><i>I</i></button>
                             <button id="strikeBtn" class="format-btn format-btn-strike" title="Strikethrough" type="button" data-i18n-attr="title:modal.task.strikeTooltip"><s>S</s></button>
                             <span class="format-btn-separator"></span>
-                            <button id="createTableBtn" class="format-btn" title="Create Table" type="button" data-i18n-attr="title:modal.task.createTableTooltip">⊞ Table</button>
+                            <button id="createTableBtn" class="format-btn" title="Create Table" type="button" data-i18n-attr="title:modal.task.createTableTooltip"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"></path></svg> Table</button>
                         </div>
                         <button id="clearNotesBtn" class="clear-btn" data-action="task:clearNotes" style="display: none;" data-i18n="modal.task.clearAll">Clear All</button>
                     </div>
@@ -402,7 +409,7 @@
             <div class="modal-section sub-kanban-section">
                 <h4 class="sub-kanban-toggle-header" data-action="task:toggleSubKanban">
                     <span><span data-i18n="modal.task.subTasks">Sub-Tasks</span> <span id="subKanbanCount" class="sub-kanban-count"></span></span>
-                    <span id="subKanbanToggle" class="sub-kanban-toggle">&#9660;</span>
+                    <span id="subKanbanToggle" class="sub-kanban-toggle"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
                 </h4>
                 <div id="subKanbanContent" class="sub-kanban-content" style="display: none;">
                     <div class="sub-kanban-add-row">
@@ -433,7 +440,7 @@
             <div class="modal-section">
                 <h4 class="history-header" data-action="task:toggleHistory">
                     <span data-i18n="modal.task.history">History</span>
-                    <span id="historyToggle" class="history-toggle">&#9660;</span>
+                    <span id="historyToggle" class="history-toggle"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
                 </h4>
                 <div id="modalHistory" class="history-list" style="display: none;"></div>
             </div>
@@ -464,11 +471,11 @@
 
             <div class="clock-type-selection">
                 <button class="clock-type-btn" data-type="timezone" data-action="clock:selectType" data-action-param="timezone">
-                    <span class="clock-type-icon">&#127758;</span>
+                    <span class="clock-type-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
                     <span class="clock-type-label" data-i18n="clock.timezoneClock">Timezone Clock</span>
                 </button>
                 <button class="clock-type-btn" data-type="chronometer" data-action="clock:selectType" data-action-param="chronometer">
-                    <span class="clock-type-icon">&#9201;</span>
+                    <span class="clock-type-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="12" y2="8"></line><circle cx="12" cy="14" r="8"></circle></svg></span>
                     <span class="clock-type-label" data-i18n="clock.chronometer">Chronometer</span>
                 </button>
             </div>
@@ -597,7 +604,7 @@
     <div id="supportModal" class="modal support-modal" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle" style="display:none;">
         <div class="modal-content support-modal-content">
             <span class="modal-close" data-action="support:close" aria-label="Close">&times;</span>
-            <h2 id="supportModalTitle" data-i18n="support.title">Support KanTrack ☕</h2>
+            <h2 id="supportModalTitle" data-i18n="support.title">Support KanTrack</h2>
 
             <div class="about-modal-section">
                 <p class="about-intro" data-i18n="support.intro">
@@ -654,57 +661,57 @@
                 <div class="help-badge" data-i18n="help.yourBoard.title">Your Board</div>
                 <div class="help-feat-grid">
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">📋</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="9"></rect><rect x="14" y="7" width="3" height="5"></rect></svg></div>
                         <h4 data-i18n="help.kanbanColumns.title">Kanban columns</h4>
                         <p data-i18n="help.kanbanColumns.body">Four columns: To Do, In Progress, On Hold, and Done. Move tasks between them by drag and drop.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">🗑️</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg></div>
                         <h4 data-i18n="help.doneLimit.title">Done column limit</h4>
                         <p data-i18n="help.doneLimit.body">The Done column holds at most 30 cards. Once it's full, a dialog flags the 15 oldest for permanent deletion and lets you export each one - or all of them bundled as a ZIP - to PDF first. This bypasses the Trash entirely and cannot be undone, so the dialog stays open until you confirm.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">👁️</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></div>
                         <h4 data-i18n="help.hiddenCards.title">Hidden cards</h4>
                         <p data-i18n="help.hiddenCards.body">Hide a To Do or On Hold card with the eye-off button to tuck it off the board without deleting it - it leaves the column counts and the Done limit too (not available for In Progress or Done cards). The "Hidden Cards" header button shows a count badge; restore one card at a time or select several with "Select All" + "Show Selected". While searching, a hint links straight to any matching hidden cards.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">🎯</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"></path><path d="M7 20V4"></path><path d="M11 4h10"></path><path d="M11 8h7"></path><path d="M11 12h4"></path></svg></div>
                         <h4 data-i18n="help.priorityTinting.title">Priority tinting</h4>
                         <p data-i18n="help.priorityTinting.body">High, Medium, and Low priority with colour tinting. Columns auto-sort so the most important work rises to the top.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">📅</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="14" x2="8.01" y2="14"></line><line x1="12" y1="14" x2="12.01" y2="14"></line><line x1="16" y1="14" x2="16.01" y2="14"></line></svg></div>
                         <h4 data-i18n="help.dueDates.title">Due dates</h4>
                         <p data-i18n="help.dueDates.body">Due date indicators on cards with clear overdue and due-today states so nothing slips past you.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">🏷️</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></div>
                         <h4 data-i18n="help.tags.title">Tags</h4>
                         <p data-i18n="help.tags.body">Colour-coded labels with a preset palette or custom hex. Pin your most-used tags for fast assignment.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">🔍</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
                         <h4 data-i18n="help.searchFilter.title">Search and filter</h4>
                         <p data-i18n="help.searchFilter.body">Full-text search with tag and column filters. Find anything immediately across your entire board.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">⚙️</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg></div>
                         <h4 data-i18n="help.cardSizes.title">Card sizes</h4>
                         <p data-i18n="help.cardSizes.body">Small, Medium, and Large card display sizes. Your preference persists across sessions.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">🌓</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></div>
                         <h4 data-i18n="help.themeFeature.title">Theme</h4>
                         <p data-i18n="help.themeFeature.body">Light, Dark, or System Default, selectable from the ⋮ menu. System Default follows your OS appearance live; choosing Light or Dark explicitly overrides the OS setting and persists across every future session until you switch back to System Default.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">🗣️</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
                         <h4 data-i18n="help.languageFeature.title">Language</h4>
                         <p data-i18n="help.languageFeature.body">Choose System Default, English (UK), Español, Français, Português (PT), or Deutsch (DE) from the ⋮ menu to control spell-check on card and notebook text - independent of your browser's language. System Default leaves spell-check to your browser as usual; an explicit choice applies only within KanTrack and persists across sessions. Note: support varies by browser - Safari and Firefox honour this choice, while Chrome and Edge may continue to spell-check using their own language settings.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">🕐</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
                         <h4 data-i18n="help.worldClocks.title">World clocks</h4>
                         <p data-i18n="help.worldClocks.body">Timezone clocks and a chronometer in a widget row above the board. Reset collapses the row: current time moves to the header and a clock icon button lets you add more. Adding any clock restores the full widget row. On narrow screens (≤ 700 px wide) the widget row hides automatically and only the current time is shown in the header; it reappears when you widen the window.</p>
                     </div>
@@ -716,37 +723,37 @@
                 <div class="help-badge" data-i18n="help.taskDetail.title">Task Detail</div>
                 <div class="help-feat-grid">
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">📝</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
                         <h4 data-i18n="help.richNotes.title">Rich notes</h4>
                         <p data-i18n="help.richNotes.body">Bold, italic, and strikethrough formatting. Paste images directly, stored locally and viewable in a full-screen zoom viewer.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">⊞</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"></path></svg></div>
                         <h4 data-i18n="help.tables.title">Tables</h4>
-                        <p data-i18n="help.tables.body">Create a table with the ⊞ Table button — choose the number of rows and columns. Or paste one directly from Numbers, Excel, Word, or any web page. When the cursor is inside a table, the button becomes a dropdown to add or delete rows and columns, merge or unmerge cells, and delete the table.</p>
+                        <p data-i18n="help.tables.body">Create a table with the Table button — choose the number of rows and columns. Or paste one directly from Numbers, Excel, Word, or any web page. When the cursor is inside a table, the button becomes a dropdown to add or delete rows and columns, merge or unmerge cells, and delete the table.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">📜</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg></div>
                         <h4 data-i18n="help.editLog.title">Edit log</h4>
                         <p data-i18n="help.editLog.body">Chronological log of every edit and deletion. Full history of how a task evolved, always visible inside the task.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">🔲</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"></path><path d="m3 7 2 2 4-4"></path><line x1="13" y1="8" x2="21" y2="8"></line><line x1="13" y1="16" x2="21" y2="16"></line></svg></div>
                         <h4 data-i18n="help.subtasks.title">Sub-tasks</h4>
                         <p data-i18n="help.subtasks.body">A collapsible mini kanban board inside any task. Same four columns, drag-and-drop between states, with a live done/total counter on the parent card.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">⏱️</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="12" y2="8"></line><circle cx="12" cy="14" r="8"></circle></svg></div>
                         <h4 data-i18n="help.timer.title">Timer</h4>
                         <p data-i18n="help.timer.body">Per-task time tracking with quick-add and quick-remove controls directly inside the task detail view.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">✏️</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></div>
                         <h4 data-i18n="help.inlineRename.title">Inline rename</h4>
                         <p data-i18n="help.inlineRename.body">Double-click the task title to rename it inline without opening a separate form.</p>
                     </div>
                     <div class="help-feat-card">
-                        <div class="help-feat-icon">💾</div>
+                        <div class="help-feat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></div>
                         <h4 data-i18n="help.saveOptions.title">Save options</h4>
                         <p><strong data-i18n="help.saveOptions.save">Save</strong><span data-i18n="help.saveOptions.part1"> keeps the task open for multi-step edits. </span><strong data-i18n="help.saveOptions.saveAndClose">Save &amp; Close</strong><span data-i18n="help.saveOptions.part2"> saves and dismisses in one action.</span></p>
                     </div>
