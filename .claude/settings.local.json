@@ -1,5 +1,0 @@
-{
-  "permissions": {
-    "allow": ["Bash(npm test:*)", "Bash(npm install:*)", "Bash(npx vitest:*)"]
-  }
-}
