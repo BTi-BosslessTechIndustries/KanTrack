@@ -480,6 +480,12 @@ body.notebook-sidebar-open.sidebar-resizing .top-header {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .column {
+    animation: none;
+  }
+}
+
 .kanban-board .column:nth-child(1) {
   animation-delay: 0ms;
 }
@@ -611,10 +617,6 @@ body.notebook-sidebar-open.sidebar-resizing .top-header {
     transform 0.15s ease,
     opacity 0.22s var(--ease-out);
 
-  @starting-style {
-    opacity: 0;
-    transform: translateY(10px);
-  }
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   touch-action: none;
   user-select: none;
@@ -948,13 +950,13 @@ body.card-size-small .note-content {
 }
 body.card-size-small .note-text {
   margin-top: 1px;
-  font-size: 0.66em;
+  font-size: 0.7em;
 }
 body.card-size-small .priority-display {
   font-size: var(--text-xs);
 }
 body.card-size-small .task-tag {
-  font-size: var(--text-xs);
+  font-size: 0.62em;
 }
 body.card-size-small .task-due-date {
   font-size: var(--text-xs);
@@ -986,7 +988,7 @@ body.card-size-large .note-content {
 }
 body.card-size-large .note-text {
   margin-top: 8px;
-  font-size: 1.14em;
+  font-size: 1.22em;
 }
 body.card-size-large .priority-display {
   font-size: 0.87em;
@@ -1132,6 +1134,8 @@ body.card-size-large .edit-delete {
   appearance: none;
   color: var(--text-primary);
   width: 128px;
+  min-width: 128px;
+  max-width: 128px;
   box-sizing: border-box;
   flex-shrink: 0;
 }

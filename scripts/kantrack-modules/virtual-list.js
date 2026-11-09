@@ -73,8 +73,10 @@ export class VirtualList {
   update(newItems) {
     this.#items = newItems;
     this.#startIndex = 0;
-    this.#endIndex = Math.min(INITIAL_RENDER, newItems.length);
-    this.#clearNodes();
+    // Render all items on update so a card moved to this column is always
+    // visible regardless of how many cards the column already has.
+    // The IntersectionObserver handles windowing as the user scrolls.
+    this.#endIndex = newItems.length;
     this.#render();
   }
 
@@ -119,7 +121,9 @@ export class VirtualList {
         }
       }
     }
-    if (changed) this.#render();
+    if (changed) {
+      this.#render();
+    }
   }
 
   #render() {
@@ -134,13 +138,16 @@ export class VirtualList {
     // Build an O(1) index map to avoid O(n) findIndex calls per rendered node
     const indexMap = new Map(items.map((t, i) => [t.id, i]));
 
-    // Remove cards that slid out of the render window
+    // Remove cards that slid out of the render window.
+    // Collect first to avoid unsafe Map modification during iteration.
+    const toRemove = [];
     for (const [id, el] of this.#nodes) {
       const idx = indexMap.get(id) ?? -1;
-      if (idx < start || idx >= end) {
-        el.remove();
-        this.#nodes.delete(id);
-      }
+      if (idx < start || idx >= end) toRemove.push([id, el]);
+    }
+    for (const [id, el] of toRemove) {
+      el.remove();
+      this.#nodes.delete(id);
     }
 
     // Add cards that entered the render window, preserving DOM order.
@@ -163,6 +170,17 @@ export class VirtualList {
         }
         anchor.before(el);
       }
+    }
+
+    // Reorder existing elements to match the current item order.
+    // This handles cases where data changes cause items to shift positions
+    // (e.g., after a card is moved to this column and sorted by priority).
+    let prev = this.#topSentinel;
+    for (let i = start; i < end; i++) {
+      const el = this.#nodes.get(items[i]?.id);
+      if (!el) continue;
+      if (prev.nextSibling !== el) prev.after(el);
+      prev = el;
     }
 
     // Refine card height estimate after first real render

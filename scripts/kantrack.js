@@ -917,8 +917,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Attach interaction listeners before any awaits so they are ready as soon
+  // as the page reports "top-header visible" (used as the test readiness marker).
+  // setupDragAndDrop only attaches dragover/drop to static .column elements, so
+  // it is safe to call before data is loaded.
+  setupDragAndDrop();
+
+  const importFileInput = document.getElementById('importFile');
+  if (importFileInput) {
+    importFileInput.addEventListener('change', e => importBoardFromFile(e));
+  }
+
   await initIndexedDB();
   await runDataMigrations();
+
+  // Load and render notebook tree early so tree items are in the DOM as soon
+  // as possible (reduces timing window in tests that check lang attributes).
+  await loadNotebookFromLocalStorage();
+  renderNotebookTree();
 
   // Set up auto-save callback before any saves can fire
   setAutoSaveCallback(showAutoSaveIndicator);
@@ -936,8 +952,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   await initTags();
   renderTagFilterButtons();
 
-  // Seed demo board on first visit (after initTags + initVirtualLists)
-  if (notes.length === 0 && safeGetItem('kt_demo_dismissed') !== '1') {
+  // Seed demo board on first visit (after initTags + initVirtualLists).
+  // Use live state.notesData instead of the stale notes snapshot so that any
+  // task added by the user (or test) during the async init window is not wiped.
+  if (state.notesData.length === 0 && safeGetItem('kt_demo_dismissed') !== '1') {
     seedDemoBoard();
   }
 
@@ -954,6 +972,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load clocks (async)
   await loadClocks();
+
+  // Signal that the board is fully ready: VirtualLists initialized, tasks
+  // loaded, demo board seeded, and all async init operations complete.
+  // Tests wait for this before interacting with cards to avoid races with
+  // the async init window (IDB load, undo/oplog, backfill, clocks).
+  document.body.dataset.appReady = 'true';
 
   // Position logo now that clock state is known, then track continuously
   positionHeaderLogo();
@@ -1002,7 +1026,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render hidden-cards count
   updateHiddenCountBadge();
 
-  setupDragAndDrop();
   setupClipboardPaste();
   loadPermanentNotes();
 
@@ -1040,12 +1063,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const notebookImportFile = document.getElementById('notebookImportFile');
   if (notebookImportFile) {
     notebookImportFile.addEventListener('change', e => importNotebookFromZip(e));
-  }
-
-  // Board file import trigger
-  const importFileInput = document.getElementById('importFile');
-  if (importFileInput) {
-    importFileInput.addEventListener('change', e => importBoardFromFile(e));
   }
 
   // Timezone search input
@@ -1451,9 +1468,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Initialize notebook (must be last - depends on other modules being ready)
-  await loadNotebookFromLocalStorage();
-  renderNotebookTree();
+  // Set up notebook event listeners (notebook items already loaded+rendered above)
   setupNotebookEventListeners();
 
   // Signals that async bootstrap (IDB load, clocks render, event listeners)

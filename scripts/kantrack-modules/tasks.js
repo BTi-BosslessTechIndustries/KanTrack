@@ -281,16 +281,11 @@ export function updateNoteColumn(id, oldColumn, newColumn) {
       // it already offers this card its own "Export PDF" button, and stacking
       // two dialogs for one move would be confusing.
       if (!capacityTriggered) {
-        // Use requestAnimationFrame to ensure we're outside the drag event context
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (
-              confirm(`Task "${note.title}" moved to Done.\n\nDo you want to export it as PDF?`)
-            ) {
-              exportTaskAsPDF(id);
-            }
-          }, 100);
-        });
+        setTimeout(() => {
+          if (confirm(`Task "${note.title}" moved to Done.\n\nDo you want to export it as PDF?`)) {
+            exportTaskAsPDF(id);
+          }
+        }, 0);
       }
     }
   }
@@ -562,11 +557,12 @@ export function createNoteElement(content) {
   note.appendChild(editDeleteContainer);
 
   note.addEventListener('dragstart', e => {
-    if (e.target.closest('button')) {
-      e.preventDefault();
-      return;
-    }
     setDraggedItemRef(note);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  note.addEventListener('dragend', () => {
+    setDraggedItemRef(null);
   });
 
   enableTouchDrag(note, openTaskModalFn);

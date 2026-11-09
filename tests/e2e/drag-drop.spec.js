@@ -9,9 +9,16 @@
  * The app's drag-and-drop is state-based, not DataTransfer-based: `dragstart`
  * stores a reference to the dragged note in module state (see tasks.js), and
  * the `drop` handler in drag-drop.js reads that reference and calls
- * `updateNoteColumn(id, oldColumn, newColumn)`. This means Playwright's
- * `locator.dragTo(target)` triggers the real move logic without needing to
- * populate a DataTransfer payload.
+ * `updateNoteColumn(id, oldColumn, newColumn)`. This means we can drive moves
+ * by dispatching `dragstart` on the source element and `drop` on the target
+ * column element directly — no coordinate-based simulation needed.
+ *
+ * We use dispatchEvent instead of locator.dragTo() because dragTo() computes
+ * bounding-box coordinates and then fires CDP events asynchronously. The
+ * VirtualList can reorder DOM nodes between those two steps (coordinate
+ * snapshot vs. event dispatch), causing the wrong card to receive dragstart.
+ * dispatchEvent fires the event directly on the resolved element reference,
+ * so the VirtualList node order does not matter.
  *
  * Moving a card into Done triggers a `confirm("...export it as PDF?")`
  * dialog (tasks.js:287); these tests dismiss it to skip the PDF export.
@@ -57,19 +64,37 @@ async function waitForTask(page, title, predicateSource) {
   );
 }
 
+/**
+ * Drag a card to a target column using dispatchEvent.
+ *
+ * locator.dragTo() computes coordinates and fires CDP events asynchronously;
+ * the VirtualList can reorder DOM nodes between those two steps, causing
+ * dragstart to fire on the wrong card. dispatchEvent fires directly on the
+ * resolved element reference, bypassing all coordinate logic.
+ */
+async function dragCard(sourceLocator, targetLocator) {
+  await sourceLocator.dispatchEvent('dragstart');
+  await targetLocator.dispatchEvent('drop');
+}
+
 // ─── tests ────────────────────────────────────────────────────────────────────
+
+/** Wait for VirtualLists to be initialised and demo board seeded. */
+async function waitForAppReady(page) {
+  await page.waitForSelector('body[data-app-ready="true"]', { state: 'attached', timeout: 15000 });
+}
 
 test.describe('KanTrack drag-and-drop tests', () => {
   test('dragging a card from To Do to In Progress moves and persists it', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.top-header')).toBeVisible();
+    await waitForAppReady(page);
 
     const title = `Drag to In Progress ${Date.now()}`;
     await createTask(page, title);
 
     const card = page.locator('#todo .note').filter({ hasText: title });
     await expect(card.locator('.hide-card-btn')).toHaveCount(1);
-    await card.first().dragTo(page.locator('#inProgress'));
+    await dragCard(card.first(), page.locator('#inProgress'));
 
     const movedCard = page.locator('#inProgress .note').filter({ hasText: title });
     await expect(movedCard).toBeVisible();
@@ -89,7 +114,7 @@ test.describe('KanTrack drag-and-drop tests', () => {
 
   test('dragging a card into Done stamps doneAt and offers a PDF export', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.top-header')).toBeVisible();
+    await waitForAppReady(page);
 
     const title = `Drag to Done ${Date.now()}`;
     await createTask(page, title);
@@ -101,7 +126,7 @@ test.describe('KanTrack drag-and-drop tests', () => {
     });
 
     const card = page.locator('#todo .note').filter({ hasText: title });
-    await card.first().dragTo(page.locator('#done'));
+    await dragCard(card.first(), page.locator('#done'));
 
     await expect(page.locator('#done .note').filter({ hasText: title })).toBeVisible();
 
@@ -116,7 +141,7 @@ test.describe('KanTrack drag-and-drop tests', () => {
 
   test('dragging a card out of Done clears doneAt', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.top-header')).toBeVisible();
+    await waitForAppReady(page);
 
     const title = `Drag out of Done ${Date.now()}`;
     await createTask(page, title);
@@ -124,7 +149,7 @@ test.describe('KanTrack drag-and-drop tests', () => {
     page.on('dialog', dialog => dialog.dismiss());
 
     const card = page.locator('#todo .note').filter({ hasText: title });
-    await card.first().dragTo(page.locator('#done'));
+    await dragCard(card.first(), page.locator('#done'));
     await expect(page.locator('#done .note').filter({ hasText: title })).toBeVisible();
     await waitForTask(
       page,
@@ -132,11 +157,10 @@ test.describe('KanTrack drag-and-drop tests', () => {
       'task => task.column === "done" && typeof task.doneAt === "number"'
     );
 
-    await page
-      .locator('#done .note')
-      .filter({ hasText: title })
-      .first()
-      .dragTo(page.locator('#onHold'));
+    await dragCard(
+      page.locator('#done .note').filter({ hasText: title }).first(),
+      page.locator('#onHold')
+    );
     await expect(page.locator('#onHold .note').filter({ hasText: title })).toBeVisible();
 
     await waitForTask(

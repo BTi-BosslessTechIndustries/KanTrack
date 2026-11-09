@@ -83,7 +83,7 @@
   "notebook.exportAll": "Exportar todo (ZIP)",
   "notebook.close": "Cerrar",
   "notebook.closeAria": "Cerrar cuaderno",
-  "notebook.searchPlaceholder": "Buscar páginas",
+  "notebook.searchPlaceholder": "Buscar páginas...",
   "notebook.contextMenu.rename": "Renombrar",
   "notebook.contextMenu.newSubfolder": "Nueva subcarpeta",
   "notebook.contextMenu.newPageInside": "Nueva página interior",

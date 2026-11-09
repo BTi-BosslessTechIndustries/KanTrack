@@ -144,7 +144,6 @@ const KANTRACK_STORAGE_KEYS = [
   'kanbanClocks',
   'kanban-tags',
   'kantrackTrash',
-  'notebookSidebarOpen',
   'notebookSidebarWidth',
 ];
 

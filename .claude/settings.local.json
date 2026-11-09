@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(npm run:*)",
+      "Bash(npx playwright:*)",
+      "Bash(ls:*)",
+      "Bash(python3:*)",
+      "Bash(cat:*)",
+      "Bash(node:*)",
+      "Bash(unzip:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(do echo:*)",
+      "Bash(do npx:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx:*)"
+    ]
+  }
+}

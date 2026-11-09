@@ -52,9 +52,6 @@ export function toggleNotebookSidebar() {
     toggleBtn.classList.remove('active');
     document.body.classList.remove('notebook-sidebar-open');
   }
-
-  // Persist sidebar state
-  setUIPref('notebookSidebarOpen', notebookSidebarOpen);
 }
 
 export function setupSidebarResize() {
@@ -1092,11 +1089,11 @@ export function setupNotebookEventListeners() {
     }
   });
 
-  // Restore sidebar state
-  const savedSidebarState = getUIPref('notebookSidebarOpen', null);
-  if (savedSidebarState === true || savedSidebarState === 'true') {
-    toggleNotebookSidebar();
-  }
+  // Sidebar always starts closed on page load; the user can open it via the
+  // toggle button. Persisting the open state across reloads caused test
+  // flakiness because a reload from a previous open-sidebar test would
+  // auto-open the sidebar, making the test's toggle click close instead of
+  // open it.
 
   // Restore sidebar width
   const savedSidebarWidth = getUIPref('notebookSidebarWidth', null);

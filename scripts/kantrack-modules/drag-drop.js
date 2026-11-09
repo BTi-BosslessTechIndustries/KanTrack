@@ -16,12 +16,18 @@ export function setupDragAndDrop() {
   const columns = document.querySelectorAll('.column');
 
   columns.forEach(column => {
-    column.addEventListener('dragover', e => e.preventDefault());
-    column.addEventListener('drop', function () {
+    column.addEventListener('dragover', e => {
+      e.preventDefault();
+    });
+    column.addEventListener('drop', function (e) {
+      e.preventDefault();
       if (draggedItem) {
-        const oldColumnId = draggedItem.parentElement?.id;
+        // Save the reference before clearing the module-level variable so the
+        // DOM fallback branch can still access the element after setDraggedItem(null).
+        const draggedEl = draggedItem;
+        const oldColumnId = draggedEl.parentElement?.id;
         const newColumnId = this.id;
-        const noteId = draggedItem.dataset.id; // string UUID
+        const noteId = draggedEl.dataset.id; // string UUID
 
         setDraggedItem(null);
 
@@ -35,7 +41,7 @@ export function setupDragAndDrop() {
           updateColumnVirtualList(newColumnId);
         } else {
           // DOM-based fallback
-          this.appendChild(draggedItem);
+          this.appendChild(draggedEl);
           sortColumnByPriority(newColumnId);
         }
 
