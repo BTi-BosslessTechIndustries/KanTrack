@@ -47,5 +47,6 @@ export function getMetaLamport(): Promise<number>;
 
 export function idbGetAllOplog(): Promise<unknown[]>;
 export function idbPutOplog(entry: object): Promise<void>;
+export function idbUpdateOplog(opId: string, changes: object): Promise<void>;
 export function idbDeleteOplog(opId: string): Promise<void>;
 export function idbDeleteAllUndoneOplog(): Promise<void>;
